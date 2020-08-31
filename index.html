@@ -1,20 +1,20 @@
 <html>
   <body>
     <label for="baud">Baud:</label>
-    <select id="baud" class='form'>
-        <option class='form' value="9600">9600</option>
-        <option class='form' value="14400">14400</option>
-        <option class='form' value="19200">19200</option>
-        <option class='form' value="38400">38400</option>
-        <option class='form' value="57600">57600</option>
-        <option class='form' value="115200">115200</option>
+    <select id="baud">
+        <option value="9600">9600</option>
+        <option value="14400">14400</option>
+        <option value="19200">19200</option>
+        <option value="38400" selected="selected">38400</option>
+        <option value="57600">57600</option>
+        <option value="115200">115200</option>
     </select>
 
-    <button id="portSelect" class='form' type="button" onclick="connect()">Select a port</button>
-    <button id="disconnectButton" class='form' type="button" onclick="disconnect()">Disconnect</button>
-    <input id="steer" class='form' placeholder="Steer">
-    <input id="speed" class='form' placeholder="Speed">
-    <button id="send" class='form' type="button" onclick="send()">Send</button>
+    <button id="portSelect" type="button" onclick="connect()">Select a port</button>
+    <button id="disconnectButton" type="button" onclick="disconnect()">Disconnect</button>
+    <input id="steer" placeholder="Steer">
+    <input id="speed" placeholder="Speed">
+    <button id="send" type="button" onclick="send()">Send</button>
   </body>
 
 <script>
