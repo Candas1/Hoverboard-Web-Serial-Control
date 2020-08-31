@@ -51,9 +51,6 @@ speed.addEventListener("keyup", function(event) {
   }
 });
 
- const encoder = new TextEncoderStream();
- let decoder = new TextDecoderStream();
-
  const connect = async function () {
 
   if ("serial" in navigator) {
@@ -67,13 +64,9 @@ speed.addEventListener("keyup", function(event) {
     });
 
     while (port.readable) {
-      //inputDone = port.readable.pipeTo(decoder.writable);
-      //inputStream = decoder.readable;
       inputStream = port.readable;
       reader = inputStream.getReader();
 
-      //outputDone = encoder.readable.pipeTo(port.writable);
-      //outputStream = encoder.writable;
       outputStream = port.writable;
       writer = outputStream.getWriter();
 
@@ -105,17 +98,14 @@ speed.addEventListener("keyup", function(event) {
   const send = async function () {
     var ab = new ArrayBuffer(8);
     var dv = new DataView(ab);
-
-    littleEndian = true;
     
-    dv.setUint16(0,0xABCD,littleEndian);
-    dv.setInt16(2, parseInt(steer.value),littleEndian);
-    dv.setInt16(4, parseInt(speed.value),littleEndian);
-    dv.setUint16(6,0xABCD ^ parseInt(steer.value) ^ parseInt(speed.value),littleEndian);
+    dv.setUint16(0,0xABCD,true);
+    dv.setInt16(2, parseInt(steer.value),true);
+    dv.setInt16(4, parseInt(speed.value),true);
+    dv.setUint16(6,0xABCD ^ parseInt(steer.value) ^ parseInt(speed.value),true);
 
     view = new Uint8Array(ab);
     await writer.write(view);
-    //console.log(view);
     
   };
 
