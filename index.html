@@ -1,0 +1,131 @@
+<html>
+  <body>
+    <label for="baud">Baud:</label>
+    <select id="baud" class='form'>
+        <option class='form' value="9600">9600</option>
+        <option class='form' value="14400">14400</option>
+        <option class='form' value="19200">19200</option>
+        <option class='form' value="38400">38400</option>
+        <option class='form' value="57600">57600</option>
+        <option class='form' value="115200">115200</option>
+    </select>
+
+    <button id="portSelect" class='form' type="button" onclick="connect()">Select a port</button>
+    <button id="disconnectButton" class='form' type="button" onclick="disconnect()">Disconnect</button>
+    <input id="steer" class='form' placeholder="Steer">
+    <input id="speed" class='form' placeholder="Speed">
+    <button id="send" class='form' type="button" onclick="send()">Send</button>
+  </body>
+
+<script>
+ var steer = document.getElementById('steer');
+ var speed = document.getElementById('speed');
+ var baud = document.getElementById('baud');
+ var send_btn = document.getElementById('send');
+
+
+ var port;
+ var reader;
+ var writer;
+
+
+// Execute a function when the user releases a key on the keyboard
+steer.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    send_btn.click();
+  }
+});
+
+// Execute a function when the user releases a key on the keyboard
+speed.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    send_btn.click();
+  }
+});
+
+ const encoder = new TextEncoderStream();
+ let decoder = new TextDecoderStream();
+
+ const connect = async function () {
+
+    port = await navigator.serial.requestPort();
+
+    // Open and begin reading.
+    await port.open({
+      baudrate: baud.value
+    });
+
+    while (port.readable) {
+      //inputDone = port.readable.pipeTo(decoder.writable);
+      //inputStream = decoder.readable;
+      inputStream = port.readable;
+      reader = inputStream.getReader();
+
+      //outputDone = encoder.readable.pipeTo(port.writable);
+      //outputStream = encoder.writable;
+      outputStream = port.writable;
+      writer = outputStream.getWriter();
+
+      while (true) {
+        let value, done;
+        try {
+          ({ value, done } = await reader.read());
+        } catch (error) {
+          console.log("Error");
+          break;
+        }
+        if (done) {
+          console.log("Reader canceled");
+          break;
+        }
+  
+        var buf = new ArrayBuffer(value.length * 2);
+        var dv  = new DataView(buf);
+        for (var i=0, strLen=value.length; i < strLen; i++) {       
+             //dv.setUint8(i,value.charCodeAt(i) ,true);
+        }
+
+        console.log(dv.getUint16(0));
+        
+        
+        
+      }
+      reader.releaseLock();
+    }
+  };
+
+  const send = async function () {
+    var ab = new ArrayBuffer(8);
+    var dv = new DataView(ab);
+
+    littleEndian = true;
+    
+    dv.setUint16(0,0xABCD,littleEndian);
+    dv.setInt16(2, parseInt(steer.value),littleEndian);
+    dv.setInt16(4, parseInt(speed.value),littleEndian);
+    dv.setUint16(6,0xABCD ^ parseInt(steer.value) ^ parseInt(speed.value),littleEndian);
+
+    view = new Uint8Array(ab);
+    await writer.write(view);
+    //console.log(view);
+    
+  };
+
+const disconnect = async function () {
+  writer.releaseLock();
+  reader.releaseLock();
+  await port.close();
+};
+
+
+</script>
+
+</html>
