@@ -28,6 +28,7 @@
  var reader;
  var writer;
 
+var serial_frame = 0xABCD;
 
 // Execute a function when the user releases a key on the keyboard
 steer.addEventListener("keyup", function(event) {
@@ -99,10 +100,10 @@ speed.addEventListener("keyup", function(event) {
     var ab = new ArrayBuffer(8);
     var dv = new DataView(ab);
     
-    dv.setUint16(0,0xABCD,true);
+    dv.setUint16(0,serial_frame,true);
     dv.setInt16(2, parseInt(steer.value),true);
     dv.setInt16(4, parseInt(speed.value),true);
-    dv.setUint16(6,0xABCD ^ parseInt(steer.value) ^ parseInt(speed.value),true);
+    dv.setUint16(6,serial_frame ^ parseInt(steer.value) ^ parseInt(speed.value),true);
 
     view = new Uint8Array(ab);
     await writer.write(view);
