@@ -56,6 +56,9 @@ speed.addEventListener("keyup", function(event) {
 
  const connect = async function () {
 
+  if ("serial" in navigator) {
+  // The Serial API is supported.
+
     port = await navigator.serial.requestPort();
 
     // Open and begin reading.
@@ -92,13 +95,10 @@ speed.addEventListener("keyup", function(event) {
         for (var i=0, strLen=value.length; i < strLen; i++) {       
              //dv.setUint8(i,value.charCodeAt(i) ,true);
         }
-
-        console.log(dv.getUint16(0));
-        
-        
-        
+                
       }
       reader.releaseLock();
+      }
     }
   };
 
