@@ -73,17 +73,19 @@ speed.addEventListener("keyup", function(event) {
     });
 
     while (port.readable) {
-      //inputStream = port.readable;
-      //reader = inputStream.getReader();
-
-      inputDone = port.readable.pipeTo(decoder.writable);
-      inputStream = decoder.readable;
+      inputStream = port.readable;
       reader = inputStream.getReader();
+
+      //inputDone = port.readable.pipeTo(decoder.writable);
+      //inputStream = decoder.readable;
+      //reader = inputStream.getReader();
 
       outputStream = port.writable;
       writer = outputStream.getWriter();
 
       while (true) {
+        send();
+
         let value, done;
         try {
           ({ value, done } = await reader.read());
@@ -96,14 +98,41 @@ speed.addEventListener("keyup", function(event) {
           break;
         }
 
-        logger.innerHTML += value.replace(/\n/g, "<br />");
-        if (ascroll.checked) logger.scrollTop = logger.scrollHeight;
+        //logger.innerHTML += value.replace(/\n/g, "<br />");
+        //if (ascroll.checked) logger.scrollTop = logger.scrollHeight;
         
-        //var buf = new ArrayBuffer(value.length * 2);
-        //var dv  = new DataView(buf);
-        //for (var i=0, strLen=value.length; i < strLen; i++) {       
-             //dv.setUint8(i,value.charCodeAt(i) ,true);
-        //}
+        var buf = new ArrayBuffer(value);
+        var dv  = new DataView(buf);
+        
+        var buf = new ArrayBuffer(1000);
+        var dv  = new DataView(buf);
+        for (var i=0, strLen=value.length; i < strLen; i++) {       
+             dv.setUint8(i,value[i],true);
+        }
+         
+        frame = dv.getUint16(0,true);
+        cmd1 = dv.getInt16(2,true);
+        cmd2 = dv.getInt16(4,true);
+        speedR = dv.getInt16(6,true);
+        speedL = dv.getInt16(8,true);
+        speedL = dv.getInt16(8,true);
+        bat  = dv.getInt16(10,true);
+        temp = dv.getInt16(12,true);
+        checksum = dv.getUint16(14,true);
+
+        if (frame == 0xABCD) {
+
+           logger.innerHTML += "cmd1:" + cmd1.toString(10) + " " + 
+                               "cmd2:" + cmd2.toString(10) + " " +
+                               "speedR:" + speedR.toString(10) + " " +
+                               "speedL:" + speedL.toString(10) + " " +
+                               "bat:" + bat.toString(10) + " " +
+                               "temp:" + temp.toString(10) + " " + 
+                               "checksum:" + checksum.toString(10) + " " +
+                               "<br />";
+           if (ascroll.checked) logger.scrollTop = logger.scrollHeight;
+        }
+
                 
       }
       reader.releaseLock();
