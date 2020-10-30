@@ -15,6 +15,9 @@
     <input id="steer" placeholder="Steer">
     <input id="speed" placeholder="Speed">
     <button id="send" type="button" onclick="send()">Send</button>
+    <button id="clear" class='form' type="button" onclick="clr()">Clear</button>
+    <input class='form' id="ascroll" type="checkbox" checked><label for="ascroll">Autoscroll</label>
+    <div id="log"></div>
   </body>
 
 <script>
@@ -22,7 +25,9 @@
  var speed = document.getElementById('speed');
  var baud = document.getElementById('baud');
  var send_btn = document.getElementById('send');
-
+ var logger = document.getElementById('log');
+ var ascroll = document.getElementById('ascroll');
+ 
 
  var port;
  var reader;
@@ -52,6 +57,9 @@ speed.addEventListener("keyup", function(event) {
   }
 });
 
+ const encoder = new TextEncoderStream();
+ let decoder = new TextDecoderStream();
+
  const connect = async function () {
 
   if ("serial" in navigator) {
@@ -65,7 +73,11 @@ speed.addEventListener("keyup", function(event) {
     });
 
     while (port.readable) {
-      inputStream = port.readable;
+      //inputStream = port.readable;
+      //reader = inputStream.getReader();
+
+      inputDone = port.readable.pipeTo(decoder.writable);
+      inputStream = decoder.readable;
       reader = inputStream.getReader();
 
       outputStream = port.writable;
@@ -83,12 +95,15 @@ speed.addEventListener("keyup", function(event) {
           console.log("Reader canceled");
           break;
         }
-  
-        var buf = new ArrayBuffer(value.length * 2);
-        var dv  = new DataView(buf);
-        for (var i=0, strLen=value.length; i < strLen; i++) {       
+
+        logger.innerHTML += value.replace(/\n/g, "<br />");
+        if (ascroll.checked) logger.scrollTop = logger.scrollHeight;
+        
+        //var buf = new ArrayBuffer(value.length * 2);
+        //var dv  = new DataView(buf);
+        //for (var i=0, strLen=value.length; i < strLen; i++) {       
              //dv.setUint8(i,value.charCodeAt(i) ,true);
-        }
+        //}
                 
       }
       reader.releaseLock();
@@ -110,6 +125,10 @@ speed.addEventListener("keyup", function(event) {
     
   };
 
+  const clr = async function () {
+    logger.innerHTML = "";
+  };
+
 const disconnect = async function () {
   writer.releaseLock();
   reader.releaseLock();
@@ -118,5 +137,17 @@ const disconnect = async function () {
 
 
 </script>
+
+<style>
+  #log{
+    height:90%;
+    width:100%;
+    overflow:auto;
+    border-color: white;
+    border-style:dashed;
+  }
+
+</style>
+
 
 </html>
