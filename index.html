@@ -12,50 +12,68 @@
 
     <button id="portSelect" type="button" onclick="connect()">Select a port</button>
     <button id="disconnectButton" type="button" onclick="disconnect()">Disconnect</button>
-    <input id="steer" placeholder="Steer">
-    <input id="speed" placeholder="Speed">
-    <button id="send" type="button" onclick="send()">Send</button>
+    <button id="switch" type="button" onclick="switchView()">Log</button>
     <button id="clear" class='form' type="button" onclick="clr()">Clear</button>
-    <input class='form' id="ascroll" type="checkbox" checked><label for="ascroll">Autoscroll</label>
-    <div id="log"></div>
+    <button id="pause" type="button" onclick="pause()">Pause</button>
+    
+    <input id="steer" placeholder="Steer" size="8">
+    <input id="speed" placeholder="Speed" size="8">
+    <button id="send" type="button" onclick="send()">Send</button>
+    
+    <br /><br />
+    <div id="container" style="display: none;position: relative; height:90vh; width:90vw">
+      <canvas id="chart"></canvas>
+    </div>
+    <div id="log" style="display: block;"></div>
+    
   </body>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
+
 <script>
- var steer = document.getElementById('steer');
- var speed = document.getElementById('speed');
+ var steerIn = document.getElementById('steer');
+ var speedIn = document.getElementById('speed');
  var baud = document.getElementById('baud');
  var send_btn = document.getElementById('send');
+ var switch_btn = document.getElementById('switch');
+ var pause_btn = document.getElementById('pause');
  var logger = document.getElementById('log');
- var ascroll = document.getElementById('ascroll');
- 
+ var ctx = document.getElementById('chart').getContext('2d');
+ var container = document.getElementById('container');
+ var speed = 0;
+ var steer = 0;
 
- var port;
- var reader;
- var writer;
+ var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+    data: {
+      labels: []
+    },
+    // Configuration options go here
+    options: {
+        responsive: true,
+        plugins: {
+            colorschemes: {
+                scheme: 'brewer.Paired12'
+            }
+        }
+    }
+});
+
+
+bufferSize = 100; 
+for(let i=0; i<bufferSize;i++){
+  chart.data.labels.push(i);
+}
+chart.update();
+
+ 
+var port;
+var reader;
+var writer;
 
 var serial_frame = 0xABCD;
-
-// Execute a function when the user releases a key on the keyboard
-steer.addEventListener("keyup", function(event) {
-  // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
-    // Cancel the default action, if needed
-    event.preventDefault();
-    // Trigger the button element with a click
-    send_btn.click();
-  }
-});
-
-// Execute a function when the user releases a key on the keyboard
-speed.addEventListener("keyup", function(event) {
-  // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
-    // Cancel the default action, if needed
-    event.preventDefault();
-    // Trigger the button element with a click
-    send_btn.click();
-  }
-});
 
  const encoder = new TextEncoderStream();
  let decoder = new TextDecoderStream();
@@ -84,7 +102,7 @@ speed.addEventListener("keyup", function(event) {
       writer = outputStream.getWriter();
 
       while (true) {
-        send();
+        sendBinary();
 
         let value, done;
         try {
@@ -101,38 +119,18 @@ speed.addEventListener("keyup", function(event) {
         //logger.innerHTML += value.replace(/\n/g, "<br />");
         //if (ascroll.checked) logger.scrollTop = logger.scrollHeight;
         
-        var buf = new ArrayBuffer(value);
-        var dv  = new DataView(buf);
-        
         var buf = new ArrayBuffer(1000);
         var dv  = new DataView(buf);
         for (var i=0, strLen=value.length; i < strLen; i++) {       
              dv.setUint8(i,value[i],true);
         }
          
-        frame = dv.getUint16(0,true);
-        cmd1 = dv.getInt16(2,true);
-        cmd2 = dv.getInt16(4,true);
-        speedR = dv.getInt16(6,true);
-        speedL = dv.getInt16(8,true);
-        speedL = dv.getInt16(8,true);
-        bat  = dv.getInt16(10,true);
-        temp = dv.getInt16(12,true);
-        checksum = dv.getUint16(14,true);
-
-        if (frame == 0xABCD) {
-
-           logger.innerHTML += "cmd1:" + cmd1.toString(10) + " " + 
-                               "cmd2:" + cmd2.toString(10) + " " +
-                               "speedR:" + speedR.toString(10) + " " +
-                               "speedL:" + speedL.toString(10) + " " +
-                               "bat:" + bat.toString(10) + " " +
-                               "temp:" + temp.toString(10) + " " + 
-                               "checksum:" + checksum.toString(10) + " " +
-                               "<br />";
-           if (ascroll.checked) logger.scrollTop = logger.scrollHeight;
+        let message = readBinary(buf,0);
+        if (Object.entries(message).length > 0) {
+           logger.innerHTML += JSON.stringify(message) + "<br />";
+           if (pause_btn.innerHTML == 'Pause') logger.scrollTop = logger.scrollHeight;
+           updateChart(message);
         }
-
                 
       }
       reader.releaseLock();
@@ -140,19 +138,98 @@ speed.addEventListener("keyup", function(event) {
     }
   };
 
-  const send = async function () {
+  function switchView(){
+    if (logger.style.display == 'block'){
+      switch_btn.innerHTML = 'Chart';
+      logger.style.display = 'none';
+      container.style.display = 'block';
+    }else{
+      switch_btn.innerHTML = 'Log';
+      logger.style.display = 'block';
+      container.style.display = 'none';
+    }
+  }
+
+  function pause(){
+    if (pause_btn.innerHTML == 'Pause'){
+      pause_btn.innerHTML = 'Play';
+    }else{
+      pause_btn.innerHTML = 'Pause';
+    }
+  }
+
+
+  async function updateChart(message){
+    newarray = new Array(bufferSize).fill(0);
+    for (var key in message){
+      if (key == 'frame' || key == 'checksum'){
+        continue;
+      }
+
+      found = false;
+      chart.data.datasets.forEach((dataset) => {
+        if (dataset.label == key){ 
+          // Remove first value and add as last one
+          dataset.data.shift(); 
+          dataset.data.push(message[key]);
+          found = true;
+        }
+      });
+
+      if (!found){
+        // This is a new variable/dataset
+        zeroArray = new Array(bufferSize).fill(0);
+        zeroArray[-1] = message[key];
+        chart.data.datasets.push({label:key ,data:zeroArray});
+      }
+    }
+    if (pause_btn.innerHTML == 'Pause') chart.update(0);
+  }
+
+  function send() {
+    steer = parseInt(steerIn.value);
+    speed = parseInt(speedIn.value);
+    sendBinary();
+  }
+
+  function sendBinary() {
     var ab = new ArrayBuffer(8);
     var dv = new DataView(ab);
     
     dv.setUint16(0,serial_frame,true);
-    dv.setInt16(2, parseInt(steer.value),true);
-    dv.setInt16(4, parseInt(speed.value),true);
-    dv.setUint16(6,serial_frame ^ parseInt(steer.value) ^ parseInt(speed.value),true);
+    dv.setInt16(2, steer,true);
+    dv.setInt16(4, speed,true);
+    dv.setUint16(6,serial_frame ^ steer ^ speed,true);
+
 
     view = new Uint8Array(ab);
-    await writer.write(view);
+    writer.write(view);
     
   };
+
+  function readBinary(buffer,offset){
+    
+    var dv  = new DataView(buffer);
+    message = {};
+    message.frame = dv.getUint16(offset,true);
+    message.cmd1 = dv.getInt16(offset + 2,true);
+    message.cmd2 = dv.getInt16(offset + 4,true);
+    message.speedR = dv.getInt16(offset + 6,true);
+    message.speedL = dv.getInt16(offset + 8,true);
+    message.batVoltage  = dv.getInt16(offset + 10,true);
+    message.boardTempAdc = dv.getInt16(offset + 12,true);
+    message.boardTempDeg = dv.getInt16(offset + 14,true);
+    message.checksum = dv.getUint16(offset + 16,true);
+    
+    if ( message.frame == 0xABCD && 
+         message.checksum == ( message.frame ^ message.cmd1 ^ message.cmd2 ^ message.speedR ^ message.speedL ^ message.batVoltage ^ message.boardTempAdc ^ message.boardTempDeg) ){
+      return message;
+    }else{
+      return true, {};
+    }
+    
+
+  }
 
   const clr = async function () {
     logger.innerHTML = "";
@@ -170,10 +247,20 @@ const disconnect = async function () {
 <style>
   #log{
     height:90%;
-    width:100%;
+    width:90%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color: black;
     overflow:auto;
-    border-color: white;
-    border-style:dashed;
+    background-color: lightgray;
+    border-color: black;
+  }
+
+  #chart{
+    height:90%;
+    width:90%;
+    overflow:auto;
+    border-color: lightgrey;
   }
 
 </style>
