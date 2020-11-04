@@ -11,14 +11,23 @@
     </select>
 
     <button id="portSelect" type="button" onclick="connect()">Select a port</button>
-    <button id="disconnectButton" type="button" onclick="disconnect()">Disconnect</button>
-    <button id="switch" type="button" onclick="switchView()">Log</button>
-    <button id="clear" class='form' type="button" onclick="clr()">Clear</button>
+    <button id="disconnect" type="button" disabled="true" onclick="disconnect()">Disconnect</button>
+    <button id="switch" type="button" onclick="switchView()">Chart</button>
+    <button id="clear" class='form' type="button" onclick="log.clear()">Clear</button>
     <button id="pause" type="button" onclick="pause()">Pause</button>
     
-    <input id="steer" placeholder="Steer" size="8">
-    <input id="speed" placeholder="Speed" size="8">
-    <button id="send" type="button" onclick="send()">Send</button>
+    <input id="steer" placeholder="Steer" size="5">
+    <input id="speed" placeholder="Speed" size="5">
+    <button id="send" type="button" disabled="true" onclick="send()">Send</button>
+
+    <input id="write" placeholder="Write" size="5" value="0" disabled>
+    <input id="read" placeholder="Read" size="5" value="0" disabled>
+    
+    <input id="success" placeholder="Success" size="5" value="0" disabled>
+    <input id="skip" placeholder="Skip" size="5" value="0" disabled>
+    <input id="error" placeholder="Error" size="5" value="0" disabled>
+
+    <input id="overwrite" placeholder="Overwrite" size="5" value="0" disabled>
     
     <br /><br />
     <div id="container" style="display: none;position: relative; height:90vh; width:90vw">
@@ -30,240 +39,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
+  
+  <link rel="stylesheet" href="index.css">
+  <script src="log.js"></script>
+  <script src="serial.js"></script>
+  <script src="graph.js"></script>
 
-<script>
- var steerIn = document.getElementById('steer');
- var speedIn = document.getElementById('speed');
- var baud = document.getElementById('baud');
- var send_btn = document.getElementById('send');
- var switch_btn = document.getElementById('switch');
- var pause_btn = document.getElementById('pause');
- var logger = document.getElementById('log');
- var ctx = document.getElementById('chart').getContext('2d');
- var container = document.getElementById('container');
- var speed = 0;
- var steer = 0;
-
- var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
-    data: {
-      labels: []
-    },
-    // Configuration options go here
-    options: {
-        responsive: true,
-        plugins: {
-            colorschemes: {
-                scheme: 'brewer.Paired12'
-            }
-        }
-    }
-});
-
-
-bufferSize = 100; 
-for(let i=0; i<bufferSize;i++){
-  chart.data.labels.push(i);
-}
-chart.update();
-
- 
-var port;
-var reader;
-var writer;
-
-var serial_frame = 0xABCD;
-
- const encoder = new TextEncoderStream();
- let decoder = new TextDecoderStream();
-
- const connect = async function () {
-
-  if ("serial" in navigator) {
-  // The Serial API is supported.
-
-    port = await navigator.serial.requestPort();
-
-    // Open and begin reading.
-    await port.open({
-      baudRate: baud.value
-    });
-
-    while (port.readable) {
-      inputStream = port.readable;
-      reader = inputStream.getReader();
-
-      //inputDone = port.readable.pipeTo(decoder.writable);
-      //inputStream = decoder.readable;
-      //reader = inputStream.getReader();
-
-      outputStream = port.writable;
-      writer = outputStream.getWriter();
-
-      while (true) {
-        sendBinary();
-
-        let value, done;
-        try {
-          ({ value, done } = await reader.read());
-        } catch (error) {
-          console.log("Error");
-          break;
-        }
-        if (done) {
-          console.log("Reader canceled");
-          break;
-        }
-
-        //logger.innerHTML += value.replace(/\n/g, "<br />");
-        //if (ascroll.checked) logger.scrollTop = logger.scrollHeight;
-        
-        var buf = new ArrayBuffer(1000);
-        var dv  = new DataView(buf);
-        for (var i=0, strLen=value.length; i < strLen; i++) {       
-             dv.setUint8(i,value[i],true);
-        }
-         
-        let message = readBinary(buf,0);
-        if (Object.entries(message).length > 0) {
-           logger.innerHTML += JSON.stringify(message) + "<br />";
-           if (pause_btn.innerHTML == 'Pause') logger.scrollTop = logger.scrollHeight;
-           updateChart(message);
-        }
-                
-      }
-      reader.releaseLock();
-      }
-    }
-  };
-
-  function switchView(){
-    if (logger.style.display == 'block'){
-      switch_btn.innerHTML = 'Chart';
-      logger.style.display = 'none';
-      container.style.display = 'block';
-    }else{
-      switch_btn.innerHTML = 'Log';
-      logger.style.display = 'block';
-      container.style.display = 'none';
-    }
-  }
-
-  function pause(){
-    if (pause_btn.innerHTML == 'Pause'){
-      pause_btn.innerHTML = 'Play';
-    }else{
-      pause_btn.innerHTML = 'Pause';
-    }
-  }
-
-
-  async function updateChart(message){
-    newarray = new Array(bufferSize).fill(0);
-    for (var key in message){
-      if (key == 'frame' || key == 'checksum'){
-        continue;
-      }
-
-      found = false;
-      chart.data.datasets.forEach((dataset) => {
-        if (dataset.label == key){ 
-          // Remove first value and add as last one
-          dataset.data.shift(); 
-          dataset.data.push(message[key]);
-          found = true;
-        }
-      });
-
-      if (!found){
-        // This is a new variable/dataset
-        zeroArray = new Array(bufferSize).fill(0);
-        zeroArray[-1] = message[key];
-        chart.data.datasets.push({label:key ,data:zeroArray});
-      }
-    }
-    if (pause_btn.innerHTML == 'Pause') chart.update(0);
-  }
-
-  function send() {
-    steer = parseInt(steerIn.value);
-    speed = parseInt(speedIn.value);
-    sendBinary();
-  }
-
-  function sendBinary() {
-    var ab = new ArrayBuffer(8);
-    var dv = new DataView(ab);
-    
-    dv.setUint16(0,serial_frame,true);
-    dv.setInt16(2, steer,true);
-    dv.setInt16(4, speed,true);
-    dv.setUint16(6,serial_frame ^ steer ^ speed,true);
-
-
-    view = new Uint8Array(ab);
-    writer.write(view);
-    
-  };
-
-  function readBinary(buffer,offset){
-    
-    var dv  = new DataView(buffer);
-    message = {};
-    message.frame = dv.getUint16(offset,true);
-    message.cmd1 = dv.getInt16(offset + 2,true);
-    message.cmd2 = dv.getInt16(offset + 4,true);
-    message.speedR = dv.getInt16(offset + 6,true);
-    message.speedL = dv.getInt16(offset + 8,true);
-    message.batVoltage  = dv.getInt16(offset + 10,true);
-    message.boardTempAdc = dv.getInt16(offset + 12,true);
-    message.boardTempDeg = dv.getInt16(offset + 14,true);
-    message.checksum = dv.getUint16(offset + 16,true);
-    
-    if ( message.frame == 0xABCD && 
-         message.checksum == ( message.frame ^ message.cmd1 ^ message.cmd2 ^ message.speedR ^ message.speedL ^ message.batVoltage ^ message.boardTempAdc ^ message.boardTempDeg) ){
-      return message;
-    }else{
-      return true, {};
-    }
-    
-
-  }
-
-  const clr = async function () {
-    logger.innerHTML = "";
-  };
-
-const disconnect = async function () {
-  writer.releaseLock();
-  reader.releaseLock();
-  await port.close();
-};
-
-
-</script>
-
-<style>
-  #log{
-    height:90%;
-    width:90%;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 14px;
-    color: black;
-    overflow:auto;
-    background-color: lightgray;
-    border-color: black;
-  }
-
-  #chart{
-    height:90%;
-    width:90%;
-    overflow:auto;
-    border-color: lightgrey;
-  }
-
-</style>
-
+  <script src="index.js"></script>
 
 </html>
