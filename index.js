@@ -1,6 +1,5 @@
 var baud = document.getElementById('baud');
-var portSelect = document.getElementById('portSelect');
-var disconnect_btn = document.getElementById('disconnect');
+var connect_btn = document.getElementById('connect');
 
 var switch_btn = document.getElementById('switch');
 var pause_btn = document.getElementById('pause');
@@ -13,25 +12,23 @@ var read = document.getElementById('read');
 var skip = document.getElementById('skip');
 var success = document.getElementById('success');
 var error = document.getElementById('error');
-var overwrite = document.getElementById('overwrite');
 
 var logger = document.getElementById('log');
-var ctx = document.getElementById('chart').getContext('2d');
-var container = document.getElementById('container');
-
+var gd = document.getElementById('chart');
 var connected = false;
 var speed = 0;
 var steer = 0;
 var binary = true;
+var view = 'log';
 
 log = new Log(document.getElementById('log'));
 
 window.addEventListener("load", function(event) {
   if ("serial" in navigator === false) { 
     let alertMessage = 'Web Serial API not supported. Enable experimental features.<br />' +
-                       '//flags/#enable-experimental-web-platform-features<br />' +
-                       '//flags/#enable-experimental-web-platform-features<br />' +
-                       '//flags/#enable-experimental-web-platform-features<br />';
+                       'chrome//flags/#enable-experimental-web-platform-features<br />' +
+                       'opera//flags/#enable-experimental-web-platform-features<br />' +
+                       'edge//flags/#enable-experimental-web-platform-features<br />';
     log.write(alertMessage);
   }
 });
@@ -50,10 +47,10 @@ speedIn.addEventListener("keyup", function(event) {
   }
 });
 
-graph = new Graph(ctx);
-graph.update();
-
+graph = new Graph();
 serial = new Serial(10000,log,graph);
+
+//setInterval(function(){graph.updateData({cmd1:Math.random(),cmd2:Math.random(),cmd3:Math.random()});},3000);
 
 var port;
 var reader;
@@ -63,6 +60,13 @@ const encoder = new TextEncoderStream();
 let decoder = new TextDecoderStream();
 
 async function connect() {
+
+ if ( connected){
+  connected = false;
+  connect_btn.innerHTML = '<ion-icon name="flash-outline"></ion-icon>';
+  return;
+ }
+
  if ("serial" in navigator) {
 
    // The Serial API is supported.
@@ -72,10 +76,10 @@ async function connect() {
      baudRate: baud.value
    });
 
-   portSelect.disabled = true; 
-   disconnect_btn.disabled = false;
-   send_btn.disabled = false; 
    connected = true;
+   connect_btn.innerHTML = '<ion-icon name="flash-off-outline"></ion-icon>';
+   send_btn.disabled = !connected;
+   
 
    while (port.readable) {
      if (binary){
@@ -128,9 +132,8 @@ async function connect() {
    reader.releaseLock();
    await port.close();
 
-   portSelect.disabled = false;
-   disconnect_btn.disabled = true;
-   send_btn.disabled = true;
+   connect_btn.innerHTML = '<ion-icon name="flash-outline"></ion-icon>';
+   send_btn.disabled = !connected;
 
  }
 
@@ -153,23 +156,28 @@ async function connect() {
 
  
  function switchView(){
-   if (logger.style.display == 'block'){
-     switch_btn.innerHTML = 'Log';
-     log.hide();
-     container.style.display = 'block';
+   if (view == "log"){
+     switch_btn.innerHTML = '<ion-icon name="reader-outline"></ion-icon>';
+     chart.style.display = "block";
+     logger.style.display = "none";
+     view = "chart";
+     graph.relayout();
    }else{
-     switch_btn.innerHTML = 'Chart';
-     log.show();
-     container.style.display = 'none';
+     switch_btn.innerHTML = '<ion-icon name="pulse-outline"></ion-icon>';
+     chart.style.display = "none";
+     logger.style.display = "block";
+     view = "log";
    }
  }
 
  function pause(){
-   if (pause_btn.innerHTML == 'Pause'){
-     pause_btn.innerHTML = 'Play';
+   if (log.isPaused){
+     pause_btn.innerHTML = '<ion-icon name="pause-outline"></ion-icon>';
    }else{
-     pause_btn.innerHTML = 'Pause';
+     pause_btn.innerHTML = '<ion-icon name="play-outline"></ion-icon>';
    }
+   log.isPaused = !log.isPaused;
+   graph.isPaused = !graph.isPaused;
  }
 
  function send() {
@@ -181,7 +189,3 @@ async function connect() {
      writer.write(command.value);
    }
  }
- 
-async function disconnect() {
- connected = false;
-};

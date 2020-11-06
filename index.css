@@ -1,33 +1,54 @@
-#success{
-    color:green;
-}
 
-#skip{
-  color:orange;
+#chart{
+  flex: 1;
 }
-
-#error{
-   color:red;
-}
-
-#container{
-  background-color: black;
-}
-
 #log{
-    height:90%;
-    width:90%;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
-    color: green;
-    overflow:auto;
+    color: white;
     background-color: black;
     border-color: black;
+    overflow: auto;
   }
 
-  #chart{
-    height:90%;
-    width:90%;
-    overflow:auto;
-    border-color: lightgrey;
-  }
+label{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;  
+  margin-left: 40px;
+}
+
+button{
+  vertical-align: middle;
+}
+
+input{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;  
+  display: inline-block;
+  height: 25px;
+}
+
+select{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;  
+  display: inline-block;
+  height: 25px;
+}
+
+ion-icon{
+  vertical-align: middle;
+  display: inline-block;
+  height: 20px;
+}
+
+.success{
+  color:green;
+}
+
+.skip{
+color:orange;
+}
+
+.error{
+ color:red;
+}

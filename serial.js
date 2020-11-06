@@ -42,29 +42,17 @@ class Serial {
     }
 
     setReadOffset(offset){
-      if ( this.readOffset > this.address(offset) ) overwrite.value = this.overwrite = false;
+      if ( this.readOffset > this.address(offset) ) this.overwrite = false;
       read.value = this.readOffset = this.address(offset); 
     }
 
     setWriteOffset(offset){
-      if ( this.writeOffset > this.address(offset) ) overwrite.value = this.overwrite = true;
+      if ( this.writeOffset > this.address(offset) ) this.overwrite = true;
       write.value = this.writeOffset = this.address(offset);
     }
 
-    errorIncrement(){
-      error.value = this.error++;
-    }
-
-    skipIncrement(){
-      skip.value = this.skip++;
-    }
-
-    successIncrement(){
-      success.value = this.success++;
-    }
-
     readBinary(){
-      // copy to new buffer
+      // copy to new buffer and continue from beginning of buffer if needed
       for (let i=0, strLen=this.messageSize; i < strLen; i++) {       
         let val = this.writedv.getUint8(this.address(this.readOffset + i),true);
         this.readdv.setUint8(i,val,true);
@@ -72,10 +60,9 @@ class Serial {
       
       let frame = this.readdv.getUint16(0,true);
       if (frame != this.serial_frame){
-        // read from next offset
-        this.setReadOffset(this.readOffset + 1);
-        this.skipIncrement();    
-        return; // incorrect start frame
+        this.setReadOffset(this.readOffset + 1); // incorrect start frame, increase read offset
+        skip.value = this.skip++;    
+        return;
       }
 
       let message = {};
@@ -101,16 +88,16 @@ class Serial {
       calcChecksum = this.readdv.getUint16(16,true);
       
       if ( checksum == calcChecksum ){
-        this.successIncrement();
+        success.value = this.success++;
         this.graph.updateData(message);
       }else{  
-        this.errorIncrement();  
+        error.value = this.error++;  
       }
 
       message.checksum = checksum;
       message.calcChecksum = calcChecksum;
-      this.log.update(message);
-      this.setReadOffset(this.readOffset + this.messageSize);
+      this.log.update(message,checksum == calcChecksum);
+      this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
     }
 
     async sendBinary() {

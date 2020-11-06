@@ -1,16 +1,23 @@
 class Log {
   constructor(container) {
     this.innerHTML = '';
-    this.maxLogSize = 10000;
+    this.maxLogSize = 100;
     this.container = container;
     this.lastDisplay = 0;
     this.displayFrequency = 200;
-    this.scroll = true;
+    this.isPaused = false;
   }
 
-  async update(message){
-    this.innerHTML = this.innerHTML + JSON.stringify(message) + "<br />";
-    if (this.innerHTML.length > this.maxLogSize) this.truncate();
+  addSpan(text,success){
+    if (success){
+      return "<span class='success'>" + text + "</span>";
+    }else{
+      return "<span class='error'>" + text + "</span>";   
+    }
+  }
+
+  async update(message,success){
+    this.innerHTML = this.innerHTML + this.addSpan(JSON.stringify(message),success) + "<br />";
     if (Date.now() - this.lastDisplay > this.displayFrequency) this.display();
   }
 
@@ -20,12 +27,16 @@ class Log {
   }
 
   truncate(){
-    this.innerHTML = this.innerHTML.substring(this.innerHTML.length - this.maxLogSize,this.innerHTML.length);
+    let lines = this.innerHTML.split('<br />');
+    if (lines.length > this.maxLogSize){
+      this.innerHTML = lines.splice(- this.maxLogSize).join('<br />');
+    }
   }
 
   display(){
+    if (!this.isPaused) this.truncate();
     this.container.innerHTML = this.innerHTML;
-    if (this.scroll) this.container.scrollTop = this.container.scrollHeight;
+    if (!this.isPaused) this.container.scrollTop = this.container.scrollHeight;
     this.lastDisplay = Date.now();
   }
 
@@ -33,13 +44,5 @@ class Log {
     this.innerHTML = '';
     this.display();
   };
-
-  hide(){
-    this.container.style.display = 'none';
-  }
-
-  show(){
-    this.container.style.display = 'block'; 
-  }
 
 }
