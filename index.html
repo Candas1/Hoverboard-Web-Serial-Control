@@ -18,6 +18,7 @@
           <button id="switch" type="button" onclick="switchView()"><ion-icon name="pulse-outline"></ion-icon></button>
           <button id="clear" class='form' type="button" onclick="log.clear()"><ion-icon name="trash-outline"></ion-icon></button>
           <button id="pause" type="button" onclick="pause()"><ion-icon name="pause-outline"></ion-icon></button>
+          <button id="listen" type="button" onclick="listen()"><ion-icon name="mic-outline"></ion-icon></button>
           
           <label>Buffer</label>  
           <ion-icon name="pencil-outline"></ion-icon><input id="write" placeholder="Write" size="5" value="0" disabled>
@@ -49,7 +50,8 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
-
+  <script src="annyang.min.js"></script>
+  
   <link rel="stylesheet" href="index.css">
   <script src="log.js"></script>
   <script src="serial.js"></script>

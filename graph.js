@@ -16,6 +16,7 @@ class Graph {
     ];
 
     const layout = {
+      //grid:{ rows:6, columns:1, pattern: 'independent'},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
       autosize: true,
@@ -74,6 +75,8 @@ class Graph {
           y: [message[key]],
           name: key,
           mode: 'lines',
+          line: {shape: 'spline'},
+          type: 'scatter',
           }; 
         Plotly.addTraces('chart',[update]);
         this.traces.push(this.countTrace);
