@@ -229,7 +229,7 @@ async function connect() {
    }
  }
 
-   function listen(){
+  function listen(){
     if (annyang) {
       if (isListening){
         // Stop listening.
@@ -241,7 +241,7 @@ async function connect() {
       isListening = !isListening;
       listen_btn.innerHTML = '<ion-icon name="mic' + ( (isListening) ? '-off' : '') + '-outline"></ion-icon>';
     }
-   }
+  }
 
  async function pause(){
    if (log.isPaused){
