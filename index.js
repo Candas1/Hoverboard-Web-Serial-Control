@@ -104,20 +104,13 @@ async function connect() {
    
 
    while (port.readable) {
-     if (binary){
-       inputStream = port.readable;
-       reader = inputStream.getReader();
-     }else{
-       inputDone = port.readable.pipeTo(decoder.writable);
-       inputStream = decoder.readable;
-       reader = inputStream.getReader();
-     }
+     inputStream = port.readable;
+     reader = inputStream.getReader();
+     console.log('test');
 
      outputStream = port.writable;
      writer = outputStream.getWriter();
-
      readLoop();
-
      }
    }
  };
@@ -177,13 +170,9 @@ async function connect() {
       break;
     }
     
-    if (binary){
-      serial.write(value);
-      serial.readLoop();
-    }else{
-      log.write(value.replaceAll(/\n/g,"<br />"));
-      updateAsci(value);
-    }
+    serial.write(value);
+    serial.readLoop();
+
     if (!connected) break;
    }
 
@@ -196,24 +185,6 @@ async function connect() {
 
  }
 
- function updateAsci(value){
-   if (value[0] == 1){
-     words = value.replaceAll(/\n/g, "").split(" ");
-     let message = {};
-     for(var i = 0; i < words.length; i++) {
-       if (words[i].split(':')[0] < 10) {
-           message[words[i].split(':')[0]] = words[i].split(':')[1];
-       }else{
-         message = {};    
-       }
-     }
-     if (Object.entries(message).length > 0) {
-       graph.updateData(message);
-     }
-   }
- }
-
- 
  function switchView(){
    if (view == "log"){
      switch_btn.innerHTML = '<ion-icon name="reader-outline"></ion-icon>';
@@ -227,6 +198,10 @@ async function connect() {
      logger.style.display = "block";
      view = "log";
    }
+ }
+
+ function toggle(){
+  binary = !document.getElementById('ascii').checked;
  }
 
   function listen(){

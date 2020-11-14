@@ -15,6 +15,20 @@ class Serial {
         this.skip = 0;
         this.success = 0;
         this.serial_frame = 0xABCD;
+
+        this.fieldsAscii = ['cmd1_in',
+                            'cmd2_in',
+                            'cmd1',
+                            'cmd2',
+                            //'SpeedR',
+                            //'SpeedL',
+                            'BatADC',
+                            'BatVoltage',
+                            'TempADC',
+                            'TempDeg'
+                           ];
+
+
     }
 
     write(chunk){
@@ -25,11 +39,21 @@ class Serial {
       }
     }
 
-    readLoop(){
-
-
-      while ( (this.writeOffset + this.bufferSize * this.overwrite) >= (this.readOffset + this.messageSize)){  
-        this.readBinary();
+    async readLoop(){
+      if (binary){
+        while ( (this.writeOffset + this.bufferSize * this.overwrite) >= (this.readOffset + this.messageSize)){
+          this.readBinary();
+        }
+      }else{
+        // Read buffer until \n
+        while ( (this.writeOffset + this.bufferSize * this.overwrite) > (this.readOffset)){
+          if (this.writedv.getUint8(this.address(this.readOffset),true) != 0x0A){
+            this.skipByte();
+          }else{
+            this.readAscii();
+            break;
+          }
+        }
       }
     }
 
@@ -51,6 +75,12 @@ class Serial {
       write.value = this.writeOffset = this.address(offset);
     }
 
+    skipByte(){
+      this.setReadOffset(this.readOffset + 1); // incorrect start frame, increase read offset
+      skip.value = this.skip++;
+      //console.log("skip");
+    }
+
     readBinary(){
       // copy to new buffer and continue from beginning of buffer if needed
       for (let i=0, strLen=this.messageSize; i < strLen; i++) {       
@@ -60,8 +90,7 @@ class Serial {
       
       let frame = this.readdv.getUint16(0,true);
       if (frame != this.serial_frame){
-        this.setReadOffset(this.readOffset + 1); // incorrect start frame, increase read offset
-        skip.value = this.skip++;    
+        this.skipByte();    
         return;
       }
 
@@ -113,4 +142,51 @@ class Serial {
       writer.write(view);
       
     };
+
+    readAscii(){
+      let string = '';
+      let i = 1;
+      let found = false;
+      // read until next \n
+      while ( (this.writeOffset + this.bufferSize * this.overwrite) > (this.readOffset + i)){
+        let char = this.writedv.getUint8(this.address(this.readOffset + i),true); 
+        if ( char == 0x0A){
+          // Save new read pointer
+          this.setReadOffset(this.readOffset + i);
+          found = true;
+          break;  
+        }else{
+          string += String.fromCharCode(char);
+          i++;
+        }
+      }
+      
+      // \n not found, buffer probably doesn't have enough data, exit
+      if (!found){
+        return;
+      }
+
+      let words = string.split(" ");
+      let message = {};
+      for(let j = 0; j < words.length; j++) {
+        let index = words[j].split(':')[0];
+        if (index < 10) {
+          let value = words[j].split(':')[1];
+          if (this.fieldsAscii.length >= index){
+            message[this.fieldsAscii[index - 1]] = value;
+          }else{
+            message[index] = value;
+          }
+        }else{
+          log.write(string,false);
+          error.value = this.error++;
+          return;
+        }
+      }
+      if (Object.entries(message).length > 0) {
+        success.value = this.success++;
+        log.write(string,true);
+        graph.updateData(message);
+      }
+    }
 }

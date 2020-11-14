@@ -19,7 +19,8 @@
           <button id="clear" class='form' type="button" onclick="log.clear()"><ion-icon name="trash-outline"></ion-icon></button>
           <button id="pause" type="button" onclick="pause()"><ion-icon name="pause-outline"></ion-icon></button>
           <button id="listen" type="button" onclick="listen()"><ion-icon name="mic-outline"></ion-icon></button>
-          
+          <label for="ascii">Ascii</label><input type="checkbox" id="ascii" onclick="toggle()" name="ascii">
+
           <label>Buffer</label>  
           <ion-icon name="pencil-outline"></ion-icon><input id="write" placeholder="Write" size="5" value="0" disabled>
           <ion-icon name="glasses-outline"></ion-icon><input id="read" placeholder="Read" size="5" value="0" disabled>

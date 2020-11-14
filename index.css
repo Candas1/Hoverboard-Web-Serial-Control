@@ -17,6 +17,10 @@ label{
   margin-left: 40px;
 }
 
+[type="checkbox"]{
+  vertical-align: middle;
+}
+
 button{
   vertical-align: middle;
 }

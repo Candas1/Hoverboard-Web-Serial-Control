@@ -21,8 +21,8 @@ class Log {
     if (Date.now() - this.lastDisplay > this.displayFrequency) this.display();
   }
 
-  write(message){
-    this.innerHTML += message + "<br />";
+  write(message,success){
+    this.innerHTML += this.addSpan(message,success) + "<br />";
     if (Date.now() - this.lastDisplay > this.displayFrequency) this.display();
   }
 
