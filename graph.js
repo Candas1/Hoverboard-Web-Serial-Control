@@ -1,19 +1,26 @@
 class Graph {
   constructor(){
 
-    this.first = true;
     this.isPaused = false;
+    this.key2trace = {};
     this.traces = [];
     this.countTrace = 0;
-    this.lastUpdate = Date.now();
-    this.updateFrequency = 200;
-    this.update ={};
+    this.lastDataUpdate = Date.now();
+    this.dataUpdateFrequency = 200;
+    this.lastGraphUpdate = Date.now();
+    this.graphUpdateFrequency = 500;
+    this.trace = {
+      x: [],
+      y: [],
+      name: "",
+      mode: 'lines',
+      line: {shape: 'spline',smoothing:1},
+      type: 'scattergl',
+      };
   
     let time = new Date();
 
-    const data = [
-      //{x:time,y:0}
-    ];
+    const data = [];
 
     const layout = {
       //grid:{ rows:6, columns:1, pattern: 'independent'},
@@ -59,48 +66,39 @@ class Graph {
     }
 
     Plotly.newPlot('chart', data , layout, config);
-    //Plotly.deleteTraces('chart',[0]);
   }  
 
   async updateData(message){
-    if ( Date.now() - this.lastUpdate < this.updateFrequency) return;
-    this.lastUpdate = Date.now();
+    if ( Date.now() - this.lastDataUpdate < this.dataUpdateFrequency) return;
+    this.lastDataUpdate = Date.now();
 
     let time = new Date();
-    if (this.first){
-      // Create new trace for each value
-      for (let key in message){
-        let update = {
-          x: [time],
-          y: [message[key]],
-          name: key,
-          mode: 'lines',
-          line: {shape: 'spline'},
-          type: 'scatter',
-          }; 
-        Plotly.addTraces('chart',[update]);
+
+    // Create new trace for each value
+    for (let key in message){
+      // New field
+      if (!(key in this.key2trace)){ 
+        this.key2trace[key] = this.countTrace; 
+        this.trace.name = key;
+        Plotly.addTraces('chart',[this.trace]);
         this.traces.push(this.countTrace);
         this.countTrace++;
-      }
-      // Prepare empty structure
-      this.initUpdateStruct();
-      this.first = false;
-    }else{
-      let countTrace = 0;
-      // Add each value to the traces
-      for (let key in message){
-        this.update.x[countTrace].push(time);
-        this.update.y[countTrace].push(message[key]);
-        countTrace++;
-      }
-
-      if (!this.isPaused){
-        // extend traces and relayout
-        Plotly.extendTraces('chart', this.update, this.traces);
+ 
+        // Prepare empty structure
         this.initUpdateStruct();
-        this.relayout();
+      }else{
+        this.update.x[this.key2trace[key]].push(time);
+        this.update.y[this.key2trace[key]].push(message[key]);
       }
-    } 
+    }
+
+    if (!this.isPaused && ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) ){
+      // extend traces and relayout
+      Plotly.extendTraces('chart', this.update, this.traces);
+      this.initUpdateStruct();
+      this.relayout();
+      this.lastGraphUpdate = Date.now();
+    }
   }
 
   

@@ -1,7 +1,7 @@
 class Log {
   constructor(container) {
     this.innerHTML = '';
-    this.maxLogSize = 100;
+    this.maxLogSize = 2000;
     this.container = container;
     this.lastDisplay = 0;
     this.displayFrequency = 200;
@@ -16,16 +16,13 @@ class Log {
     }
   }
 
-  async update(message,success){
-    this.innerHTML = this.innerHTML + this.addSpan(JSON.stringify(message),success) + "<br />";
-    if (Date.now() - this.lastDisplay > this.displayFrequency) this.display();
-  }
-
+  // write to log buffer
   write(message,success){
     this.innerHTML += this.addSpan(message,success) + "<br />";
     if (Date.now() - this.lastDisplay > this.displayFrequency) this.display();
   }
 
+  // Truncate to only keep maximum number of lines in the log
   truncate(){
     let lines = this.innerHTML.split('<br />');
     if (lines.length > this.maxLogSize){
@@ -33,7 +30,8 @@ class Log {
     }
   }
 
-  display(){
+  // refresh log div 
+  async display(){
     if (!this.isPaused) this.truncate();
     this.container.innerHTML = this.innerHTML;
     if (!this.isPaused) this.container.scrollTop = this.container.scrollHeight;

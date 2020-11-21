@@ -14,11 +14,11 @@
               <option value="115200">115200</option>
           </select>
           
-          <button id="connect" type="button" onclick="connect()"><ion-icon name="flash-outline"></ion-icon></button>
+          <button id="connect" type="button" onclick="serial.connect()"><ion-icon name="flash-outline"></ion-icon></button>
           <button id="switch" type="button" onclick="switchView()"><ion-icon name="pulse-outline"></ion-icon></button>
           <button id="clear" class='form' type="button" onclick="log.clear()"><ion-icon name="trash-outline"></ion-icon></button>
           <button id="pause" type="button" onclick="pause()"><ion-icon name="pause-outline"></ion-icon></button>
-          <button id="listen" type="button" onclick="listen()"><ion-icon name="mic-outline"></ion-icon></button>
+          <button id="listen" type="button" onclick="voice.listen()"><ion-icon name="mic-outline"></ion-icon></button>
           <label for="ascii">Ascii</label><input type="checkbox" id="ascii" onclick="toggle()" name="ascii">
 
           <label>Buffer</label>  
@@ -57,7 +57,8 @@
   <script src="log.js"></script>
   <script src="serial.js"></script>
   <script src="graph.js"></script>
-
+  <script src="command.js"></script>
+  <script src="voice.js"></script>
   <script src="index.js"></script>
 
 </html>
