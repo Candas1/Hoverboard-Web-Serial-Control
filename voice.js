@@ -40,14 +40,14 @@ class Voice {
         if ( !isNaN(param1)){  
           speedIn.value = param1;
           send();
-          log.write("Executing voice command:" & Cmd & " " & param1,true); 
+          log.write("Executing voice command:" & Cmd & " " & param1,1); 
         }
         break;
        case 'steer':
          if ( !isNaN(param1) ){ 
            steerIn.value = param1;
            send();
-           log.write("Executing voice command:" & Cmd & " " & param1,true);
+           log.write("Executing voice command:" & Cmd & " " & param1,1);
          }
          break;
        case 'stop':
@@ -57,7 +57,7 @@ class Voice {
          break;
  
       default:
-       log.write('Unknown command',false);       
+       log.write('Unknown command',2);       
     }
  
     //log.write(speech);

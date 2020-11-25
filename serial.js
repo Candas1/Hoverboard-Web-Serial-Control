@@ -1,9 +1,8 @@
 class Serial {
   constructor(size,log,graph) {
     this.connected = false;
-    this.binary = true;
+    this.binary = false;
     this.bufferSize = size;
-    this.buffer = new ArrayBuffer(0);
     this.writeBuffer = new ArrayBuffer(this.bufferSize);
     this.writedv = new DataView(this.writeBuffer);
     this.messageSize = 18;
@@ -13,14 +12,13 @@ class Serial {
     this.readOffset = 0;
     this.log = log;
     this.graph = graph;
-    this.overwrite = false;
     this.error = 0;
     this.skip = 0;
     this.success = 0;
     this.serial_frame = 0xABCD;
 
-    this.fieldsAscii = ['cmd1_in',
-                        'cmd2_in',
+    this.fieldsAscii = ['Input1',
+                        'Input2',
                         'SpeedR',
                         'SpeedL',
                         'BatADC',
@@ -35,6 +33,7 @@ class Serial {
     connect_btn.innerHTML = '<ion-icon name="flash-outline"></ion-icon>';
     send_btn.disabled = !this.connected;  
   } 
+
   async connect() {
 
     if ( this.connected){
@@ -57,57 +56,50 @@ class Serial {
       while (this.port.readable) {
         this.inputStream = this.port.readable;
         this.reader = this.inputStream.getReader();
-        this.outputStream = this.port.writable;
-        this.writer = this.outputStream.getWriter();
+        
 
         try{
           while (true){
             const { value, done } = await this.reader.read();
             if (done) {
-              console.log("Reader canceled");
+              log.write("Reader canceled",2);
               break;
             }
-            serial.sendBinary();
+            if (serial.binary) serial.sendBinary();
             this.write(value);
             this.readLoop();
             if (!this.connected) break;
           }
         }catch (error) {
           // Handle non-fatal read error.
-          console.log(error);
+          console.log(error,2);
         } finally{
-          this.writer.releaseLock();
-          this.reader.releaseLock();
-          this.port.close();
-          this.disconnect();
-          break;
-        }    
+          
+        }
+        if (!this.connected) break;    
       }
+      this.reader.releaseLock();
+      this.port.close();
+      this.disconnect();
     }  
   }
 
   write(chunk){
-
-    //newbuffer = new Uint8Array(buffer.length + chunk.length);
-    //newbuffer.set(buffer);
-    //newbuffer.set(chunk,buffer.length);
-    //buffer = newbuffer;
-
     // add new chunk to the buffer
     for (let i=0, strLen=chunk.length; i < strLen; i++) {       
-      this.writedv.setUint8(this.writeOffset,chunk[i],true);
-      this.setWriteOffset( this.writeOffset + 1);
+      this.writedv.setUint8(this.address(this.writeOffset),chunk[i],true);
+      this.setWriteOffset(this.writeOffset + 1);
     }
   }
 
   readLoop(){
     if (this.binary){
-      while ( (this.writeOffset + this.bufferSize * this.overwrite) >= (this.readOffset + this.messageSize)){
+      while ( (this.writeOffset) >= (this.readOffset + this.messageSize)){
         this.readBinary();
       }
     }else{
       // Read buffer until \n
-      while ( (this.writeOffset + this.bufferSize * this.overwrite) > (this.readOffset)){
+      while ( (this.writeOffset) > (this.readOffset)){
         if (this.writedv.getUint8(this.address(this.readOffset),true) != 0x0A){
           this.skipByte();
         }else{
@@ -119,27 +111,22 @@ class Serial {
   }
 
   address(offset){
-    if (offset >= this.bufferSize) {
-      return offset - this.bufferSize;
-    }else{
-      return offset;
-    }
+    return offset%this.bufferSize;
   }
-
+  
   setReadOffset(offset){
-    if ( this.readOffset > this.address(offset) ) this.overwrite = false;
-    read.value = this.readOffset = this.address(offset); 
+    this.readOffset = offset;
+    read.value = this.address(this.readOffset); 
   }
 
   setWriteOffset(offset){
-    if ( this.writeOffset > this.address(offset) ) this.overwrite = true;
-    write.value = this.writeOffset = this.address(offset);
+    this.writeOffset = offset;
+    write.value = this.address(this.writeOffset);
   }
 
   skipByte(){
     this.setReadOffset(this.readOffset + 1); // incorrect start frame, increase read offset
     skip.value = this.skip++;
-    //console.log("skip");
   }
 
   readBinary(){
@@ -186,11 +173,15 @@ class Serial {
 
     message.checksum = checksum;
     message.calcChecksum = calcChecksum;
-    this.log.write(Object.keys( message ).map( function(key){ return key + ":" +message[key] }).join(" "),checksum == calcChecksum);
+    this.log.writeLog(message);
     this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
   }
 
   sendBinary() {
+
+    this.outputStream = this.port.writable;
+    this.writer = this.outputStream.getWriter();
+
     var ab = new ArrayBuffer(8);
     var dv = new DataView(ab);
     
@@ -200,7 +191,9 @@ class Serial {
     dv.setUint16(6,this.serial_frame ^ command.steer ^ command.speed,true);
   
     let view = new Uint8Array(ab);
-    this.writer.write(view);  
+    this.writer.write(view);
+    
+    this.writer.releaseLock();
   };
 
   readAscii(){
@@ -208,7 +201,7 @@ class Serial {
     let i = 1;
     let found = false;
     // read until next \n
-    while ( (this.writeOffset + this.bufferSize * this.overwrite) > (this.readOffset + i)){
+    while (this.writeOffset > this.readOffset + i){
       let char = this.writedv.getUint8(this.address(this.readOffset + i),true); 
       if ( char == 0x0A){
         // Save new read pointer
@@ -228,7 +221,7 @@ class Serial {
 
     let words = string.split(" ");
     let message = {};
-    if (string.split(":").length > 0) {
+    if (string.split(":").length > 1) {
       for(let j = 0; j < words.length; j++) {
         let index = words[j].split(':')[0];
         let value = words[j].split(':')[1];
@@ -239,14 +232,13 @@ class Serial {
         }
       }
     }else{
-      log.write(string,false);
-      error.value = this.error++;
+      log.write(string,3);
       return;
     }
 
     if (Object.entries(message).length > 0) {
       success.value = this.success++;
-      log.write(string,true);
+      log.writeLog(message);
       graph.updateData(message);
     }
   }

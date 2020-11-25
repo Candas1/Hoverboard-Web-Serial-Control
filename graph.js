@@ -17,48 +17,52 @@ class Graph {
       line: {shape: 'spline',smoothing:1},
       type: 'scattergl',
       };
-  
-    let time = new Date();
 
     const data = [];
 
+    const color = 'grey'; 
+    const width = 0.1; 
+    this.yaxis = {
+      showgrid: true,
+      showline: true,
+      
+      linecolor: color,
+      lineWidth: width,
+      
+      tickcolor: color,
+      tickwidth: width,
+      
+      gridcolor: color,
+      gridwidth: width,
+      
+      zerolinecolor: color,
+      zerolinewidth: width,
+    };
+
+    this.xaxis = {
+      showgrid: true,
+      showline: true,
+
+      linecolor: color,
+      lineWidth: width,
+
+      tickcolor: color,
+      tickwidth: width,
+      
+      gridcolor: color,
+      gridwidth: width,
+
+      zerolinecolor: color,
+      zerolinewidth: width,
+    };
+
     const layout = {
-      //grid:{ rows:6, columns:1, pattern: 'independent'},
+      grid:{ rows:1, columns:1, pattern: 'independent',roworder: 'top to bottom'},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
       autosize: true,
-      yaxis: {
-        mirror: true,
-        automargin: true,
-        
-        linecolor: 'green',
-        lineWidth: 1,
-        
-        tickcolor: "green",
-        tickwidth: 1,
-        
-        gridcolor: "green",
-        gridwidth: 1,
-        
-        zerolinecolor: "green",
-        zerolinewidth: 1,
-      },
-      xaxis: {
-        mirror: true,
-        automargin: true,
-
-        linecolor: 'green',
-        lineWidth: 1,
-
-        tickcolor: "green",
-        tickwidth: 1,
-        
-        gridcolor: "green",
-        gridwidth: 1,
-
-        zerolinecolor: "green",
-        zerolinewidth: 1,  
-      }
+      yaxis: this.yaxis,
+      xaxis: this.xaxis,
     };
 
     const config = {
@@ -79,11 +83,10 @@ class Graph {
       // New field
       if (!(key in this.key2trace)){ 
         this.key2trace[key] = this.countTrace; 
-        this.trace.name = key;
+        this.trace.name = key; 
         Plotly.addTraces('chart',[this.trace]);
         this.traces.push(this.countTrace);
-        this.countTrace++;
- 
+        this.countTrace++; 
         // Prepare empty structure
         this.initUpdateStruct();
       }else{
@@ -92,16 +95,47 @@ class Graph {
       }
     }
 
-    if (!this.isPaused && ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) ){
+    if (!this.isPaused && (view=='chart') && ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) ){
       // extend traces and relayout
       Plotly.extendTraces('chart', this.update, this.traces);
       this.initUpdateStruct();
       this.relayout();
       this.lastGraphUpdate = Date.now();
+      //console.log("Graph Updated");
     }
   }
 
-  
+  subplot(param){
+
+    let update = {yaxis:[]};
+    let layout = { grid:{rows:1,columns: 1, pattern: 'dependent', roworder: 'top to bottom'}, yaxis:[]};
+    
+    for(let i=0;i<this.countTrace;i++){
+      let axis = 'yaxis' + ( i==0?'':(i+1));
+      update.yaxis.push("y" + (param == 0 ? "" : (i+1)) );
+      layout[axis] = JSON.parse(JSON.stringify(this.yaxis));
+      if (param == 0) {
+        layout[axis]['domain'] = [0,1];
+      }else{
+        layout[axis]['domain'] = this.getDomain(i);
+      }
+    }
+
+    if (param==1) layout.grid.rows = this.countTrace;
+    Plotly.update('chart', update,layout);
+  }
+
+  getDomain(i) {
+    var N = this.countTrace;
+    var spacing = 0.05;
+    
+    return [
+      (1 / N) * i + (i === 0 ? 0 : spacing / 2),
+      (1 / N) * (i + 1) - (i === (N - 1) ? 0 : spacing / 2)
+    ]
+  }
+
+
   initUpdateStruct(){
     // Initialise empty structure for appending traces
     this.update = {x:[],y:[]};
@@ -120,7 +154,7 @@ class Graph {
           xaxis: {
             type: 'date',
             range: [olderTime,futureTime]
-          }
+          }   
         };
 
     Plotly.relayout('chart', minuteView);

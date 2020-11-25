@@ -31,7 +31,7 @@ window.addEventListener("load", function(event) {
                        'chrome://flags/#enable-experimental-web-platform-features<br />' +
                        'opera://flags/#enable-experimental-web-platform-features<br />' +
                        'edge://flags/#enable-experimental-web-platform-features<br />';
-    log.write(alertMessage,false);
+    log.write(alertMessage,2);
   }else{
     setInterval(function(){
       if (serial.connected && serial.binary){

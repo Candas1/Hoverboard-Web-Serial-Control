@@ -56,3 +56,15 @@ color:orange;
 .error{
  color:red;
 }
+
+.info{
+  color:white;
+ }
+
+.field{
+  color:lightskyblue;
+ }
+
+.value{
+  color:lightgoldenrodyellow;
+ } 
