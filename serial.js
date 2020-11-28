@@ -99,12 +99,12 @@ class Serial {
       }
     }else{
       // Read buffer until \n
-      while ( (this.writeOffset) > (this.readOffset)){
+      while ( (this.writeOffset) >= (this.readOffset)){
         if (this.writedv.getUint8(this.address(this.readOffset),true) != 0x0A){
           this.skipByte();
         }else{
-          this.readAscii();
-          break;
+          let found = this.readAscii();
+          if (!found) break;
         }
       }
     }
@@ -201,7 +201,7 @@ class Serial {
     let i = 1;
     let found = false;
     // read until next \n
-    while (this.writeOffset > this.readOffset + i){
+    while (this.writeOffset >= this.readOffset + i){
       let char = this.writedv.getUint8(this.address(this.readOffset + i),true); 
       if ( char == 0x0A){
         // Save new read pointer
@@ -216,15 +216,26 @@ class Serial {
     
     // \n not found, buffer probably doesn't have enough data, exit
     if (!found){
-      return;
+      return false;
     }
 
     let words = string.split(" ");
     let message = {};
-    if (string.split(":").length > 1) {
+    let err = false;
+
+    if (words[0].split(":").length == 0){
+      // Print message, no need to parse it
+      log.write(string,3);
+      return true;
+    }
+
+    if (string.split(":").length == 9){
       for(let j = 0; j < words.length; j++) {
         let index = words[j].split(':')[0];
         let value = words[j].split(':')[1];
+        
+        if (value === undefined) err = true;
+        
         if (index <= this.fieldsAscii.length){
           message[this.fieldsAscii[index-1]] = value;
         }else{
@@ -232,14 +243,18 @@ class Serial {
         }
       }
     }else{
-      log.write(string,3);
-      return;
+      err = true;
     }
 
-    if (Object.entries(message).length > 0) {
+    if (!err && Object.entries(message).length > 0) {
       success.value = this.success++;
       log.writeLog(message);
       graph.updateData(message);
+      return true;
+    }else{
+      error.value = this.error++;
+      log.write(string,2);
+      return true;
     }
   }
 }

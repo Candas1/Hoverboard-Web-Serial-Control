@@ -5,71 +5,96 @@ class Graph {
     this.key2trace = {};
     this.traces = [];
     this.countTrace = 0;
+    this.points = 0;
     this.lastDataUpdate = Date.now();
-    this.dataUpdateFrequency = 200;
+    this.dataUpdateFrequency = 100;
     this.lastGraphUpdate = Date.now();
-    this.graphUpdateFrequency = 500;
+    this.graphUpdateFrequency = 200;
     this.trace = {
-      x: [],
+      //x: [],
       y: [],
       name: "",
       mode: 'lines',
-      line: {shape: 'spline',smoothing:1},
+      line: {width:2,shape: 'spline',smoothing:1.2},
       type: 'scattergl',
       };
 
     const data = [];
 
-    const color = 'grey'; 
-    const width = 0.1; 
+    const color = 'lemonchiffon'; 
+    const width = 1; 
     this.yaxis = {
-      showgrid: true,
-      showline: true,
+      domain:[0,1],
+      autorange: true,
+      autoscale: true,
+      autoticks:true,
+      mirror:true,
       
+      showline: true,
       linecolor: color,
       lineWidth: width,
       
       tickcolor: color,
       tickwidth: width,
       
+      showgrid: true,
       gridcolor: color,
       gridwidth: width,
       
-      zerolinecolor: color,
-      zerolinewidth: width,
+      //zeroline:true,
+      //zerolinecolor: color,
+      //zerolinewidth: width,
     };
 
     this.xaxis = {
-      showgrid: true,
-      showline: true,
+      //type: 'date',
+      domain:[0,1],
+      autorange: false,
+      autoscale: false,
+      autoticks: false,
+      mirror:true,
+      
+      //showline: true,
+      //linecolor: color,
+      //lineWidth: width,
 
-      linecolor: color,
-      lineWidth: width,
-
+      tickmode: 'linear',
+      tick0: '0',
+      dtick: '5', 
+      showticklabels: false,
+      ticks: "",
       tickcolor: color,
       tickwidth: width,
       
+      showgrid: false,
       gridcolor: color,
       gridwidth: width,
 
+      zeroline:false,
       zerolinecolor: color,
       zerolinewidth: width,
     };
 
-    const layout = {
-      grid:{ rows:1, columns:1, pattern: 'independent',roworder: 'top to bottom'},
+    this.layout = {
+      grid:{ rows:1, columns:1, pattern: 'independent',roworder: 'bottom to top'},
+      margin: {l:50, r:0, t:20, b:0},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
+      legend:{
+        itemclick:'toggle',
+        itemdoubleclick:'toggleothers',
+        title: { text:"Channels"} 
+      },
       autosize: true,
-      yaxis: this.yaxis,
-      xaxis: this.xaxis,
+      yaxis: JSON.parse(JSON.stringify(this.yaxis)),
+      xaxis: JSON.parse(JSON.stringify(this.xaxis)),
     };
 
     const config = {
       responsive: true
     }
 
-    Plotly.newPlot('chart', data , layout, config);
+    Plotly.newPlot('chart', data , this.layout, config);
   }  
 
   async updateData(message){
@@ -90,10 +115,12 @@ class Graph {
         // Prepare empty structure
         this.initUpdateStruct();
       }else{
-        this.update.x[this.key2trace[key]].push(time);
+        //this.update.x[this.key2trace[key]].push(time);
         this.update.y[this.key2trace[key]].push(message[key]);
       }
     }
+
+    this.points++;
 
     if (!this.isPaused && (view=='chart') && ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) ){
       // extend traces and relayout
@@ -108,21 +135,18 @@ class Graph {
   subplot(param){
 
     let update = {yaxis:[]};
-    let layout = { grid:{rows:1,columns: 1, pattern: 'dependent', roworder: 'top to bottom'}, yaxis:[]};
-    
     for(let i=0;i<this.countTrace;i++){
-      let axis = 'yaxis' + ( i==0?'':(i+1));
+      let yaxis = 'yaxis' + ( i==0?'':(i+1));
       update.yaxis.push("y" + (param == 0 ? "" : (i+1)) );
-      layout[axis] = JSON.parse(JSON.stringify(this.yaxis));
+      this.layout[yaxis] = JSON.parse(JSON.stringify(this.yaxis));
       if (param == 0) {
-        layout[axis]['domain'] = [0,1];
+        this.layout[yaxis]['domain'] = [0,1];
       }else{
-        layout[axis]['domain'] = this.getDomain(i);
+        this.layout[yaxis]['domain'] = this.getDomain(i);
       }
     }
 
-    if (param==1) layout.grid.rows = this.countTrace;
-    Plotly.update('chart', update,layout);
+    Plotly.update('chart', update,this.layout);
   }
 
   getDomain(i) {
@@ -138,9 +162,11 @@ class Graph {
 
   initUpdateStruct(){
     // Initialise empty structure for appending traces
-    this.update = {x:[],y:[]};
+    this.update = {
+                   //x:[],
+                   y:[]};
     for( let i= 0; i<this.countTrace;i++){
-      this.update.x.push([]);
+      //this.update.x.push([]);
       this.update.y.push([]);
     }
   }
@@ -149,14 +175,11 @@ class Graph {
     let time = new Date();  
     var olderTime = time.setMinutes(time.getMinutes() - 1);
     var futureTime = time.setMinutes(time.getMinutes() + 1);
-
-    var minuteView = {
-          xaxis: {
-            type: 'date',
-            range: [olderTime,futureTime]
-          }   
-        };
-
-    Plotly.relayout('chart', minuteView);
+    // check this
+    this.layout.xaxis.range = [this.points - 42,this.points-2];
+    //this.layout.xaxis.range = [olderTime,futureTime];
+    this.layout.xaxis.autorange = false;
+    this.layout.xaxis.autoscale = true;
+    Plotly.relayout('chart', this.layout);
   }
 }

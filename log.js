@@ -1,61 +1,83 @@
 class Log {
   constructor(container) {
-    this.innerHTML = '';
-    this.maxLogSize = 2000;
+    this.maxLogSize = 1000;
     this.container = container;
-    this.lastDisplay = 0;
-    this.displayFrequency = 100;
     this.isPaused = false;
+    this.lastLogUpdate = Date.now();
+    this.logUpdateFrequency = 200;
   }
 
   addSpan(text,type){
+    let span = document.createElement("span");
+    span.appendChild(document.createTextNode(text));
+
     switch (type){
+      case 0:
+        span.className = 'line';
+        break;
       case 1:
-        return "<span class='success'>" + text + "</span>";
+        span.className = 'success';
+        break;
       case 2:
-        return "<span class='error'>" + text + "</span>";   
+        span.className = 'error';
+        break;   
       case 3:
-        return "<span class='info'>" + text + "</span>";
+        span.className = 'info';
+        break;
       case 4:
-        return "<span class='field'>" + text + "</span>";
+        span.className = 'field';
+        break;
       case 5:
-        return "<span class='value'>" + text + "</span>";
+        span.className = 'value';
+        break;
     }
+
+    return span;
   }
 
   // write to log buffer
-  async write(message,type){
-    this.innerHTML += ( (type == 0 ) ? message : this.addSpan(message,type) ) + "<br />";
-    if (Date.now() - this.lastDisplay > this.displayFrequency) this.display();
+  write(message,type){
+
+    let line = this.addSpan("",type);
+    line.appendChild(document.createTextNode(message));
+    line.appendChild(document.createElement("br"));
+    this.container.appendChild(line);
+
+    this.display();
   }
 
-  async writeLog(message){
-    this.write(Object.keys( message ).map( 
-      function(key){ 
-        return log.addSpan(key + ":" ,4) + log.addSpan(message[key],5) 
-      }).join(" "),0);
+  writeLog(message){
+    
+    let line = this.addSpan("",0);
+    Object.keys( message ).map( 
+      function(key){
+        line.appendChild(log.addSpan(key + ":" ,4));
+        line.appendChild(log.addSpan(message[key] + " ", 5));
+      }).join(" ");
+    line.appendChild(document.createElement("br"));
+    this.container.appendChild(line);
+    this.display();
   }
 
-  // Truncate to only keep maximum number of lines in the log
-  truncate(){
-    let lines = this.innerHTML.split('<br />');
-    if (lines.length > this.maxLogSize){
-      this.innerHTML = lines.splice(- this.maxLogSize).join('<br />');
+  display(){
+    if (!this.isPaused) { 
+      // Truncate if too many lines
+      while (this.container.children.length > this.maxLogSize ){
+        this.container.removeChild(this.container.firstChild);
+      }
+      
+      // limit scrolling frequency, it is slow and impacts when many messages are received
+      if ( Date.now() - this.lastLogUpdate < this.logUpdateFrequency) return;
+      this.lastLogUpdate = Date.now();
+
+      this.container.scrollTop = this.container.scrollHeight;
     }
   }
 
-  // refresh log div 
-  async display(){
-    if (!this.isPaused) this.truncate();
-    if (view!='log') return; 
-    this.container.innerHTML = this.innerHTML;
-    if (!this.isPaused) this.container.scrollTop = this.container.scrollHeight;
-    this.lastDisplay = Date.now();
-    //console.log("Log Updated");
-  }
-
   clear(){
-    this.innerHTML = '';
+    while (this.container.children.length > 0 ){
+      this.container.removeChild(this.container.firstChild);
+    }
     this.display();
   };
 
