@@ -223,13 +223,14 @@ class Serial {
     let message = {};
     let err = false;
 
-    if (words[0].split(":").length == 0){
+    if (words[0].split(":").length == 1 ){
       // Print message, no need to parse it
       log.write(string,3);
       return true;
     }
 
     if (string.split(":").length == 9){
+      // Parse the message
       for(let j = 0; j < words.length; j++) {
         let index = words[j].split(':')[0];
         let value = words[j].split(':')[1];
