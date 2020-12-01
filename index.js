@@ -71,6 +71,15 @@ function switchView(){
   }
 }
 
+function trash(){
+  console.log(view);
+  if (view == "log"){
+    log.clear();
+  }else{
+    graph.clear();
+  }
+}
+
 function toggle(){
  serial.binary = !document.getElementById('ascii').checked;
 }

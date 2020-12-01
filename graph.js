@@ -7,15 +7,14 @@ class Graph {
     this.countTrace = 0;
     this.points = 0;
     this.lastDataUpdate = Date.now();
-    this.dataUpdateFrequency = 100;
+    this.dataUpdateFrequency = 0;
     this.lastGraphUpdate = Date.now();
     this.graphUpdateFrequency = 200;
     this.trace = {
-      //x: [],
       y: [],
       name: "",
       mode: 'lines',
-      line: {width:2,shape: 'spline',smoothing:1.2},
+      line: {width:2}, //,shape: 'spline',smoothing:1.2},
       type: 'scattergl',
       };
 
@@ -37,7 +36,7 @@ class Graph {
       tickcolor: color,
       tickwidth: width,
       
-      showgrid: true,
+      showgrid: false,
       gridcolor: color,
       gridwidth: width,
       
@@ -47,7 +46,6 @@ class Graph {
     };
 
     this.xaxis = {
-      //type: 'date',
       domain:[0,1],
       autorange: false,
       autoscale: false,
@@ -76,7 +74,7 @@ class Graph {
     };
 
     this.layout = {
-      grid:{ rows:1, columns:1, pattern: 'independent',roworder: 'bottom to top'},
+      grid:{ rows:1, columns:1, pattern: 'independent' , roworder: 'top to bottom'},
       margin: {l:50, r:0, t:20, b:0},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
@@ -115,7 +113,6 @@ class Graph {
         // Prepare empty structure
         this.initUpdateStruct();
       }else{
-        //this.update.x[this.key2trace[key]].push(time);
         this.update.y[this.key2trace[key]].push(message[key]);
       }
     }
@@ -130,6 +127,12 @@ class Graph {
       this.lastGraphUpdate = Date.now();
       //console.log("Graph Updated");
     }
+  }
+
+  clear(){
+    this.initUpdateStruct();
+    Plotly.update('chart', this.update);
+    this.points = 0;
   }
 
   subplot(param){
@@ -163,21 +166,14 @@ class Graph {
   initUpdateStruct(){
     // Initialise empty structure for appending traces
     this.update = {
-                   //x:[],
                    y:[]};
     for( let i= 0; i<this.countTrace;i++){
-      //this.update.x.push([]);
       this.update.y.push([]);
     }
   }
 
   relayout(){
-    let time = new Date();  
-    var olderTime = time.setMinutes(time.getMinutes() - 1);
-    var futureTime = time.setMinutes(time.getMinutes() + 1);
-    // check this
-    this.layout.xaxis.range = [this.points - 42,this.points-2];
-    //this.layout.xaxis.range = [olderTime,futureTime];
+    this.layout.xaxis.range = [this.points - 1000,this.points-2];
     this.layout.xaxis.autorange = false;
     this.layout.xaxis.autoscale = true;
     Plotly.relayout('chart', this.layout);
