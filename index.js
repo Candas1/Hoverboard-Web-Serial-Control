@@ -27,11 +27,10 @@ voice = new Voice();
 window.addEventListener("load", function(event) {
   if ("serial" in navigator === false) {
     connect_btn.disabled = true;
-    let alertMessage = 'Web Serial API not supported. Enable experimental features.<br />' +
-                       'chrome://flags/#enable-experimental-web-platform-features<br />' +
-                       'opera://flags/#enable-experimental-web-platform-features<br />' +
-                       'edge://flags/#enable-experimental-web-platform-features<br />';
-    log.write(alertMessage,2);
+    log.write('Web Serial API not supported. Enable experimental features.',2);
+    log.write('chrome://flags/#enable-experimental-web-platform-features',2);
+    log.write('opera://flags/#enable-experimental-web-platform-features',2);
+    log.write('edge://flags/#enable-experimental-web-platform-features',2);
   }else{
     setInterval(function(){
       if (serial.connected && serial.binary){
