@@ -17,15 +17,15 @@ class Serial {
     this.success = 0;
     this.serial_frame = 0xABCD;
 
-    this.fieldsAscii = ['Input1',
-                        'Input2',
-                        'SpeedR',
-                        'SpeedL',
-                        'BatADC',
-                        'BatVoltage',
-                        'TempADC',
-                        'TempDeg'
-                        ];
+    this.fieldsAscii = {1:'Input1',
+                        2:'Input2',
+                        3:'SpeedR',
+                        4:'SpeedL',
+                        5:'BatADC',
+                        6:'BatVoltage',
+                        7:'TempADC',
+                        8:'TempDeg'
+                        };
   }
 
   disconnect(){
@@ -57,7 +57,6 @@ class Serial {
         this.inputStream = this.port.readable;
         this.reader = this.inputStream.getReader();
         
-
         try{
           while (true){
             const { value, done } = await this.reader.read();
@@ -184,7 +183,7 @@ class Serial {
 
     var ab = new ArrayBuffer(8);
     var dv = new DataView(ab);
-    
+
     dv.setUint16(0,this.serial_frame,true);
     dv.setInt16(2, command.steer,true);
     dv.setInt16(4, command.speed,true);
@@ -237,8 +236,8 @@ class Serial {
         
         if (value === undefined) err = true;
         
-        if (index <= this.fieldsAscii.length){
-          message[this.fieldsAscii[index-1]] = value;
+        if (index in this.fieldsAscii){
+          message[this.fieldsAscii[index]] = value;
         }else{
           message[index] = value;
         }

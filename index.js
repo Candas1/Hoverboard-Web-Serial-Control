@@ -64,7 +64,7 @@ function switchView(){
     view = "chart";
     graph.relayout();
   }else{
-    switch_btn.innerHTML = '<ion-icon name="pulse-outline"></ion-icon>';
+    switch_btn.innerHTML = '<ion-icon name="analytics-outline"></ion-icon>';
     chart.style.display = "none";
     logger.style.display = "block";
     view = "log";
