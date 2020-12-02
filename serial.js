@@ -1,5 +1,6 @@
 class Serial {
   constructor(size,log,graph) {
+    this.mode = 'bluetooth';
     this.connected = false;
     this.binary = false;
     this.bufferSize = size;
@@ -37,10 +38,19 @@ class Serial {
   async connect() {
 
     if ( this.connected){
+      if (this.mode == 'bluetooth') this.device.gatt.disconnect();
       this.disconnect();
       return;
     }
     
+    if ( this.mode == 'serial'){
+      this.connectSerial();
+    }else{
+      this.connectBluetooth();
+    } 
+  }
+
+  async connectSerial(){
     if ("serial" in navigator) {
       // The Serial API is supported.
       this.port = await navigator.serial.requestPort();
@@ -80,7 +90,57 @@ class Serial {
       this.reader.releaseLock();
       this.port.close();
       this.disconnect();
-    }  
+    }
+  }
+
+  connectBluetooth(){
+    let options = {
+          acceptAllDevices:true,
+          optionalServices:[0xffe0],
+          //filters: [{services: [0xffe0]}]
+          };
+    navigator.bluetooth.requestDevice(options)
+    .then(device => {
+      //console.log(device);
+      this.device = device;
+      device.addEventListener('gattserverdisconnected', this.onDisconnected);
+      return device.gatt.connect();
+    }).
+    then((server) => {
+      //console.log(server);
+
+      this.connected = true;
+      connect_btn.innerHTML = '<ion-icon name="flash-off-outline"></ion-icon>';
+      send_btn.disabled = !this.connected;
+      
+      this.server = server;
+      return server.getPrimaryService(0xffe0);
+    })
+    .then((service) => {
+      //console.log(service);
+      this.service = service;
+      return service.getCharacteristic(0xffe1);
+    })
+    .then(characteristic => characteristic.startNotifications())
+    .then((characteristic) => {
+      //console.log(characteristic);
+      this.characteristic = characteristic;
+      this.characteristic.addEventListener('characteristicvaluechanged',this.handleCharacteristicValueChanged);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  }
+
+  handleCharacteristicValueChanged(event) {
+    let chunk = new Uint8Array(event.target.value.buffer);
+    serial.write(chunk);
+    serial.readLoop();
+    serial.sendBinary();
+  }
+
+  onDisconnected(event) {
+    this.disconnect();
   }
 
   write(chunk){
@@ -175,11 +235,12 @@ class Serial {
     this.log.writeLog(message);
     this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
   }
-
+ 
   sendBinary() {
-
-    this.outputStream = this.port.writable;
-    this.writer = this.outputStream.getWriter();
+    if (this.mode == 'serial'){
+      this.outputStream = this.port.writable;
+      this.writer = this.outputStream.getWriter();
+    }
 
     var ab = new ArrayBuffer(8);
     var dv = new DataView(ab);
@@ -190,9 +251,13 @@ class Serial {
     dv.setUint16(6,this.serial_frame ^ command.steer ^ command.speed,true);
   
     let view = new Uint8Array(ab);
-    this.writer.write(view);
-    
-    this.writer.releaseLock();
+
+    if (this.mode == 'serial'){
+      this.writer.write(view);
+      this.writer.releaseLock();
+    }else{
+      this.characteristic.writeValue(view);
+    }
   };
 
   readAscii(){
