@@ -25,19 +25,30 @@ command = new Command();
 voice = new Voice();
 
 window.addEventListener("load", function(event) {
-  if ("serial" in navigator === false) {
-    connect_btn.disabled = true;
-    log.write('Web Serial API not supported. Enable experimental features.',2);
-    log.write('chrome://flags/#enable-experimental-web-platform-features',2);
-    log.write('opera://flags/#enable-experimental-web-platform-features',2);
-    log.write('edge://flags/#enable-experimental-web-platform-features',2);
-  }else{
+  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    serial.mode = 'bluetooth';
     setInterval(function(){
       if (serial.connected && serial.binary){
-        
+        serial.sendBinary();
       }
-    },100);
+    },50);
+  }else{
+    serial.mode = 'serial';
+    if ("serial" in navigator === false) {
+      connect_btn.disabled = true;
+      log.write('Web Serial API not supported. Enable experimental features.',2);
+      log.write('chrome://flags/#enable-experimental-web-platform-features',2);
+      log.write('opera://flags/#enable-experimental-web-platform-features',2);
+      log.write('edge://flags/#enable-experimental-web-platform-features',2);
+    }else{
+      setInterval(function(){
+        if (serial.connected && serial.binary){
+          serial.sendBinary();
+        }
+      },50);
+    }
   }
+  
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};

@@ -29,7 +29,14 @@ class Serial {
                         };
   }
 
-  disconnect(){
+
+  setConnected(){
+    this.connected = true;
+    connect_btn.innerHTML = '<ion-icon name="flash-off-outline"></ion-icon>';
+    send_btn.disabled = !this.connected;  
+  }
+
+  setDisconnected(){
     this.connected = false;
     connect_btn.innerHTML = '<ion-icon name="flash-outline"></ion-icon>';
     send_btn.disabled = !this.connected;  
@@ -39,7 +46,7 @@ class Serial {
 
     if ( this.connected){
       if (this.mode == 'bluetooth') this.device.gatt.disconnect();
-      this.disconnect();
+      this.setDisconnected();
       return;
     }
     
@@ -59,10 +66,8 @@ class Serial {
         baudRate: baud.value
       });
     
-      this.connected = true;
-      connect_btn.innerHTML = '<ion-icon name="flash-off-outline"></ion-icon>';
-      send_btn.disabled = !this.connected;
-      
+      this.setConnected();
+
       while (this.port.readable) {
         this.inputStream = this.port.readable;
         this.reader = this.inputStream.getReader();
@@ -74,7 +79,7 @@ class Serial {
               log.write("Reader canceled",2);
               break;
             }
-            if (serial.binary) serial.sendBinary();
+            //if (serial.binary) serial.sendBinary();
             this.write(value);
             this.readLoop();
             if (!this.connected) break;
@@ -109,9 +114,7 @@ class Serial {
     then((server) => {
       //console.log(server);
 
-      this.connected = true;
-      connect_btn.innerHTML = '<ion-icon name="flash-off-outline"></ion-icon>';
-      send_btn.disabled = !this.connected;
+      this.setConnected();
       
       this.server = server;
       return server.getPrimaryService(0xffe0);
@@ -136,11 +139,11 @@ class Serial {
     let chunk = new Uint8Array(event.target.value.buffer);
     serial.write(chunk);
     serial.readLoop();
-    serial.sendBinary();
+    //serial.sendBinary();
   }
 
   onDisconnected(event) {
-    this.disconnect();
+    serial.setDisconnected();
   }
 
   write(chunk){

@@ -7,9 +7,9 @@ class Graph {
     this.countTrace = 0;
     this.points = 0;
     this.lastDataUpdate = Date.now();
-    this.dataUpdateFrequency = 0;
+    this.dataUpdateFrequency = 50;
     this.lastGraphUpdate = Date.now();
-    this.graphUpdateFrequency = 200;
+    this.graphUpdateFrequency = 400;
     this.trace = {
       y: [],
       name: "",
