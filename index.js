@@ -60,13 +60,13 @@ window.onbeforeunload = function(event){ serial.connected = false;};
 steerIn.addEventListener("keyup", function(event) {
   if (event.keyCode === 13) {
     event.preventDefault();
-    send();
+    sendData();
   }
 });
 speedIn.addEventListener("keyup", function(event) {
   if (event.keyCode === 13) {
     event.preventDefault();
-    send();
+    sendData();
   }
 });
  
@@ -107,6 +107,6 @@ function pauseUpdate(){
   graph.isPaused = !graph.isPaused;
 }
 
-function send() {
+function sendData() {
   command.setSpeed(parseInt(steerIn.value),parseInt(speedIn.value));
 }
