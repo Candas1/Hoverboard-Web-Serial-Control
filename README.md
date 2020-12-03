@@ -13,7 +13,7 @@ https://web.dev/serial/<br>
 Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI.
 
 ## Bluetooth:
-From mobile, the tool is using Web Bluetooth API andlets you use a Bluetooth BLE device (e.g. AT-09, HM-10...).<br>
+From mobile, the tool is using Web Bluetooth API and lets you use a Bluetooth BLE device (e.g. AT-09, HM-10...).<br>
 https://web.dev/bluetooth/<br>
 Make sure you [configured](https://github.com/Candas1/Hoverboard-Web-Serial-Control/wiki/Configure-BLE-device) your BLE device with the right baud rate.
 Click on connect button and select the right BLE device.
