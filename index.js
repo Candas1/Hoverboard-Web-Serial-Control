@@ -36,7 +36,7 @@ window.addEventListener("load", function(event) {
     },50);
   }else{
     // if on computer, Web Serial API should be used
-    serial.API = 'serial';//'serial';
+    serial.API = 'serial';
     if ("serial" in navigator === false) {
       connect_btn.disabled = true;
       log.write('Web Serial API not supported. Enable experimental features.',2);
