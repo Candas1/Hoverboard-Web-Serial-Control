@@ -17,6 +17,8 @@ class Serial {
     this.skip = 0;
     this.success = 0;
     this.serial_frame = 0xABCD;
+    this.lastStatsUpdate = Date.now();
+    this.statsUpdateFrequency = 500;
 
     this.fieldsAscii = {1:'Input1',
                         2:'Input2',
@@ -170,6 +172,7 @@ class Serial {
         }
       }
     }
+    this.display();
   }
 
   address(offset){
@@ -177,18 +180,27 @@ class Serial {
   }
   
   setReadOffset(offset){
-    this.readOffset = offset;
-    read.value = this.address(this.readOffset); 
+    this.readOffset = offset; 
   }
 
   setWriteOffset(offset){
     this.writeOffset = offset;
-    write.value = this.address(this.writeOffset);
   }
 
   skipByte(){
     this.setReadOffset(this.readOffset + 1); // incorrect start frame, increase read offset
-    skip.value = this.skip++;
+    this.skip++;
+  }
+
+  display(){
+    if ( Date.now() - this.lastStatsUpdate < this.statsUpdateFrequency) return;
+      this.lastStatsUpdate = Date.now();
+
+    read.value = this.address(this.readOffset);
+    write.value = this.address(this.writeOffset);
+    success.value = this.success;
+    skip.value = this.skip;
+    error.value = this.error;
   }
 
   readBinary(){
@@ -227,10 +239,10 @@ class Serial {
     calcChecksum = this.readdv.getUint16(16,true);
     
     if ( checksum == calcChecksum ){
-      success.value = this.success++;
+      this.success++;
       this.graph.updateData(message);
     }else{  
-      error.value = this.error++;  
+      this.error++;  
     }
 
     message.checksum = checksum;
@@ -315,12 +327,12 @@ class Serial {
     //}
 
     if (!err && Object.entries(message).length > 0) {
-      success.value = this.success++;
+      this.success++;
       log.writeLog(message);
       graph.updateData(message);
       return true;
     }else{
-      error.value = this.error++;
+      this.error++;
       log.write(string,2);
       return true;
     }
