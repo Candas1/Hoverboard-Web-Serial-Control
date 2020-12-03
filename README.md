@@ -1,6 +1,6 @@
 # Hoverboard-Web-Serial-Control
 
-Experiment to control hoverboard, log and plot output data through a simple webpage.
+Experiment to control hoverboard, log and plot output data through a simple webpage.<br>
 Works with USART serial protocol and USART DEBUG in following firmware:<br>
 https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC
 
