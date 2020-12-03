@@ -1,6 +1,6 @@
 class Serial {
   constructor(size,log,graph) {
-    this.mode = 'bluetooth';
+    this.API = 'bluetooth';
     this.connected = false;
     this.binary = false;
     this.bufferSize = size;
@@ -45,12 +45,12 @@ class Serial {
   async connect() {
 
     if ( this.connected){
-      if (this.mode == 'bluetooth') this.device.gatt.disconnect();
+      if (this.API == 'bluetooth') this.device.gatt.disconnect();
       this.setDisconnected();
       return;
     }
     
-    if ( this.mode == 'serial'){
+    if ( this.API == 'serial'){
       this.connectSerial();
     }else{
       this.connectBluetooth();
@@ -63,7 +63,7 @@ class Serial {
       this.port = await navigator.serial.requestPort();
       // Open and begin reading.
       await this.port.open({
-        baudRate: baud.value
+        baudRate: baudrate.value
       });
     
       this.setConnected();
@@ -240,7 +240,7 @@ class Serial {
   }
  
   sendBinary() {
-    if (this.mode == 'serial'){
+    if (this.API == 'serial'){
       this.outputStream = this.port.writable;
       this.writer = this.outputStream.getWriter();
     }
@@ -255,7 +255,7 @@ class Serial {
   
     let view = new Uint8Array(ab);
 
-    if (this.mode == 'serial'){
+    if (this.API == 'serial'){
       this.writer.write(view);
       this.writer.releaseLock();
     }else{
@@ -296,7 +296,7 @@ class Serial {
       return true;
     }
 
-    if (string.split(":").length == 9){
+    //if (string.split(":").length == 9){
       // Parse the message
       for(let j = 0; j < words.length; j++) {
         let index = words[j].split(':')[0];
@@ -310,9 +310,9 @@ class Serial {
           message[index] = value;
         }
       }
-    }else{
-      err = true;
-    }
+    //}else{
+      //err = true;
+    //}
 
     if (!err && Object.entries(message).length > 0) {
       success.value = this.success++;

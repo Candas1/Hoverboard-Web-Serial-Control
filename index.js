@@ -1,4 +1,4 @@
-var baud = document.getElementById('baud');
+var baudrate = document.getElementById('baudrate');
 var connect_btn = document.getElementById('connect');
 
 var switch_btn = document.getElementById('switch');
@@ -22,12 +22,12 @@ log = new Log(document.getElementById('log'));
 graph = new Graph();
 serial = new Serial(10000,log,graph);
 command = new Command();
-voice = new Voice();
+voice = new Voice();   
 
 window.addEventListener("load", function(event) {
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
     // if on Mobile phone, Web Bluetooth API should be used
-    serial.mode = 'bluetooth';
+    serial.API = 'bluetooth';
     baud.style.display = 'none';
     setInterval(function(){
       if (serial.connected && serial.binary){
@@ -36,7 +36,7 @@ window.addEventListener("load", function(event) {
     },50);
   }else{
     // if on computer, Web Serial API should be used
-    serial.mode = 'serial';
+    serial.API = 'serial';//'serial';
     if ("serial" in navigator === false) {
       connect_btn.disabled = true;
       log.write('Web Serial API not supported. Enable experimental features.',2);
@@ -85,8 +85,7 @@ function switchView(){
   }
 }
 
-function trash(){
-  console.log(view);
+function deleteData(){
   if (view == "log"){
     log.clear();
   }else{
@@ -95,10 +94,10 @@ function trash(){
 }
 
 function toggle(){
- serial.binary = !document.getElementById('ascii').checked;
+ serial.binary = document.getElementById('mode').value == "binary";
 }
 
-async function pause(){
+function pauseUpdate(){
   if (log.isPaused){
     pause_btn.innerHTML = '<ion-icon name="pause-outline"></ion-icon>';
   }else{

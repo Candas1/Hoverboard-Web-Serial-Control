@@ -1,12 +1,12 @@
   <html>
   <meta http-equiv="origin-trial" content="AmcoP97xSqB7QVZctDvX9VUrB7+37Xnf5lcPJu0lnRWnnFZCH8oaLdCnXdJK9aSBfvvpdIgGK5b5VRh6UeqXhAEAAABkeyJvcmlnaW4iOiJodHRwczovL2NhbmRhczEuZ2l0aHViLmlvOjQ0MyIsImZlYXR1cmUiOiJTZXJpYWwiLCJleHBpcnkiOjE2MTAwMzg5OTAsImlzU3ViZG9tYWluIjp0cnVlfQ==">
   <body>
-    <div id="main" style="display: table;width: 100%;height: 100%;">
-      <div style="display: table-row;width:100%; height: 5%;">
-        <div style="display: table-cell;width:5%; height: 5%;"></div>
-        <div style="display: table-cell;width:90%; height: 5%;">
-          <label for="baud">Baud:</label>
-          <select id="baud">
+    <form>
+      <div class="row">
+        <div class="two columns"></div>
+        <div class="two columns">
+          <label for="baudrate">Baudrate</label>
+          <select class="u-full-width" id="baud">
               <option value="9600">9600</option>
               <option value="14400">14400</option>
               <option value="19200">19200</option>
@@ -14,41 +14,68 @@
               <option value="57600">57600</option>
               <option value="115200">115200</option>
           </select>
-          
-          <label for="ascii">Ascii</label><input type="checkbox" id="ascii" onclick="toggle()" name="ascii" checked>
-
-          <label>Buffer</label>  
-          <ion-icon name="pencil-outline"></ion-icon><input id="write" placeholder="Write" size="5" value="0" disabled>
-          <ion-icon name="glasses-outline"></ion-icon><input id="read" placeholder="Read" size="5" value="0" disabled>
-          
-
-          <label>Feedback</label>
-          <ion-icon class="success" name="checkmark-outline"></ion-icon><input id="success" class="success" size="4" value="0" disabled>
-          <ion-icon class="skip" name="chevron-forward-outline"></ion-icon><input id="skip" class="skip" size="4" value="0" disabled>
-          <ion-icon class="error" name="alert-outline"></ion-icon></ion-icon><input id="error" class="error" size="4" value="0" disabled>
-          
+        </div>
+        <div class="two columns">
+          <label for="mode">Mode</label>
+          <select class="u-full-width" id="mode" onchange="toggle()">
+              <option value="ascii" selected>Ascii</option>
+              <option value="binary">Binary</option>
+          </select>  
+        </div>
+        <div class="two columns">
+          <label for="steer">Steer</label>
+          <input class="u-full-width" type="number" id="steer" value="0">
+        </div>
+        <div class="two columns">
+          <label for="speed">Speed</label>
+          <input class="u-full-width" type="number" id="speed" value="0">
+        </div>
+        <div class="two columns">
+          <label for="send">Send</label>
+          <button class="button" type="button" id="send" disabled="true" onclick="send()"><ion-icon name="send-outline"></ion-icon></button>
         </div>
       </div>
-      
-      <div style="display: table-row; height: 90%;">
-        <div id="command" style="display: table-cell;width:8%;">
-          <input id="steer" placeholder="Steer" style="width:60%"><ion-icon name="swap-horizontal-outline"></ion-icon><br />
-          <input id="speed" placeholder="Speed" style="width:60%"><ion-icon name="swap-vertical-outline"></ion-icon><br />
-          <button id="send" style="width:60%" type="button" disabled="true" onclick="send()"><ion-icon name="send-outline"></ion-icon></button>
+      <div class="row">
+        <div class="two columns"></div>
+        <div class="two columns">
+          <label for="write">Write</label>
+          <input class="u-full-width" type="number" id="write" value="0" disabled>
         </div>
-        <div style="display: table-cell;width:88%;height:50%;">
-          <div id="chart" style="position:absolute;display:none;width:88%;height:91.8%;"></div>
-          <div id="log" style="position:absolute;display:block;width:88%;height:91.8%;"></div>
+        <div class="two columns">
+          <label for="read">Read</label>
+          <input class="u-full-width" type="number" id="read" value="0" disabled>
+        </div>    
+        <div class="two columns">
+          <label for="success">Success</label>
+          <input class="u-full-width" type="number" id="success" value="0" disabled>
         </div>
-        <div id="command" style="display: table-cell;width:5%;">
-          <button id="connect" type="button" onclick="serial.connect()"><ion-icon name="flash-outline"></ion-icon></button><br />
-          <button id="trash" class='form' type="button" onclick="trash()"><ion-icon name="trash-outline"></ion-icon></button><br />
-          <button id="pause" type="button" onclick="pause()"><ion-icon name="pause-outline"></ion-icon></button><br />
-          <button id="listen" type="button" onclick="voice.listen()"><ion-icon name="mic-outline"></ion-icon></button><br />
-          <button id="switch" type="button" onclick="switchView()"><ion-icon name="analytics-outline"></ion-icon></button><br />
+        <div class="two columns">
+          <label for="skip">Skip</label>
+          <input class="u-full-width" type="number" id="skip" value="0" disabled>
+        </div>
+        <div class="two columns">
+          <label for="error">Error</label>
+          <input class="u-full-width" type="number" id="error" value="0" disabled>
         </div>
       </div>
-    </div>  
+      <div class="row"></div>      
+      <div class="row">
+        <div class="one columns"></div>
+        <div class="nine columns">
+          <br>
+          <div class="u-full-width" id="log"></div>
+          <div class="u-full-width" id="chart" style="display:none"></div>
+        </div>
+        <div class="two columns">
+          <br>
+          <button id="connect" class="button" type="button" onclick="serial.connect()"><ion-icon name="flash-outline"></ion-icon></button><br>
+          <button id="trash"   class="button" type="button" onclick="deleteData()"><ion-icon name="trash-outline"></ion-icon></button><br>
+          <button id="pause"   class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause-outline"></ion-icon></button><br>
+          <button id="listen"  class="button" type="button" onclick="voice.listen()"><ion-icon name="mic-outline"></ion-icon></button><br>
+          <button id="switch"  class="button" type="button" onclick="switchView()"><ion-icon name="analytics-outline"></ion-icon></button><br>
+        </div>
+      </div>
+    </form>  
   </body>
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -56,6 +83,7 @@
   <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
   <script src="annyang.min.js"></script>
   
+  <link rel="stylesheet" href="skeleton.css">
   <link rel="stylesheet" href="index.css">
   <script src="log.js"></script>
   <script src="serial.js"></script>

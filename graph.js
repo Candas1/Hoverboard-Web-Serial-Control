@@ -11,6 +11,7 @@ class Graph {
     this.lastGraphUpdate = Date.now();
     this.graphUpdateFrequency = 400;
     this.trace = {
+      x: [],
       y: [],
       name: "",
       mode: 'lines',
@@ -46,6 +47,7 @@ class Graph {
     };
 
     this.xaxis = {
+      type: 'date',
       domain:[0,1],
       autorange: false,
       autoscale: false,
@@ -56,9 +58,6 @@ class Graph {
       //linecolor: color,
       //lineWidth: width,
 
-      tickmode: 'linear',
-      tick0: '0',
-      dtick: '5', 
       showticklabels: false,
       ticks: "",
       tickcolor: color,
@@ -78,6 +77,7 @@ class Graph {
       margin: {l:50, r:0, t:20, b:0},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
+      dragmode: 'pan',
       legend:{
         itemclick:'toggle',
         itemdoubleclick:'toggleothers',
@@ -113,6 +113,7 @@ class Graph {
         // Prepare empty structure
         this.initUpdateStruct();
       }else{
+        this.update.x[this.key2trace[key]].push(time);
         this.update.y[this.key2trace[key]].push(message[key]);
       }
     }
@@ -165,15 +166,20 @@ class Graph {
 
   initUpdateStruct(){
     // Initialise empty structure for appending traces
-    this.update = {
-                   y:[]};
+    this.update = {x:[],y:[]};
     for( let i= 0; i<this.countTrace;i++){
+      this.update.x.push([]);
       this.update.y.push([]);
     }
   }
 
   relayout(){
-    this.layout.xaxis.range = [this.points - 1000,this.points-2];
+    let time = new Date();
+    var olderTime = time.setSeconds(time.getSeconds() - 10);	
+    var futureTime = time.setSeconds(time.getSeconds() + 10);
+
+    //this.layout.xaxis.range = [this.points - 1000,this.points-2];
+    this.layout.xaxis.range = [olderTime,futureTime];
     this.layout.xaxis.autorange = false;
     this.layout.xaxis.autoscale = true;
     Plotly.relayout('chart', this.layout);
