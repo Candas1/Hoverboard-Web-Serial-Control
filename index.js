@@ -25,10 +25,10 @@ command = new Command();
 voice = new Voice();   
 
 window.addEventListener("load", function(event) {
-  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, Web Bluetooth API should be used
     serial.API = 'bluetooth';
-    baud.style.display = 'none';
+    baudrate.style.display = 'none';
     setInterval(function(){
       if (serial.connected && serial.binary){
         serial.sendBinary();

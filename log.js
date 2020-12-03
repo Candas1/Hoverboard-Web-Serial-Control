@@ -5,6 +5,8 @@ class Log {
     this.isPaused = false;
     this.lastLogUpdate = Date.now();
     this.logUpdateFrequency = 200;
+    this.lastLogScroll = Date.now();
+    this.logScrollFrequency = 400;
   }
 
   addSpan(text,type){
@@ -67,10 +69,10 @@ class Log {
       }
       
       // limit scrolling frequency, it is slow and impacts when many messages are received
-      if ( Date.now() - this.lastLogUpdate < this.logUpdateFrequency) return;
-      this.lastLogUpdate = Date.now();
-
-      this.container.scrollTop = this.container.scrollHeight;
+      if ( Date.now() - this.lastLogScroll > this.logScrollFrequency) {
+        this.lastLogScroll = Date.now();
+        this.container.scrollTop = this.container.scrollHeight;
+      }
     }
   }
 
