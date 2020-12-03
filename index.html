@@ -15,7 +15,6 @@
               <option value="115200">115200</option>
           </select>
           
-          <button id="connect" type="button" onclick="serial.connect()"><ion-icon name="flash-outline"></ion-icon></button>
           <label for="ascii">Ascii</label><input type="checkbox" id="ascii" onclick="toggle()" name="ascii" checked>
 
           <label>Buffer</label>  
@@ -42,11 +41,11 @@
           <div id="log" style="position:absolute;display:block;width:88%;height:91.8%;"></div>
         </div>
         <div id="command" style="display: table-cell;width:5%;">
-          <button id="switch" type="button" onclick="switchView()"><ion-icon name="analytics-outline"></ion-icon></button><br />
+          <button id="connect" type="button" onclick="serial.connect()"><ion-icon name="flash-outline"></ion-icon></button><br />
           <button id="trash" class='form' type="button" onclick="trash()"><ion-icon name="trash-outline"></ion-icon></button><br />
           <button id="pause" type="button" onclick="pause()"><ion-icon name="pause-outline"></ion-icon></button><br />
           <button id="listen" type="button" onclick="voice.listen()"><ion-icon name="mic-outline"></ion-icon></button><br />
-          
+          <button id="switch" type="button" onclick="switchView()"><ion-icon name="analytics-outline"></ion-icon></button><br />
         </div>
       </div>
     </div>  

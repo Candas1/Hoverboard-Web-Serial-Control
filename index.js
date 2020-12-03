@@ -26,13 +26,16 @@ voice = new Voice();
 
 window.addEventListener("load", function(event) {
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    // if on Mobile phone, Web Bluetooth API should be used
     serial.mode = 'bluetooth';
+    baud.style.display = 'none';
     setInterval(function(){
       if (serial.connected && serial.binary){
         serial.sendBinary();
       }
     },50);
   }else{
+    // if on computer, Web Serial API should be used
     serial.mode = 'serial';
     if ("serial" in navigator === false) {
       connect_btn.disabled = true;
