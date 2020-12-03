@@ -64,15 +64,18 @@
         <div class="nine columns">
           <br>
           <div class="u-full-width" id="log"></div>
-          <div class="u-full-width" id="chart" style="display:none"></div>
+          <div class="u-full-width" id="chart"   style="display:none"></div>
+          <div class="u-full-width" id="control" style="display:none"></div>
         </div>
         <div class="two columns">
           <br>
-          <button id="connect" class="button" type="button" onclick="serial.connect()"><ion-icon name="flash-outline"></ion-icon></button><br>
-          <button id="trash"   class="button" type="button" onclick="deleteData()"><ion-icon name="trash-outline"></ion-icon></button><br>
-          <button id="pause"   class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause-outline"></ion-icon></button><br>
-          <button id="listen"  class="button" type="button" onclick="voice.listen()"><ion-icon name="mic-outline"></ion-icon></button><br>
-          <button id="switch"  class="button" type="button" onclick="switchView()"><ion-icon name="analytics-outline"></ion-icon></button><br>
+          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash-outline"></ion-icon></button><br>
+          <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash-outline"></ion-icon></button><br>
+          <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause-outline"></ion-icon></button><br>
+          <button id="listen"     class="button" type="button" onclick="voice.listen()"><ion-icon name="mic-outline"></ion-icon></button><br>
+          <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="newspaper-outline"></ion-icon></button><br>
+          <button id="graphbtn"   class="button" type="button" onclick="switchView('chart')"><ion-icon name="analytics-outline"></ion-icon></button><br>
+          <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller-outline"></ion-icon></button><br>
         </div>
       </div>
     </form>  

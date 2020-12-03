@@ -92,7 +92,7 @@ class Graph {
       responsive: true
     }
 
-    Plotly.newPlot('chart', data , this.layout, config);
+    Plotly.newPlot(chart, data , this.layout, config);
   }  
 
   async updateData(message){

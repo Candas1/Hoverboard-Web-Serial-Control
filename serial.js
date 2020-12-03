@@ -1,6 +1,9 @@
 class Serial {
   constructor(size,log,graph) {
     this.API = 'bluetooth';
+    this.bluetoothName = 'BT05';
+    this.bluetoothService = 0xffe0;
+    this.bluetoothCharacteristic = 0xffe1;
     this.connected = false;
     this.binary = false;
     this.bufferSize = size;
@@ -102,9 +105,9 @@ class Serial {
 
   connectBluetooth(){
     let options = {
-          acceptAllDevices:true,
-          optionalServices:[0xffe0],
-          //filters: [{services: [0xffe0]}]
+          //acceptAllDevices:true,
+          optionalServices:[this.bluetoothService],
+          filters: [{ name: [this.bluetoothName] },{services: [this.bluetoothService]}],
           };
     navigator.bluetooth.requestDevice(options)
     .then(device => {
@@ -119,12 +122,12 @@ class Serial {
       this.setConnected();
       
       this.server = server;
-      return server.getPrimaryService(0xffe0);
+      return server.getPrimaryService(this.bluetoothService);
     })
     .then((service) => {
       //console.log(service);
       this.service = service;
-      return service.getCharacteristic(0xffe1);
+      return service.getCharacteristic(this.bluetoothCharacteristic);
     })
     .then(characteristic => characteristic.startNotifications())
     .then((characteristic) => {

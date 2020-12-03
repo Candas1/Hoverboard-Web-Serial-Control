@@ -1,7 +1,6 @@
 var baudrate = document.getElementById('baudrate');
 var connect_btn = document.getElementById('connect');
 
-var switch_btn = document.getElementById('switch');
 var pause_btn = document.getElementById('pause');
 var listen_btn = document.getElementById('listen');
 
@@ -15,7 +14,9 @@ var success = document.getElementById('success');
 var error = document.getElementById('error');
 
 var logger = document.getElementById('log');
-var gd = document.getElementById('chart');
+var chart = document.getElementById('chart');
+var control = document.getElementById('control');
+var controlPar = control.parentNode;
 var view = 'log';
 
 log = new Log(document.getElementById('log'));
@@ -36,7 +37,7 @@ window.addEventListener("load", function(event) {
     },50);
   }else{
     // if on computer, Web Serial API should be used
-    serial.API = 'serial';
+    serial.API = 'bluetooth';
     if ("serial" in navigator === false) {
       connect_btn.disabled = true;
       log.write('Web Serial API not supported. Enable experimental features.',2);
@@ -48,10 +49,9 @@ window.addEventListener("load", function(event) {
         if (serial.connected && serial.binary){
           serial.sendBinary();
         }
-      },50);
+      },80);
     }
   }
-  
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
@@ -69,20 +69,65 @@ speedIn.addEventListener("keyup", function(event) {
     sendData();
   }
 });
- 
-function switchView(){
-  if (view == "log"){
-    switch_btn.innerHTML = '<ion-icon name="reader-outline"></ion-icon>';
-    chart.style.display = "block";
-    logger.style.display = "none";
-    view = "chart";
-    graph.relayout();
-  }else{
-    switch_btn.innerHTML = '<ion-icon name="analytics-outline"></ion-icon>';
-    chart.style.display = "none";
-    logger.style.display = "block";
-    view = "log";
+
+
+['mousedown'].forEach( evt => 
+  control.addEventListener(evt, 
+    function(event){
+      let rect = control.getBoundingClientRect();
+      let steer = map(event.clientX,rect.left,rect.right,-1000,1000);
+      let speed = map(event.clientY,rect.bottom,rect.top,-1000,1000);
+      control.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
+      command.setSpeed(Math.round(steer),Math.round(speed));
+    }
+  , false));
+
+
+['touchstart','touchmove'].forEach( evt => 
+  control.addEventListener(evt, 
+    function(event){
+      let rect = control.getBoundingClientRect();
+      let steer = map(event.touches[0].clientX,rect.left,rect.right,-1000,1000);
+      let speed = map(event.touches[0].clientY,rect.bottom,rect.top,-1000,1000);
+      control.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
+      command.setSpeed(Math.round(steer),Math.round(speed));
+    }
+  , false));
+
+['mouseup','touchend'].forEach( evt => 
+  control.addEventListener(evt, 
+    function(event){
+      control.innerHTML = "Steer: " + 0 + "<br>" + "Speed: " + 0;
+      command.setSpeed(0,0);
+    }
+  , false));
+
+function map(x, in_min, in_max, out_min, out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+function switchView(newView){
+  
+  switch (newView){
+    case 'log':
+      chart.style.display = "none";
+      logger.style.display = "block";
+      control.style.display = "none";
+      break;
+    case 'chart':
+      chart.style.display = "block";
+      logger.style.display = "none";
+      control.style.display = "none";
+      graph.relayout();
+      break; 
+    case 'control':
+      chart.style.display = "none";
+      logger.style.display = "none";
+      control.style.display = "block";
+      break;  
   }
+  view = newView;
+
 }
 
 function deleteData(){

@@ -2,12 +2,20 @@
 #chart{
   height: 65%;
 }
+
 #log{
   font-size: 13px;
   height: 65%;
   color: white;
   background-color: black;
   overflow: auto;
+}
+
+#control{
+  font-size: 13px;
+  height: 65%;
+  color: black;
+  background-color: grey;
 }
 
 #success{
