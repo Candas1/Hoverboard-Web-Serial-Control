@@ -32,7 +32,7 @@ voice = new Voice();
 window.addEventListener("load", function(event) {
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, Web Bluetooth API should be used
-    API.remove(0);
+    API.remove(API.selectedIndex);
     startSend();
   }else{
     // if on computer, Web Serial API should be used
