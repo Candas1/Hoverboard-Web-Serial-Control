@@ -85,7 +85,7 @@ window.onbeforeunload = function(event){ serial.connected = false;};
 commandIn.addEventListener("keyup", function(event) {
   if (event.keyCode === 13) {
     event.preventDefault();
-    sendCommand();
+    if (serial.connected) command.cmdAscii(commandIn.value);
   }
 });
 
