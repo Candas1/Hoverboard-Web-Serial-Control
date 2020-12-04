@@ -6,7 +6,6 @@
 #loggerdiv{
   font-size: 13px;
   min-height: 65%;
-  flex:1;
   color: white;
   background-color: black;
   overflow: auto;
