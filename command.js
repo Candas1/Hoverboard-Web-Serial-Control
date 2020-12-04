@@ -10,7 +10,7 @@ class Command {
   }
 
   cmdAscii(text){
-    serial.send(text + "\n"); 
+    serial.sendAscii(text + (crIn.checked ?"\r":"") + (lfIn.checked ?"\n":"")); 
   }
 
 }

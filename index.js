@@ -1,18 +1,20 @@
+var API = document.getElementById('API');
+var mode = document.getElementById('mode');
 var baudrate = document.getElementById('baudrate');
 var connect_btn = document.getElementById('connect');
 
+var send_btn = document.getElementById('send');
 var pause_btn = document.getElementById('pause');
 var listen_btn = document.getElementById('listen');
 
-var steerIn = document.getElementById('steer');
-var speedIn = document.getElementById('speed');
-var send_btn = document.getElementById('send');
+var commandIn = document.getElementById('command');
+var crIn = document.getElementById('cr');
+var lfIn = document.getElementById('lf');
 var write = document.getElementById('write');
 var read = document.getElementById('read');
 var skip = document.getElementById('skip');
 var success = document.getElementById('success');
 var error = document.getElementById('error');
-
 
 var serialdiv  = document.getElementById('serialdiv');
 var statsdiv   = document.getElementById('statsdiv');
@@ -30,16 +32,10 @@ voice = new Voice();
 window.addEventListener("load", function(event) {
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, Web Bluetooth API should be used
-    serial.API = 'bluetooth';
-    baudrate.style.display = 'none';
-    setInterval(function(){
-      if (serial.connected && serial.binary){
-        serial.sendBinary();
-      }
-    },50);
+    API.remove(0);
+    startSend();
   }else{
     // if on computer, Web Serial API should be used
-    serial.API = 'bluetooth';
     if ("serial" in navigator === false) {
       connect_btn.disabled = true;
       log.write('Web Serial API not supported. Enable experimental features.',2);
@@ -47,31 +43,12 @@ window.addEventListener("load", function(event) {
       log.write('opera://flags/#enable-experimental-web-platform-features',2);
       log.write('edge://flags/#enable-experimental-web-platform-features',2);
     }else{
-      setInterval(function(){
-        if (serial.connected && serial.binary){
-          serial.sendBinary();
-        }
-      },80);
+      startSend();
     }
   }
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
-
-// Execute a function when the user releases a key on the keyboard
-steerIn.addEventListener("keyup", function(event) {
-  if (event.keyCode === 13) {
-    event.preventDefault();
-    sendData();
-  }
-});
-speedIn.addEventListener("keyup", function(event) {
-  if (event.keyCode === 13) {
-    event.preventDefault();
-    sendData();
-  }
-});
-
 
 ['mousedown'].forEach( evt => 
   controldiv.addEventListener(evt, 
@@ -79,7 +56,7 @@ speedIn.addEventListener("keyup", function(event) {
       let rect = controldiv.getBoundingClientRect();
       let steer = map(event.clientX,rect.left,rect.right,-1000,1000);
       let speed = map(event.clientY,rect.bottom,rect.top,-1000,1000);
-      control.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
+      controldiv.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
       command.setSpeed(Math.round(steer),Math.round(speed));
     }
   , false));
@@ -91,7 +68,7 @@ speedIn.addEventListener("keyup", function(event) {
       let rect = controldiv.getBoundingClientRect();
       let steer = map(event.touches[0].clientX,rect.left,rect.right,-1000,1000);
       let speed = map(event.touches[0].clientY,rect.bottom,rect.top,-1000,1000);
-      control.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
+      controldiv.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
       command.setSpeed(Math.round(steer),Math.round(speed));
     }
   , false));
@@ -104,8 +81,25 @@ speedIn.addEventListener("keyup", function(event) {
     }
   , false));
 
+// Execute a function when the user releases a key on the keyboard
+commandIn.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+    event.preventDefault();
+    sendCommand();
+  }
+});
+
+
 function map(x, in_min, in_max, out_min, out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+function startSend(){
+  setInterval(function(){
+    if (serial.connected && serial.binary){
+      serial.sendBinary();
+    }
+  },50);
 }
 
 function switchView(newView){
@@ -140,8 +134,14 @@ function deleteData(){
   }
 }
 
-function toggle(){
- serial.binary = document.getElementById('mode').value == "binary";
+function toggleMode(){
+ send_btn.disabled = crIn.disabled = lfIn.disabled = commandIn.disabled = serial.binary = (mode.value == "binary");
+
+}
+
+function toggleAPI(){
+  serial.API = API.value;
+  baudrate.disabled = (serial.API == "bluetooth");
 }
 
 function pauseUpdate(){
@@ -154,6 +154,6 @@ function pauseUpdate(){
   graph.isPaused = !graph.isPaused;
 }
 
-function sendData() {
-  command.setSpeed(parseInt(steerIn.value),parseInt(speedIn.value));
+function sendCommand() {
+  command.cmdAscii(commandIn.value);
 }

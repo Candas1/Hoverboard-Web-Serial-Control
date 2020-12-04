@@ -1,11 +1,12 @@
 
 #chartdiv{
-  height: 70%;
+  height: 65%;
 }
 
 #loggerdiv{
   font-size: 13px;
-  height: 70%;
+  min-height: 65%;
+  flex:1;
   color: white;
   background-color: black;
   overflow: auto;
@@ -13,7 +14,7 @@
 
 #controldiv{
   font-size: 13px;
-  height:70%;
+  height:65%;
   color: black;
   background-color: grey;
   overflow:hidden;

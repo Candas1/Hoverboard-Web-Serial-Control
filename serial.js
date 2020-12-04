@@ -37,13 +37,13 @@ class Serial {
 
   setConnected(){
     this.connected = true;
-    connect_btn.innerHTML = '<ion-icon name="flash-off-outline"></ion-icon>';
+    connect_btn.innerHTML = '<ion-icon name="flash-off"></ion-icon>';
     send_btn.disabled = !this.connected;  
   }
 
   setDisconnected(){
     this.connected = false;
-    connect_btn.innerHTML = '<ion-icon name="flash-outline"></ion-icon>';
+    connect_btn.innerHTML = '<ion-icon name="flash"></ion-icon>';
     send_btn.disabled = !this.connected;  
   } 
 
@@ -249,7 +249,7 @@ class Serial {
     }
 
     message.checksum = checksum;
-    message.calcChecksum = calcChecksum;
+    //message.calcChecksum = calcChecksum;
     this.log.writeLog(message);
     this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
   }
@@ -340,4 +340,21 @@ class Serial {
       return true;
     }
   }
+
+  sendAscii(text) {
+    if (this.API == 'serial'){
+      this.outputStream = this.port.writable;
+      this.writer = this.outputStream.getWriter();
+    }
+
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(text);
+
+    if (this.API == 'serial'){
+      this.writer.write(bytes);
+      this.writer.releaseLock();
+    }else{
+      this.characteristic.writeValue(bytes);
+    }
+  };
 }
