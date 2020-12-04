@@ -16,6 +16,7 @@
   height: 65%;
   color: black;
   background-color: grey;
+  overflow:hidden;
 }
 
 #success{
