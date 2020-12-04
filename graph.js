@@ -73,7 +73,7 @@ class Graph {
     };
 
     this.layout = {
-      grid:{ rows:1, columns:1, pattern: 'independent' , roworder: 'top to bottom'},
+      grid:{ rows:1, columns:1, pattern:'independent' , roworder:'top to bottom'},
       margin: {l:50, r:0, t:20, b:0},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
@@ -92,7 +92,7 @@ class Graph {
       responsive: true
     }
 
-    Plotly.newPlot(chart, data , this.layout, config);
+    Plotly.newPlot(chartdiv, data , this.layout, config);
   }  
 
   async updateData(message){
@@ -107,7 +107,7 @@ class Graph {
       if (!(key in this.key2trace)){ 
         this.key2trace[key] = this.countTrace; 
         this.trace.name = key; 
-        Plotly.addTraces('chart',[this.trace]);
+        Plotly.addTraces(chartdiv,[this.trace]);
         this.traces.push(this.countTrace);
         this.countTrace++; 
         // Prepare empty structure
@@ -122,7 +122,7 @@ class Graph {
 
     if (!this.isPaused && (view=='chart') && ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) ){
       // extend traces and relayout
-      Plotly.extendTraces('chart', this.update, this.traces);
+      Plotly.extendTraces(chartdiv, this.update, this.traces);
       this.initUpdateStruct();
       this.relayout();
       this.lastGraphUpdate = Date.now();
@@ -132,7 +132,7 @@ class Graph {
 
   clear(){
     this.initUpdateStruct();
-    Plotly.update('chart', this.update);
+    Plotly.update(chartdiv, this.update);
     this.points = 0;
   }
 
@@ -150,7 +150,7 @@ class Graph {
       }
     }
 
-    Plotly.update('chart', update,this.layout);
+    Plotly.update(chartdiv, update,this.layout);
   }
 
   getDomain(i) {
@@ -182,6 +182,6 @@ class Graph {
     this.layout.xaxis.range = [olderTime,futureTime];
     this.layout.xaxis.autorange = false;
     this.layout.xaxis.autoscale = true;
-    Plotly.relayout('chart', this.layout);
+    Plotly.relayout(chartdiv, this.layout);
   }
 }

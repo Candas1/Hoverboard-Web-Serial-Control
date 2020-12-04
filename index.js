@@ -13,13 +13,15 @@ var skip = document.getElementById('skip');
 var success = document.getElementById('success');
 var error = document.getElementById('error');
 
-var logger = document.getElementById('log');
-var chart = document.getElementById('chart');
-var control = document.getElementById('control');
-var controlPar = control.parentNode;
+
+var serialdiv  = document.getElementById('serialdiv');
+var statsdiv   = document.getElementById('statsdiv');
+var loggerdiv  = document.getElementById('loggerdiv');
+var chartdiv   = document.getElementById('chartdiv');
+var controldiv = document.getElementById('controldiv');
 var view = 'log';
 
-log = new Log(document.getElementById('log'));
+log = new Log(loggerdiv);
 graph = new Graph();
 serial = new Serial(10000,log,graph);
 command = new Command();
@@ -72,9 +74,9 @@ speedIn.addEventListener("keyup", function(event) {
 
 
 ['mousedown'].forEach( evt => 
-  control.addEventListener(evt, 
+  controldiv.addEventListener(evt, 
     function(event){
-      let rect = control.getBoundingClientRect();
+      let rect = controldiv.getBoundingClientRect();
       let steer = map(event.clientX,rect.left,rect.right,-1000,1000);
       let speed = map(event.clientY,rect.bottom,rect.top,-1000,1000);
       control.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
@@ -84,9 +86,9 @@ speedIn.addEventListener("keyup", function(event) {
 
 
 ['touchstart','touchmove'].forEach( evt => 
-  control.addEventListener(evt, 
+  controldiv.addEventListener(evt, 
     function(event){
-      let rect = control.getBoundingClientRect();
+      let rect = controldiv.getBoundingClientRect();
       let steer = map(event.touches[0].clientX,rect.left,rect.right,-1000,1000);
       let speed = map(event.touches[0].clientY,rect.bottom,rect.top,-1000,1000);
       control.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
@@ -95,9 +97,9 @@ speedIn.addEventListener("keyup", function(event) {
   , false));
 
 ['mouseup','touchend'].forEach( evt => 
-  control.addEventListener(evt, 
+  controldiv.addEventListener(evt, 
     function(event){
-      control.innerHTML = "Steer: " + 0 + "<br>" + "Speed: " + 0;
+      controldiv.innerHTML = "Steer: " + 0 + "<br>" + "Speed: " + 0;
       command.setSpeed(0,0);
     }
   , false));
@@ -110,20 +112,20 @@ function switchView(newView){
   
   switch (newView){
     case 'log':
-      chart.style.display = "none";
-      logger.style.display = "block";
-      control.style.display = "none";
+      chartdiv.style.display = "none";
+      loggerdiv.style.display = "block";
+      controldiv.style.display = "none";
       break;
     case 'chart':
-      chart.style.display = "block";
-      logger.style.display = "none";
-      control.style.display = "none";
+      chartdiv.style.display = "block";
+      loggerdiv.style.display = "none";
+      controldiv.style.display = "none";
       graph.relayout();
       break; 
     case 'control':
-      chart.style.display = "none";
-      logger.style.display = "none";
-      control.style.display = "block";
+      chartdiv.style.display = "none";
+      loggerdiv.style.display = "none";
+      controldiv.style.display = "block";
       break;  
   }
   view = newView;
@@ -144,9 +146,9 @@ function toggle(){
 
 function pauseUpdate(){
   if (log.isPaused){
-    pause_btn.innerHTML = '<ion-icon name="pause-outline"></ion-icon>';
+    pause_btn.innerHTML = '<ion-icon name="pause"></ion-icon>';
   }else{
-    pause_btn.innerHTML = '<ion-icon name="play-outline"></ion-icon>';
+    pause_btn.innerHTML = '<ion-icon name="play"></ion-icon>';
   }
   log.isPaused = !log.isPaused;
   graph.isPaused = !graph.isPaused;

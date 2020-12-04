@@ -1,19 +1,19 @@
 
-#chart{
-  height: 65%;
+#chartdiv{
+  height: 100%;
 }
 
-#log{
+#loggerdiv{
   font-size: 13px;
-  height: 65%;
+  height: 100%;
   color: white;
   background-color: black;
   overflow: auto;
 }
 
-#control{
+#controldiv{
   font-size: 13px;
-  height: 65%;
+  height:100%;
   color: black;
   background-color: grey;
   overflow:hidden;

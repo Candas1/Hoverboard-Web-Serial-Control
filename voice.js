@@ -23,7 +23,7 @@ class Voice {
           annyang.start();
       }
       this.isListening = !this.isListening;
-      listen_btn.innerHTML = '<ion-icon name="mic' + ( (this.isListening) ? '-off' : '') + '-outline"></ion-icon>';
+      listen_btn.innerHTML = '<ion-icon name="mic' + ( (this.isListening) ? '-off' : '') + '"></ion-icon>';
     }
   }
   voiceCommand(speech){

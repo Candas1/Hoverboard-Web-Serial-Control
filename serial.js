@@ -196,7 +196,7 @@ class Serial {
   }
 
   display(){
-    if ( Date.now() - this.lastStatsUpdate < this.statsUpdateFrequency) return;
+    if ( ( Date.now() - this.lastStatsUpdate < this.statsUpdateFrequency) || statsdiv.style.display == 'none' ) return;
       this.lastStatsUpdate = Date.now();
 
     read.value = this.address(this.readOffset);
