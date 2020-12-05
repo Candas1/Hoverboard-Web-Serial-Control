@@ -23,7 +23,6 @@ html, body {
 #loggerdiv{
 
   height: 100%;
-
   font-size: 13px;
   color: white;
   background-color: black;
@@ -37,6 +36,7 @@ html, body {
   color: black;
   background-color: grey;
   overflow:hidden;
+  overscroll-behavior:contain;
 }
 
 #success{
