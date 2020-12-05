@@ -27,26 +27,24 @@ log = new Log(loggerdiv);
 graph = new Graph();
 serial = new Serial(10000,log,graph);
 command = new Command();
-voice = new Voice();   
+voice = new Voice();
 
 window.addEventListener("load", function(event) {
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-    // if on Mobile phone, Web Bluetooth API should be used
+    // if on Mobile phone, only Web Bluetooth API is available
     API.remove(API.selectedIndex);
-    startSend();
   }else{
-    // if on computer, Web Serial API should be used
+    // if on computer,remove Web Serial API if not available
     if ("serial" in navigator === false) {
-      connect_btn.disabled = true;
+      API.remove(API.selectedIndex);
       log.write('Web Serial API not supported. Enable experimental features.',2);
       log.write('chrome://flags/#enable-experimental-web-platform-features',2);
       log.write('opera://flags/#enable-experimental-web-platform-features',2);
-      log.write('edge://flags/#enable-experimental-web-platform-features',2);
-    }else{
-      startSend();
+      log.write('edge://flags/#enable-experimental-web-platform-features',2);  
     }
   }
   toggleAPI();
+  startSend();
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
@@ -61,7 +59,6 @@ window.onbeforeunload = function(event){ serial.connected = false;};
       command.setSpeed(Math.round(steer),Math.round(speed));
     }
   , false));
-
 
 ['touchstart','touchmove'].forEach( evt => 
   controldiv.addEventListener(evt, 
