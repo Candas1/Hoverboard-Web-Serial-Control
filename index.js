@@ -32,6 +32,9 @@ serial = new Serial(10000,log,graph);
 command = new Command();
 voice = new Voice();
 
+controlcnv.width=1000;//horizontal resolution (?) - increase for better looking text
+controlcnv.height=500;//vertical resolution (?) - increase for better looking text  
+
 window.addEventListener("load", function(event) {
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, only Web Bluetooth API is available
@@ -49,40 +52,40 @@ window.addEventListener("load", function(event) {
   toggleAPI();
   toggleStats();
   startSend();
-  initCanvas();
+  initCanvas(0,0);
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
 
-['mousedown','touchstart','touchmove','mouseup','touchend'].forEach( evt => 
+let clicked = false;
+['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
   controlcnv.addEventListener(evt, 
     function(event){
       let rect = controlcnv.getBoundingClientRect();
       let steer = 0;
       let speed = 0;
+      event.preventDefault();
       switch (event.type){
         case "mousedown":
-          steer = Math.round(map(event.clientX,rect.left,rect.right,-1000,1000));
-          speed = Math.round(map(event.clientY,rect.bottom,rect.top,-1000,1000));
-          event.preventDefault();
+          clicked = true;
+        case "mousemove":
+          if (clicked){
+            steer = Math.round(map(event.clientX,rect.left,rect.right,-1000,1000));
+            speed = Math.round(map(event.clientY,rect.bottom,rect.top,-1000,1000));
+          }
           break;
         case "touchstart":
         case "touchmove":
           steer = Math.round(map(event.touches[0].clientX,rect.left,rect.right,-1000,1000));
           speed = Math.round(map(event.touches[0].clientY,rect.bottom,rect.top,-1000,1000));
-          event.preventDefault();
           break;
         case "mouseup":
+          clicked = false;
         case "touchend":
           break;
       }
       
-      initCanvas();
-      //controlcnv.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
-      ctx.font = "10px Raleway";
-      ctx.fillStyle = "green";
-      ctx.fillText("Steer: " + steer, 10, 15);
-      ctx.fillText("Speed: " + speed, 10, 30);
+      initCanvas(steer,speed);
       command.setSpeed(steer,speed);
     }
   , false));
@@ -112,7 +115,7 @@ function startSend(){
   },50);
 }
 
-function initCanvas(){
+function initCanvas(steer,speed){
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, controlcnv.width, controlcnv.height);
   ctx.strokeStyle = "white";
@@ -122,6 +125,11 @@ function initCanvas(){
   ctx.moveTo(controlcnv.width/2,0);
   ctx.lineTo(controlcnv.width/2, controlcnv.height);
   ctx.stroke();
+
+  ctx.font = "40px Consolas";
+  ctx.fillStyle = "green";
+  ctx.fillText("Steer: " + steer, 10, 50);
+  ctx.fillText("Speed: " + speed, 10, 100);
 }
 
 function switchView(newView){

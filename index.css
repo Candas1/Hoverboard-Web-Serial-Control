@@ -14,6 +14,7 @@ input[type=checkbox] {
 
 #container{
   height: 100%;
+  margin-left: 80px;
 }
 
 #statsdiv{
