@@ -1,19 +1,34 @@
+html, body {
+  height: 100vh;
+  
+}
+
+.checkbox{
+  vertical-align: middle;
+}
+
+#container{
+  height: 100%;
+}
 
 #chartdiv{
-  height: 65%;
+  height: 100%;
 }
 
 #loggerdiv{
+
+  height: 100%;
+
   font-size: 13px;
-  min-height: 65%;
   color: white;
   background-color: black;
   overflow: auto;
 }
 
 #controldiv{
+  height: 100%;
+
   font-size: 13px;
-  height:65%;
   color: black;
   background-color: grey;
   overflow:hidden;

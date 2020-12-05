@@ -1,9 +1,10 @@
 var API = document.getElementById('API');
-var mode = document.getElementById('mode');
 var baudrate = document.getElementById('baudrate');
-var connect_btn = document.getElementById('connect');
+var mode = document.getElementById('mode');
+var bufferIn = document.getElementById('bufferstats');
 
 var send_btn = document.getElementById('send');
+var connect_btn = document.getElementById('connect');
 var pause_btn = document.getElementById('pause');
 var listen_btn = document.getElementById('listen');
 
@@ -17,6 +18,7 @@ var success = document.getElementById('success');
 var error = document.getElementById('error');
 
 var serialdiv  = document.getElementById('serialdiv');
+var commanddiv = document.getElementById('commanddiv');
 var statsdiv   = document.getElementById('statsdiv');
 var loggerdiv  = document.getElementById('loggerdiv');
 var chartdiv   = document.getElementById('chartdiv');
@@ -44,6 +46,7 @@ window.addEventListener("load", function(event) {
     }
   }
   toggleAPI();
+  toggleStats();
   startSend();
 });
 
@@ -133,13 +136,17 @@ function deleteData(){
 }
 
 function toggleMode(){
- send_btn.disabled = crIn.disabled = lfIn.disabled = commandIn.disabled = serial.binary = (mode.value == "binary");
-
+ serial.binary = (mode.value == "binary");
+ commanddiv.style.display = (serial.binary) ? 'none' : 'block';
 }
 
 function toggleAPI(){
   serial.API = API.value;
   baudrate.disabled = (serial.API == "bluetooth");
+}
+
+function toggleStats(){
+  statsdiv.style.display = (!bufferIn.checked) ? 'none' : 'block';
 }
 
 function pauseUpdate(){

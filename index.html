@@ -2,98 +2,105 @@
   <meta http-equiv="origin-trial" content="AmcoP97xSqB7QVZctDvX9VUrB7+37Xnf5lcPJu0lnRWnnFZCH8oaLdCnXdJK9aSBfvvpdIgGK5b5VRh6UeqXhAEAAABkeyJvcmlnaW4iOiJodHRwczovL2NhbmRhczEuZ2l0aHViLmlvOjQ0MyIsImZlYXR1cmUiOiJTZXJpYWwiLCJleHBpcnkiOjE2MTAwMzg5OTAsImlzU3ViZG9tYWluIjp0cnVlfQ==">
   <body>
     <div id="container">
-      <form>
-        <div class="row" id="serialdiv">
-          <div class="two columns">
-            <label for="API">API</label>
-            <select class="u-full-width" id="API" onchange="toggleAPI()">
-                <option value="serial" selected>Serial</option>
-                <option value="bluetooth">Bluetooth</option>
-            </select>
-          </div>
-          <div class="two columns">
-            <label for="baudrate">Baudrate</label>
-            <select class="u-full-width" id="baudrate">
-                <option value="9600">9600</option>
-                <option value="14400">14400</option>
-                <option value="19200">19200</option>
-                <option value="38400" selected="selected">38400</option>
-                <option value="57600">57600</option>
-                <option value="115200">115200</option>
-            </select>
-          </div>
-          <div class="two columns">
-            <label for="mode">Mode</label>
-            <select class="u-full-width" id="mode" onchange="toggleMode()">
-                <option value="ascii" selected>Ascii</option>
-                <option value="binary">Binary</option>
-            </select>  
-          </div>
-          <div class="two columns">
-            <label for="command">Command</label>
-            <input class="u-max-width" type="text" id="command" value="">
-          </div>
-          <div class="one columns">
-            <br>
-            <label>
-              <input type="checkbox" id="cr" checked>
-              <span class="label-body">CR</span>
-            </label>
-          </div>
-          <div class="one columns"> 
-            <br>
-            <label>
-              <input type="checkbox" id="lf" checked>
-              <span class="label-body">LF</span>
-            </label>            
-          </div>
-          <div class="two columns">
-            <label for="send">Send</label>
-            <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
-          </div>
+      <div class="row" id="serialdiv">
+        <div class="two columns">
+          <label for="API">API</label>
+          <select class="u-full-width" id="API" onchange="toggleAPI()">
+              <option value="serial" selected>Serial</option>
+              <option value="bluetooth">Bluetooth</option>
+          </select>
         </div>
-        <div class="row" id="statsdiv"> 
-          <div class="two columns">
-            <label for="write">Write</label>
-            <input class="u-full-width" type="number" id="write" value="0" disabled>
-          </div>
-          <div class="two columns">
-            <label for="read">Read</label>
-            <input class="u-full-width" type="number" id="read" value="0" disabled>
-          </div>    
-          <div class="two columns">
-            <label for="success">Success</label>
-            <input class="u-full-width" type="number" id="success" value="0" disabled>
-          </div>
-          <div class="two columns">
-            <label for="skip">Skip</label>
-            <input class="u-full-width" type="number" id="skip" value="0" disabled>
-          </div>
-          <div class="two columns">
-            <label for="error">Error</label>
-            <input class="u-full-width" type="number" id="error" value="0" disabled>
-          </div>
-          <div class="two columns"></div>
-        </div>      
-        <div class="row">
-          <div class="ten columns">
-            <br>
-            <div class="u-full-width" id="loggerdiv"></div>
-            <div class="u-full-width" id="chartdiv"   style="display:none"></div>
-            <div class="u-full-width" id="controldiv" style="display:none"></div>
-          </div>
-          <div class="two columns">
-            <br>
-            <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button><br>
-            <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
-            <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
-            <button id="listen"     class="button" type="button" onclick="voice.listen()"><ion-icon name="mic"></ion-icon></button><br>
-            <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="newspaper"></ion-icon></button><br>
-            <button id="graphbtn"   class="button" type="button" onclick="switchView('chart')"><ion-icon name="analytics"></ion-icon></button><br>
-            <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller"></ion-icon></button><br>
-          </div>
+        <div class="two columns">
+          <label for="baudrate">Baudrate</label>
+          <select class="u-full-width" id="baudrate">
+              <option value="9600">9600</option>
+              <option value="14400">14400</option>
+              <option value="19200">19200</option>
+              <option value="38400" selected="selected">38400</option>
+              <option value="57600">57600</option>
+              <option value="115200">115200</option>
+          </select>
         </div>
-      </form>
+        <div class="two columns">
+          <label for="mode">Mode</label>
+          <select class="u-full-width" id="mode" onchange="toggleMode()">
+              <option value="ascii" selected>Ascii</option>
+              <option value="binary">Binary</option>
+          </select>  
+        </div>
+        <div class="two columns">
+          <br>
+          <label>
+            <input type="checkbox" id="bufferstats" onclick="toggleStats()">
+            <span class="label-body">Buffer Statistics</span>
+          </label>  
+        </div>
+      </div>
+      <div class="row" id="commanddiv">  
+        <div class="four columns">
+          <label for="command">Command</label>
+          <input class="u-full-width" type="text" id="command" value="">
+        </div>
+        <div class="one columns">
+          <br>
+          <label>
+            <input type="checkbox" id="cr" checked>
+            <span class="label-body">CR</span>
+          </label>
+        </div>
+        <div class="one columns"> 
+          <br>
+          <label>
+            <input type="checkbox" id="lf" checked>
+            <span class="label-body">LF</span>
+          </label>            
+        </div>
+        <div class="two columns">
+          <label for="send">Send</label>
+          <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
+        </div>
+      </div>
+      <div class="row" id="statsdiv"> 
+        <div class="two columns">
+          <label for="write">Write</label>
+          <input class="u-full-width" type="number" id="write" value="0" disabled>
+        </div>
+        <div class="two columns">
+          <label for="read">Read</label>
+          <input class="u-full-width" type="number" id="read" value="0" disabled>
+        </div>    
+        <div class="two columns">
+          <label for="success">Success</label>
+          <input class="u-full-width" type="number" id="success" value="0" disabled>
+        </div>
+        <div class="two columns">
+          <label for="skip">Skip</label>
+          <input class="u-full-width" type="number" id="skip" value="0" disabled>
+        </div>
+        <div class="two columns">
+          <label for="error">Error</label>
+          <input class="u-full-width" type="number" id="error" value="0" disabled>
+        </div>
+        <div class="two columns"></div>
+      </div>      
+      <div class="row">
+        <div class="ten columns">
+          <br>
+          <div class="u-full-width" id="loggerdiv"></div>
+          <div class="u-full-width" id="chartdiv"   style="display:none"></div>
+          <div class="u-full-width" id="controldiv" style="display:none"></div>
+        </div>
+        <div class="two columns">
+          <br>
+          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button><br>
+          <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
+          <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
+          <button id="listen"     class="button" type="button" onclick="voice.listen()"><ion-icon name="mic"></ion-icon></button><br>
+          <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="newspaper"></ion-icon></button><br>
+          <button id="graphbtn"   class="button" type="button" onclick="switchView('chart')"><ion-icon name="analytics"></ion-icon></button><br>
+          <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller"></ion-icon></button><br>
+        </div>
+      </div>
     </div>    
   </body>
 
