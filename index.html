@@ -35,34 +35,30 @@
           </select>  
         </div>
         <div class="two columns">
+          <label for="cr">Statistics</label>
+          <input type="checkbox" id="stats" onclick="toggleStats()">  
+        </div>
+        <div class="two columns"><br></div>
+        <div class="two columns">
           <br>
-          <label>
-            <input type="checkbox" id="stats" onclick="toggleStats()">
-            <span class="label-body">Statistics</span>
-          </label>  
+          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button><br>
         </div>
       </div>
-      <div class="row" id="commanddiv">  
-        <div class="four columns">
+      <div class="row" id="commanddiv">
+        <div class="eight columns">
           <label for="command">Command</label>
           <input class="u-full-width" type="text" id="command" value="">
         </div>
         <div class="one columns">
-          <br>
-          <label>
-            <input type="checkbox" id="cr" checked>
-            <span class="label-body">CR</span>
-          </label>
+          <label for="cr">CR</label>
+          <input type="checkbox" id="cr" checked>
         </div>
         <div class="one columns"> 
-          <br>
-          <label>
-            <input type="checkbox" id="lf" checked>
-            <span class="label-body">LF</span>
-          </label>            
+          <label for="lf">LF</label>
+          <input type="checkbox" id="lf" checked>
         </div>
         <div class="two columns">
-          <label for="send">Send</label>
+          <br>
           <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
         </div>
       </div>
@@ -98,11 +94,10 @@
         </div>
         <div class="two columns">
           <br>
-          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button><br>
           <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
           <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
           <button id="listen"     class="button" type="button" onclick="voice.listen()"><ion-icon name="mic"></ion-icon></button><br>
-          <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="newspaper"></ion-icon></button><br>
+          <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="reader"></ion-icon></button><br>
           <button id="graphbtn"   class="button" type="button" onclick="switchView('chart')"><ion-icon name="analytics"></ion-icon></button><br>
           <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller"></ion-icon></button><br>
         </div>
