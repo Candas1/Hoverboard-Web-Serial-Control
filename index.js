@@ -62,11 +62,13 @@ window.onbeforeunload = function(event){ serial.connected = false;};
         case "mousedown":
           steer = Math.round(map(event.clientX,rect.left,rect.right,-1000,1000));
           speed = Math.round(map(event.clientY,rect.bottom,rect.top,-1000,1000));
+          event.preventDefault();
           break;
         case "touchstart":
         case "touchmove":
           steer = Math.round(map(event.touches[0].clientX,rect.left,rect.right,-1000,1000));
           speed = Math.round(map(event.touches[0].clientY,rect.bottom,rect.top,-1000,1000));
+          event.preventDefault();
           break;
         case "mouseup":
         case "touchend":
