@@ -22,7 +22,8 @@ var commanddiv = document.getElementById('commanddiv');
 var statsdiv   = document.getElementById('statsdiv');
 var loggerdiv  = document.getElementById('loggerdiv');
 var chartdiv   = document.getElementById('chartdiv');
-var controldiv = document.getElementById('controldiv');
+var controlcnv = document.getElementById('controlcnv');
+var ctx = controlcnv.getContext('2d');
 var view = 'log';
 
 log = new Log(loggerdiv);
@@ -48,14 +49,15 @@ window.addEventListener("load", function(event) {
   toggleAPI();
   toggleStats();
   startSend();
+  initCanvas();
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
 
 ['mousedown','touchstart','touchmove','mouseup','touchend'].forEach( evt => 
-  controldiv.addEventListener(evt, 
+  controlcnv.addEventListener(evt, 
     function(event){
-      let rect = controldiv.getBoundingClientRect();
+      let rect = controlcnv.getBoundingClientRect();
       let steer = 0;
       let speed = 0;
       switch (event.type){
@@ -75,9 +77,13 @@ window.onbeforeunload = function(event){ serial.connected = false;};
           break;
       }
       
-      controldiv.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
+      initCanvas();
+      //controlcnv.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
+      ctx.font = "10px Raleway";
+      ctx.fillStyle = "green";
+      ctx.fillText("Steer: " + steer, 10, 15);
+      ctx.fillText("Speed: " + speed, 10, 30);
       command.setSpeed(steer,speed);
-      
     }
   , false));
 
@@ -89,8 +95,13 @@ commandIn.addEventListener("keyup", function(event) {
   }
 });
 
+
+function clamp(val, min, max) {
+  return val > max ? max : val < min ? min : val;
+}
+
 function map(x, in_min, in_max, out_min, out_max) {
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+  return clamp((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min, out_min,out_max);
 }
 
 function startSend(){
@@ -101,23 +112,35 @@ function startSend(){
   },50);
 }
 
+function initCanvas(){
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, controlcnv.width, controlcnv.height);
+  ctx.strokeStyle = "white";
+  ctx.beginPath();
+  ctx.moveTo(0, controlcnv.height/2);
+  ctx.lineTo(controlcnv.width, controlcnv.height/2);
+  ctx.moveTo(controlcnv.width/2,0);
+  ctx.lineTo(controlcnv.width/2, controlcnv.height);
+  ctx.stroke();
+}
+
 function switchView(newView){
   switch (newView){
     case 'log':
       chartdiv.style.display = "none";
       loggerdiv.style.display = "block";
-      controldiv.style.display = "none";
+      controlcnv.style.display = "none";
       break;
     case 'chart':
       chartdiv.style.display = "block";
       loggerdiv.style.display = "none";
-      controldiv.style.display = "none";
+      controlcnv.style.display = "none";
       graph.relayout();
       break; 
     case 'control':
       chartdiv.style.display = "none";
       loggerdiv.style.display = "none";
-      controldiv.style.display = "block";
+      controlcnv.style.display = "block";
       break;  
   }
   view = newView;

@@ -2,8 +2,10 @@ html, body {
   height: 100vh;
 }
 
-.checkbox{
-  vertical-align: middle;
+input[type=checkbox] {
+  transform: scale(2.5);
+  margin-top: 10px;
+  margin-left: 6px;
 }
 
 .ion-icon{
@@ -31,14 +33,10 @@ html, body {
   overflow: auto;
 }
 
-#controldiv{
+#controlcnv{
   width: 50%;
   height: 50%;
   display:none;
-  font-size: 13px;
-  color: black;
-  background-color: grey;
-  overflow:hidden;
 }
 
 #success{
