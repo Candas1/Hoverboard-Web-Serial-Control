@@ -1,7 +1,7 @@
 var API = document.getElementById('API');
 var baudrate = document.getElementById('baudrate');
 var mode = document.getElementById('mode');
-var bufferIn = document.getElementById('bufferstats');
+var statsIn = document.getElementById('stats');
 
 var send_btn = document.getElementById('send');
 var connect_btn = document.getElementById('connect');
@@ -146,7 +146,7 @@ function toggleAPI(){
 }
 
 function toggleStats(){
-  statsdiv.style.display = (!bufferIn.checked) ? 'none' : 'block';
+  statsdiv.style.display = (!statsIn.checked) ? 'none' : 'block';
 }
 
 function pauseUpdate(){
