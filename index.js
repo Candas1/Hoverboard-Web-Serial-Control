@@ -46,6 +46,7 @@ window.addEventListener("load", function(event) {
       startSend();
     }
   }
+  toggleAPI();
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
