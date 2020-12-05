@@ -4,11 +4,11 @@ Experiment to control hoverboard, log and plot output data through a simple webp
 Works with USART serial protocol and USART DEBUG in following firmware:<br>
 https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC
 
-The tool needs no installation and is accessible via this link.<br>
+The tool doesn't need installation and is accessible via this link.<br>
 https://candas1.github.io/Hoverboard-Web-Serial-Control/
 
 ## Serial:
-From a computer, the tool is using Web Serial API and lets you interface with the hoverboard through an FTDI.<br>
+From a computer, the tool is using Web Serial API and lets you interface with the hoverboard through a FTDI.<br>
 https://web.dev/serial/<br>
 Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI.
 
