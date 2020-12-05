@@ -11,8 +11,13 @@ html, body {
   height: 100%;
 }
 
+#statsdiv{
+  display:none;
+}
+
 #chartdiv{
   height: 100%;
+  display:none;
 }
 
 #loggerdiv{
@@ -27,7 +32,7 @@ html, body {
 
 #controldiv{
   height: 100%;
-
+  display:none;
   font-size: 13px;
   color: black;
   background-color: grey;

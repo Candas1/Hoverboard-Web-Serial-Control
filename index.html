@@ -1,5 +1,11 @@
   <html>
   <meta http-equiv="origin-trial" content="AmcoP97xSqB7QVZctDvX9VUrB7+37Xnf5lcPJu0lnRWnnFZCH8oaLdCnXdJK9aSBfvvpdIgGK5b5VRh6UeqXhAEAAABkeyJvcmlnaW4iOiJodHRwczovL2NhbmRhczEuZ2l0aHViLmlvOjQ0MyIsImZlYXR1cmUiOiJTZXJpYWwiLCJleHBpcnkiOjE2MTAwMzg5OTAsImlzU3ViZG9tYWluIjp0cnVlfQ==">
+  <head>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="skeleton.css">
+    <link rel="stylesheet" href="index.css">
+  </head>
+  
   <body>
     <div id="container">
       <div class="row" id="serialdiv">
@@ -87,8 +93,8 @@
         <div class="ten columns">
           <br>
           <div class="u-full-width" id="loggerdiv"></div>
-          <div class="u-full-width" id="chartdiv"   style="display:none"></div>
-          <div class="u-full-width" id="controldiv" style="display:none"></div>
+          <div class="u-full-width" id="chartdiv"></div>
+          <div class="u-full-width" id="controldiv"></div>
         </div>
         <div class="two columns">
           <br>
@@ -101,21 +107,19 @@
           <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller"></ion-icon></button><br>
         </div>
       </div>
-    </div>    
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
+    <script src="annyang.min.js"></script>
+    
+    <script type="text/javascript" src="log.js"></script>
+    <script type="text/javascript" src="serial.js"></script>
+    <script type="text/javascript" src="graph.js"></script>
+    <script type="text/javascript" src="command.js"></script>
+    <script type="text/javascript" src="voice.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+
   </body>
-
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
-  <script src="annyang.min.js"></script>
-  
-  <link rel="stylesheet" href="skeleton.css">
-  <link rel="stylesheet" href="index.css">
-  <script src="log.js"></script>
-  <script src="serial.js"></script>
-  <script src="graph.js"></script>
-  <script src="command.js"></script>
-  <script src="voice.js"></script>
-  <script src="index.js"></script>
-
 </html>
