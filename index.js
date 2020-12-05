@@ -52,33 +52,30 @@ window.addEventListener("load", function(event) {
 
 window.onbeforeunload = function(event){ serial.connected = false;};
 
-['mousedown'].forEach( evt => 
+['mousedown','touchstart','touchmove','mouseup','touchend'].forEach( evt => 
   controldiv.addEventListener(evt, 
     function(event){
       let rect = controldiv.getBoundingClientRect();
-      let steer = map(event.clientX,rect.left,rect.right,-1000,1000);
-      let speed = map(event.clientY,rect.bottom,rect.top,-1000,1000);
+      let steer = 0;
+      let speed = 0;
+      switch (event.type){
+        case "mousedown":
+          steer = Math.round(map(event.clientX,rect.left,rect.right,-1000,1000));
+          speed = Math.round(map(event.clientY,rect.bottom,rect.top,-1000,1000));
+          break;
+        case "touchstart":
+        case "touchmove":
+          steer = Math.round(map(event.touches[0].clientX,rect.left,rect.right,-1000,1000));
+          speed = Math.round(map(event.touches[0].clientY,rect.bottom,rect.top,-1000,1000));
+          break;
+        case "mouseup":
+        case "touchend":
+          break;
+      }
+      
       controldiv.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
-      command.setSpeed(Math.round(steer),Math.round(speed));
-    }
-  , false));
-
-['touchstart','touchmove'].forEach( evt => 
-  controldiv.addEventListener(evt, 
-    function(event){
-      let rect = controldiv.getBoundingClientRect();
-      let steer = map(event.touches[0].clientX,rect.left,rect.right,-1000,1000);
-      let speed = map(event.touches[0].clientY,rect.bottom,rect.top,-1000,1000);
-      controldiv.innerHTML = "Steer: " + steer + "<br>" + "Speed: " + speed;
-      command.setSpeed(Math.round(steer),Math.round(speed));
-    }
-  , false));
-
-['mouseup','touchend'].forEach( evt => 
-  controldiv.addEventListener(evt, 
-    function(event){
-      controldiv.innerHTML = "Steer: " + 0 + "<br>" + "Speed: " + 0;
-      command.setSpeed(0,0);
+      command.setSpeed(steer,speed);
+      
     }
   , false));
 
@@ -89,7 +86,6 @@ commandIn.addEventListener("keyup", function(event) {
     if (serial.connected) command.cmdAscii(commandIn.value);
   }
 });
-
 
 function map(x, in_min, in_max, out_min, out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -104,7 +100,6 @@ function startSend(){
 }
 
 function switchView(newView){
-  
   switch (newView){
     case 'log':
       chartdiv.style.display = "none";
