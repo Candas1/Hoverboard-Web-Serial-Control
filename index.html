@@ -22,7 +22,7 @@
               <option value="9600">9600</option>
               <option value="14400">14400</option>
               <option value="19200">19200</option>
-              <option value="38400" selected="selected">38400</option>
+              <option value="38400" selected>38400</option>
               <option value="57600">57600</option>
               <option value="115200">115200</option>
           </select>
@@ -35,10 +35,16 @@
           </select>  
         </div>
         <div class="two columns">
+          <label for="protocol">Protocol</label>
+          <select class="u-full-width" id="protocol" onchange="toggleProtocol()">
+              <option value="usart" selected>USART</option>
+              <option value="ibus">IBUS</option>
+          </select>
+        </div>
+        <div class="two columns">
           <label for="cr">Stats</label>
           <input type="checkbox" id="stats" onclick="toggleStats()">
         </div>
-        <div class="two columns"><br></div>
         <div class="two columns">
           <br>
           <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button><br>

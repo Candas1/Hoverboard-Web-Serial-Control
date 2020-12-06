@@ -1,6 +1,7 @@
 var API = document.getElementById('API');
 var baudrate = document.getElementById('baudrate');
 var mode = document.getElementById('mode');
+var protocol = document.getElementById('protocol');
 var statsIn = document.getElementById('stats');
 
 var send_btn = document.getElementById('send');
@@ -46,6 +47,7 @@ window.addEventListener("load", function(event) {
       log.write('edge://flags/#enable-experimental-web-platform-features',2);  
     }
   }
+  toggleMode();
   toggleAPI();
   toggleStats();
   control.startSend();
@@ -100,11 +102,16 @@ function deleteData(){
 function toggleMode(){
  serial.binary = (mode.value == "binary");
  commanddiv.style.display = (serial.binary) ? 'none' : 'block';
+ protocol.disabled = (!serial.binary);
 }
 
 function toggleAPI(){
   serial.API = API.value;
   baudrate.disabled = (serial.API == "bluetooth");
+}
+
+function toggleProtocol(){
+  serial.protocol = protocol.value;
 }
 
 function toggleStats(){
