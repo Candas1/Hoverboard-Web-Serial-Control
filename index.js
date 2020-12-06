@@ -49,7 +49,11 @@ window.addEventListener("load", function(event) {
   toggleAPI();
   toggleStats();
   control.startSend();
-  control.display(0,0);
+});
+
+window.addEventListener("resize", function() {
+  console.log("resize");
+  control.initCanvas();
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
