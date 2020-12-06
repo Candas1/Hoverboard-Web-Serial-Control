@@ -3,8 +3,7 @@ class Control {
     this.ctx = 
     this.steer = 0;
     this.speed = 0;
-    this.x = 0;
-    this.y = 0;
+    this.joystick = [{posx:0,posy:0,x:0,y:0,distance:0},{posx:0,posy:0,x:0,y:0,distance:0}];
     this.distance = 0;
     this.cnv = cnv;
     this.ctx = controlcnv.getContext('2d');    
@@ -15,10 +14,11 @@ class Control {
 ['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
   this.cnv.addEventListener(evt, 
     function(event){
-      let steer = 0;
-      let speed = 0;
-      control.x = control.joystickx;
-      control.y = control.joysticky;
+      control.joystick[0].x = control.joystick[0].posx;
+      control.joystick[0].y = control.joystick[0].posy;
+      
+      control.joystick[1].x = control.joystick[1].posx;
+      control.joystick[1].y = control.joystick[1].posy;
 
       event.preventDefault();
       switch (event.type){
@@ -26,14 +26,27 @@ class Control {
           control.clicked = true;
         case "mousemove":
           if (control.clicked){
-            control.x = event.clientX - control.cnv.offsetLeft;
-            control.y = event.clientY - control.cnv.offsetTop;
+            control.joystick[0].x = event.clientX - control.cnv.offsetLeft;
+            control.joystick[0].y = event.clientY - control.cnv.offsetTop;
           }
           break;
         case "touchstart":
         case "touchmove":
-          control.x = event.touches[0].clientX - control.cnv.offsetLeft;
-          control.y = event.touches[0].clientY - control.cnv.offsetTop;
+          
+          let distance = 0;
+          let x = 0;
+          let y = 0;
+          for (let i = 0; i < control.joystick.length;i++){
+            for (let j= 0; j< event.touches.length;j++){
+              x = event.touches[j].clientX - control.cnv.offsetLeft;
+              y = event.touches[j].clientY - control.cnv.offsetTop;
+              distance = control.calcDistance(x,y,control.joystick[i].posx,control.joystick[i].posy);
+              if ( distance < control.joystickr2 * 3){
+                control.joystick[i].x = x;
+                control.joystick[i].y = y; 
+              }
+            }
+          }
           break;
         case "mouseup":
           control.clicked = false;
@@ -41,13 +54,8 @@ class Control {
           break;
       }
       
-      control.distance = control.calcDistance(control.x,control.y,control.joystickx,control.joysticky);
-      if ( control.distance < control.joystickr2) {
-        control.steer = Math.round(control.map(control.x,control.joystickx-control.joystickr1,control.joystickx+control.joystickr1 ,-1000,1000));
-        control.speed = Math.round(control.map(control.y,control.joysticky+control.joystickr1,control.joysticky-control.joystickr1,-1000,1000));
-      }else{
-        control.steer = control.speed = 0;
-      }
+      control.steer = Math.round(control.map(control.joystick[0].x,control.joystick[0].posx-control.joystickr1,control.joystick[0].posx+control.joystickr1,-1000,1000));
+      control.speed = Math.round(control.map(control.joystick[1].y,control.joystick[1].posy+control.joystickr1,control.joystick[1].posy-control.joystickr1,-1000,1000));
 
       control.display();
     }
@@ -73,9 +81,11 @@ class Control {
     this.cnv.width=1000;//window.innerWidth;
     this.cnv.height=500;//window.innerHeight;
     
-
-    this.joystickx = (this.cnv.width / 3 / 2) + this.cnv.width / 10;
-    this.joysticky = (this.cnv.height / 3 / 2) + this.cnv.height /10;
+    this.joystick[0].posx = (this.cnv.width / 3 / 2);
+    this.joystick[0].posy = (this.cnv.height / 3 / 2) + this.cnv.height/10;
+    
+    this.joystick[1].posx = (this.cnv.width - this.cnv.width / 3 /2);
+    this.joystick[1].posy = (this.cnv.height / 3 / 2) + this.cnv.height/10;
     
     this.joystickr1 = (this.cnv.height / 3 / 2); //inner ring
     this.joystickr2 = this.joystickr1 * 1.2; // outer ring 20% bigger than circle
@@ -96,14 +106,17 @@ class Control {
     this.screenWidth2 = this.screenWidth1 * 0.9;
     this.screenHeight2 = this.screenHeight1 * 0.85;    
 
-    this.x = this.joystickx;
-    this.y = this.joysticky;
+    this.joystick[0].x = this.joystick[0].posx;
+    this.joystick[0].y = this.joystick[0].posy;
 
-    this.display(0,0);
+    this.joystick[1].x = this.joystick[1].posx;
+    this.joystick[1].y = this.joystick[1].posy;
+
+
+    this.display();
   }
 
   display(){
-    
     // Case
     let gradient = this.ctx.createLinearGradient(0, this.cnv.height, this.cnv.width, this.cnv.height);
     gradient.addColorStop(0, 'white');
@@ -114,63 +127,9 @@ class Control {
     gradient.addColorStop(1, 'white');
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
-    
-    // Outer ring
-    gradient = this.ctx.createLinearGradient(0, this.joysticky + this.joystickr2, this.joystickx+this.joystickr2, 0);
-    gradient.addColorStop(0, 'white');
-    gradient.addColorStop(1, 'black');
-    
-    this.ctx.beginPath();
-    this.ctx.fillStyle = gradient;
-    this.ctx.arc(this.joystickx, this.joysticky, this.joystickr2, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
 
-    // Outer circle
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "black";
-    this.ctx.arc(this.joystickx, this.joysticky, this.joystickr1, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    // Outer square
-    gradient = this.ctx.createLinearGradient(this.joystickx,this.joysticky-this.joystickr4, this.joystickx, this.joysticky + this.joystickr4);
-    gradient.addColorStop(0, 'black');
-    gradient.addColorStop(0.45, 'grey');
-    gradient.addColorStop(0.55, 'grey');
-    gradient.addColorStop(1, 'black');
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(this.joystickx-this.joystickr4,this.joysticky-this.joystickr4,this.joystickr4*2,this.joystickr4*2);
-
-    // Inner circle
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "black";
-    this.ctx.arc(this.joystickx, this.joysticky, this.joystickr3, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    // Inner square
-    gradient = this.ctx.createLinearGradient(this.joystickx-this.joystickr5,this.joysticky, this.joystickx + this.joystickr5, this.joysticky);
-    gradient.addColorStop(0, 'black');
-    gradient.addColorStop(0.45, 'grey');
-    gradient.addColorStop(0.55, 'grey');
-    gradient.addColorStop(1, 'black');
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(this.joystickx-this.joystickr5,this.joysticky-this.joystickr5,this.joystickr5*2,this.joystickr5*2);
-
-    // Center circle
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "black";
-    this.ctx.arc(this.joystickx, this.joysticky, this.joystickr6, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    // Knob
-    this.ctx.beginPath();
-    this.ctx.fillStyle = (this.distance > this.joystickr2) ? "red": (this.distance > this.joystickr1) ? "orange":(this.distance > this.joystickr3) ? "grey":"black";
-    this.ctx.arc(this.x, this.y, this.joystickr6, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
+    this.displayJoystick(0);
+    this.displayJoystick(1);
 
     // Screen outer rectangle
     this.ctx.fillStyle = "black";
@@ -185,7 +144,76 @@ class Control {
     this.ctx.fillStyle = "blue";
     this.ctx.fillText("Steer: " + this.steer, this.screenx2 + 20, this.screeny2 + 20);
     this.ctx.fillText("Speed: " + this.speed, this.screenx2 + 20, this.screeny2 + 40);
+
+  }
+
+  displayJoystick(joynum){
+
+    // Outer ring
+    let gradient = this.ctx.createLinearGradient(0, this.joystick[joynum].posy + this.joystickr2, this.joystick[joynum].posx + this.joystickr2, 0);
+    gradient.addColorStop(0, 'white');
+    gradient.addColorStop(1, 'black');
     
+    this.ctx.beginPath();
+    this.ctx.fillStyle = gradient;
+    this.ctx.arc(this.joystick[joynum].posx, this.joystick[joynum].posy, this.joystickr2, 0, 2 * Math.PI, false);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Outer circle
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "black";
+    this.ctx.arc(this.joystick[joynum].posx, this.joystick[joynum].posy, this.joystickr1, 0, 2 * Math.PI, false);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Outer square
+    gradient = this.ctx.createLinearGradient(this.joystick[joynum].posx,this.joystick[joynum].posy-this.joystickr4, this.joystick[joynum].posx, this.joystick[joynum].posy + this.joystickr4);
+    gradient.addColorStop(0, 'black');
+    gradient.addColorStop(0.45, 'grey');
+    gradient.addColorStop(0.55, 'grey');
+    gradient.addColorStop(1, 'black');
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(this.joystick[joynum].posx-this.joystickr4,this.joystick[joynum].posy-this.joystickr4,this.joystickr4*2,this.joystickr4*2);
+
+    // Inner circle
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "black";
+    this.ctx.arc(this.joystickx,
+                 this.clamp(this.joystick[joynum].y[joynum], this.joystick[joynum].y-this.joystickr1+this.joystickr3,this.joystick[joynum].y+this.joystickr1-this.joystickr3),
+                 this.joystickr3, 0, 2 * Math.PI, false);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Inner square
+    gradient = this.ctx.createLinearGradient(this.joystick[joynum].posx-this.joystickr5,this.joystick[joynum].y, this.joystick[joynum].posx + this.joystickr5, this.joystick[joynum].y);
+    gradient.addColorStop(0, 'black');
+    gradient.addColorStop(0.45, 'grey');
+    gradient.addColorStop(0.55, 'grey');
+    gradient.addColorStop(1, 'black');
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(this.joystick[joynum].posx-this.joystickr5,
+                      this.clamp(this.joystick[joynum].y-this.joystickr5,this.joystick[joynum].posy-this.joystickr5/2-this.joystickr4,this.joystick[joynum].posy+this.joystickr4/3),
+                      this.joystickr5*2,
+                      this.joystickr5*2);
+
+    // Center circle
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "black";
+    this.ctx.arc(this.clamp(this.joystick[joynum].x,this.joystick[joynum].posx-this.joystickr3+this.joystickr6,this.joystick[joynum].posx+this.joystickr3-this.joystickr6), 
+    this.clamp(this.joystick[joynum].y,this.joystick[joynum].posy-this.joystickr4+this.joystickr5/2,this.joystick[joynum].posy+this.joystickr4-this.joystickr5/2),
+                 this.joystickr6, 0, 2 * Math.PI, false);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Knob
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "red";
+    this.ctx.arc(this.clamp(this.joystick[joynum].x,this.joystick[joynum].posx-this.joystickr2+this.joystickr6,this.joystick[joynum].posx+this.joystickr2-this.joystickr6),
+                 this.clamp(this.joystick[joynum].y,this.joystick[joynum].posy-this.joystickr2+this.joystickr6,this.joystick[joynum].posy+this.joystickr2-this.joystickr6), 
+                 this.joystickr6, 0, 2 * Math.PI, false);
+    this.ctx.closePath();
+    this.ctx.fill();
 
   }
 
