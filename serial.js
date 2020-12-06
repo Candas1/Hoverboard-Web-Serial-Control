@@ -64,13 +64,17 @@ class Serial {
 
   async connectSerial(){
     if ("serial" in navigator) {
-      // The Serial API is supported.
+
+      //let ports = await navigator.serial.getPorts();
+      //console.log(ports);
+
       this.port = await navigator.serial.requestPort();
       // Open and begin reading.
       await this.port.open({
         baudRate: baudrate.value
       });
-    
+      
+      // Update UI
       this.setConnected();
 
       while (this.port.readable) {
@@ -85,7 +89,7 @@ class Serial {
               break;
             }
             //if (serial.binary) serial.sendBinary();
-            this.write(value);
+            this.bufferWrite(value);
             this.readLoop();
             if (!this.connected) break;
           }
@@ -142,7 +146,7 @@ class Serial {
 
   handleCharacteristicValueChanged(event) {
     let chunk = new Uint8Array(event.target.value.buffer);
-    serial.write(chunk);
+    serial.bufferWrite(chunk);
     serial.readLoop();
     //serial.sendBinary();
   }
@@ -151,7 +155,7 @@ class Serial {
     serial.setDisconnected();
   }
 
-  write(chunk){
+  bufferWrite(chunk){
     // add new chunk to the buffer
     for (let i=0, strLen=chunk.length; i < strLen; i++) {       
       this.writedv.setUint8(this.address(this.writeOffset),chunk[i],true);
@@ -161,6 +165,7 @@ class Serial {
 
   readLoop(){
     if (this.binary){
+      // read as long as there is enough data in the buffer
       while ( (this.writeOffset) >= (this.readOffset + this.messageSize)){
         this.readBinary();
       }
@@ -175,7 +180,7 @@ class Serial {
         }
       }
     }
-    this.display();
+    this.displayStats();
   }
 
   address(offset){
@@ -195,7 +200,7 @@ class Serial {
     this.skip++;
   }
 
-  display(){
+  displayStats(){
     if ( ( Date.now() - this.lastStatsUpdate < this.statsUpdateFrequency) || statsdiv.style.display == 'none' ) return;
       this.lastStatsUpdate = Date.now();
 
@@ -264,9 +269,9 @@ class Serial {
     var dv = new DataView(ab);
 
     dv.setUint16(0,this.serial_frame,true);
-    dv.setInt16(2, command.steer,true);
-    dv.setInt16(4, command.speed,true);
-    dv.setUint16(6,this.serial_frame ^ command.steer ^ command.speed,true);
+    dv.setInt16(2, control.steer,true);
+    dv.setInt16(4, control.speed,true);
+    dv.setUint16(6,this.serial_frame ^ control.steer ^ control.speed,true);
   
     let view = new Uint8Array(ab);
 
@@ -347,8 +352,10 @@ class Serial {
       this.writer = this.outputStream.getWriter();
     }
 
+    let command = text + (crIn.checked ?"\r":"") + (lfIn.checked ?"\n":"");
+
     const encoder = new TextEncoder();
-    const bytes = encoder.encode(text);
+    const bytes = encoder.encode(command);
 
     if (this.API == 'serial'){
       this.writer.write(bytes);

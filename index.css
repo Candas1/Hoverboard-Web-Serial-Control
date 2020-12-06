@@ -17,17 +17,26 @@ input[type=checkbox] {
   margin-left: 80px;
 }
 
+#outputdiv{
+  display: flex;
+  flex-flow: row;
+}
+
 #statsdiv{
   display:none;
 }
 
 #chartdiv{
-  height: auto;
+  margin:0;
+  padding:0;
+  flex: 1 1 auto;
   display:none;
 }
 
 #loggerdiv{
-  height: 70%;
+  margin:0;
+  padding:0;
+  flex: 1 1 auto;
   font-size: 13px;
   color: white;
   background-color: black;
@@ -35,8 +44,6 @@ input[type=checkbox] {
 }
 
 #controlcnv{
-  width: 50%;
-  height: 50%;
   display:none;
 }
 
