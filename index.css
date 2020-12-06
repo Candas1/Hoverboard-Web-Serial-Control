@@ -18,8 +18,7 @@ input[type=checkbox] {
 }
 
 #outputdiv{
-  display: flex;
-  flex-flow: row;
+  height: 100%;
 }
 
 #statsdiv{
@@ -27,16 +26,13 @@ input[type=checkbox] {
 }
 
 #chartdiv{
-  margin:0;
-  padding:0;
+  height: 70%;
   flex: 1 1 auto;
   display:none;
 }
 
 #loggerdiv{
-  margin:0;
-  padding:0;
-  flex: 1 1 auto;
+  height: 70%;
   font-size: 13px;
   color: white;
   background-color: black;
