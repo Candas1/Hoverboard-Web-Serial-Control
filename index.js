@@ -32,6 +32,7 @@ control = new Control(controlcnv);
 voice = new Voice();
 
 window.addEventListener("load", function(event) {
+  
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, only Web Bluetooth API is available
     API.remove(API.selectedIndex);
