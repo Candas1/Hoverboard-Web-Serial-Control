@@ -315,25 +315,20 @@ class Serial {
       log.write(string,3);
       return true;
     }
-
-    //if (string.split(":").length == 9){
-      // Parse the message
-      for(let j = 0; j < words.length; j++) {
-        let index = words[j].split(':')[0];
-        let value = words[j].split(':')[1];
-        
-        if (value === undefined) err = true;
-        
-        if (index in this.fieldsAscii){
-          message[this.fieldsAscii[index]] = value;
-        }else{
-          message[index] = value;
-        }
+    
+    for(let j = 0; j < words.length; j++) {
+      let index = words[j].split(':')[0];
+      let value = words[j].split(':')[1];
+      
+      if (value === undefined) err = true;
+      
+      if (index in this.fieldsAscii){
+        message[this.fieldsAscii[index]] = value;
+      }else{
+        message[index] = value;
       }
-    //}else{
-      //err = true;
-    //}
-
+    }
+  
     if (!err && Object.entries(message).length > 0) {
       this.success++;
       log.writeLog(message);

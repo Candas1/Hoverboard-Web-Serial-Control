@@ -7,70 +7,73 @@ class Control {
                      {posx:0,posy:0,x:0,y:0,distance:0,clicked:false}];
     this.distance = 0;
     this.cnv = cnv;
-    this.ctx = controlcnv.getContext('2d');    
+    this.ctx = controlcnv.getContext('2d');
+    this.ratio = 4/2;     
     
     this.initCanvas();
 
 ['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
-  this.cnv.addEventListener(evt, 
-    function(event){
-      control.joystick[0].x = control.joystick[0].posx;
-      control.joystick[0].y = control.joystick[0].posy;
-      
-      control.joystick[1].x = control.joystick[1].posx;
-      control.joystick[1].y = control.joystick[1].posy;
+  this.cnv.addEventListener(evt, this.handleEvents.bind(this), false));
 
-      event.preventDefault();
-      switch (event.type){
-        case "mousedown":
-          control.joystick[0].clicked = true;
-        case "mousemove":
-          if (control.joystick[0].clicked){
-            let distance = 0;
-            let x = 0;
-            let y = 0;
-            for (let i = 0; i < control.joystick.length;i++){
-              x = event.clientX - control.cnv.offsetLeft;
-              y = event.clientY - control.cnv.offsetTop;
-              distance = control.calcDistance(x,y,control.joystick[i].posx,control.joystick[i].posy);
-              if ( distance < control.joystickr2 * 3){
-                control.joystick[i].x = x;
-                control.joystick[i].y = y; 
-              }
-            }
-          }
-          break;
-        case "touchstart":
-        case "touchmove":
-        case "touchend":
+}
+
+  handleEvents(event){
+    this.joystick[0].x = this.joystick[0].posx;
+    this.joystick[0].y = this.joystick[0].posy;
+    
+    this.joystick[1].x = this.joystick[1].posx;
+    this.joystick[1].y = this.joystick[1].posy;
+
+    event.preventDefault();
+    switch (event.type){
+      case "mousedown":
+        this.joystick[0].clicked = true;
+      case "mousemove":
+        if (this.joystick[0].clicked){
           let distance = 0;
           let x = 0;
           let y = 0;
-          for (let i = 0; i < control.joystick.length;i++){
-            for (let j= 0; j< event.touches.length;j++){
-              x = event.touches[j].clientX - control.cnv.offsetLeft;
-              y = event.touches[j].clientY - control.cnv.offsetTop;
-              distance = control.calcDistance(x,y,control.joystick[i].posx,control.joystick[i].posy);
-              if ( distance < control.joystickr2 * 3){
-                control.joystick[i].x = x;
-                control.joystick[i].y = y; 
-              }
+          for (let i = 0; i < this.joystick.length;i++){
+            //x = event.clientX - this.cnv.offsetLeft;
+            //y = event.clientY - this.cnv.offsetTop;
+            x = event.offsetX;
+            y = event.offsetY;
+            distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
+            if ( distance < this.joystickr2 * 3){
+              this.joystick[i].x = x;
+              this.joystick[i].y = y; 
             }
           }
-          break;
-        case "mouseup":
-          control.joystick[0].clicked = false;
-          break;
-      }
-      
-      control.steer = Math.round(control.map(control.joystick[0].x,control.joystick[0].posx-control.joystickr1,control.joystick[0].posx+control.joystickr1,-1000,1000));
-      control.speed = Math.round(control.map(control.joystick[1].y,control.joystick[1].posy+control.joystickr1,control.joystick[1].posy-control.joystickr1,-1000,1000));
-
-      control.display();
+        }
+        break;
+      case "touchstart":
+      case "touchmove":
+      case "touchend":
+        let distance = 0;
+        let x = 0;
+        let y = 0;
+        for (let i = 0; i < this.joystick.length;i++){
+          for (let j= 0; j< event.touches.length;j++){
+            let rect = event.touches[j].target.getBoundingClientRect();
+            x = event.touches[j].clientX - rect.left;
+            y = event.touches[j].clientY - rect.top;
+            distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
+            if ( distance < this.joystickr2 * 3){
+              this.joystick[i].x = x;
+              this.joystick[i].y = y; 
+            }
+          }
+        }
+        break;
+      case "mouseup":
+        this.joystick[0].clicked = false;
+        break;
     }
-  , false));
-
-}
+    
+    this.steer = Math.round(this.map(this.joystick[0].x,this.joystick[0].posx-this.joystickr1,this.joystick[0].posx+this.joystickr1,-1000,1000));
+    this.speed = Math.round(this.map(this.joystick[1].y,this.joystick[1].posy+this.joystickr1,this.joystick[1].posy-this.joystickr1,-1000,1000));
+    this.display();
+  }
 
   calcDistance(x1,y1,x2,y2){
     return Math.sqrt(Math.pow(x1 - x2, 2) + 
@@ -87,8 +90,10 @@ class Control {
   }
 
   initCanvas(){
-    this.cnv.width=1000;//window.innerWidth;
-    this.cnv.height=500;//window.innerHeight;
+    //this.cnv.width=1000;//window.innerWidth;
+    //this.cnv.height=500;//window.innerHeight;
+    this.cnv.width= this.cnv.parentElement.clientWidth;
+    this.cnv.height= this.cnv.parentElement.clientWidth / this.ratio;
     
     this.joystick[0].posx = (this.cnv.width / 3 / 2);
     this.joystick[0].posy = (this.cnv.height / 3 / 2) + this.cnv.height/5;
