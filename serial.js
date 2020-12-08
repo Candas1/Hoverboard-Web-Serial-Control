@@ -41,19 +41,26 @@ class Serial {
   setConnected(){
     this.connected = true;
     connect_btn.innerHTML = '<ion-icon name="flash-off"></ion-icon>';
+    API.disabled = baudrate.disabled = this.connected;
     send_btn.disabled = !this.connected;  
   }
 
   setDisconnected(){
     this.connected = false;
     connect_btn.innerHTML = '<ion-icon name="flash"></ion-icon>';
-    send_btn.disabled = !this.connected;  
+    API.disabled = baudrate.disabled = this.connected;
+    send_btn.disabled = !this.connected;
   } 
 
   async connect() {
 
-    if ( this.connected){
-      if (this.API == 'bluetooth') this.device.gatt.disconnect();
+    if (this.connected){
+      if (this.API == 'bluetooth'){
+        this.device.gatt.disconnect();
+      }else{
+        this.reader.cancel();
+      }
+
       this.setDisconnected();
       return;
     }
@@ -68,9 +75,6 @@ class Serial {
   async connectSerial(){
     if ("serial" in navigator) {
 
-      //let ports = await navigator.serial.getPorts();
-      //console.log(ports);
-
       this.port = await navigator.serial.requestPort();
       // Open and begin reading.
       await this.port.open({
@@ -79,7 +83,7 @@ class Serial {
       
       // Update UI
       this.setConnected();
-
+ 
       while (this.port.readable) {
         this.inputStream = this.port.readable;
         this.reader = this.inputStream.getReader();
@@ -91,6 +95,7 @@ class Serial {
               log.write("Reader canceled",2);
               break;
             }
+    
             //if (serial.binary) serial.sendBinary();
             this.bufferWrite(value);
             this.readLoop();
@@ -102,11 +107,12 @@ class Serial {
         } finally{
           
         }
-        if (!this.connected) break;    
+        if (!this.connected) break;   
       }
+
       this.reader.releaseLock();
       this.port.close();
-      this.disconnect();
+      this.setDisconnected();
     }
   }
 

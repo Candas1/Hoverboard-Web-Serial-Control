@@ -50,6 +50,7 @@ window.addEventListener("load", function(event) {
   toggleMode();
   toggleAPI();
   toggleStats();
+  serial.setDisconnected()
   control.startSend();
 });
 
