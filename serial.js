@@ -53,14 +53,15 @@ class Serial {
   } 
 
   async connect() {
-
     if (this.connected){
+      // disconnect
       if (this.API == 'bluetooth'){
         this.device.gatt.disconnect();
       }else{
         this.reader.cancel();
       }
 
+      // Update UI
       this.setDisconnected();
       return;
     }
@@ -132,6 +133,7 @@ class Serial {
     then((server) => {
       //console.log(server);
 
+      // Update UI
       this.setConnected();
       
       this.server = server;
@@ -161,6 +163,7 @@ class Serial {
   }
 
   onDisconnected(event) {
+    // Update UI
     serial.setDisconnected();
   }
 
@@ -221,7 +224,7 @@ class Serial {
   }
 
   readBinary(){
-    // copy to new buffer and continue from beginning of buffer if needed
+    // copy chunk to new arrayBuffer
     for (let i=0, strLen=this.messageSize; i < strLen; i++) {       
       let val = this.writedv.getUint8(this.address(this.readOffset + i),true);
       this.readdv.setUint8(i,val,true);
@@ -243,13 +246,13 @@ class Serial {
     message.cmdLed = this.readdv.getUint16(14,true);
     let checksum = this.readdv.getUint16(16,true);
     let calcChecksum = frame ^ 
-                        message.cmd1 ^ 
-                        message.cmd2 ^ 
-                        message.speedR ^ 
-                        message.speedL ^ 
-                        message.batVoltage ^ 
-                        message.boardTemp ^ 
-                        message.cmdLed;
+                       message.cmd1 ^ 
+                       message.cmd2 ^ 
+                       message.speedR ^ 
+                       message.speedL ^ 
+                       message.batVoltage ^ 
+                       message.boardTemp ^ 
+                       message.cmdLed;
     
     // Trick to convert calculated Checksum to unsigned
     this.readdv.setInt16(16,calcChecksum,true);

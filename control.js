@@ -89,11 +89,9 @@ class Control {
   }
 
   initCanvas(){
-    //this.cnv.width=1000;//window.innerWidth;
-    //this.cnv.height=500;//window.innerHeight;
     this.cnv.width= this.cnv.parentElement.clientWidth;
     this.cnv.height= this.cnv.parentElement.clientWidth / this.ratio;
-    
+
     this.joystick[0].posx = (this.cnv.width / 3 / 2);
     this.joystick[0].posy = (this.cnv.height / 3 / 2) + this.cnv.height/5;
     
@@ -153,10 +151,15 @@ class Control {
     this.ctx.fillRect(this.screenx2,this.screeny2,this.screenWidth2,this.screenHeight2);
 
     // text
-    this.ctx.font = "20px Consolas";
+    let fontsize = Math.round(this.cnv.width / 50);
+    this.ctx.font =  fontsize +"px Consolas";
     this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Steer: " + this.channel[0], this.screenx2 + 20, this.screeny2 + 20);
-    this.ctx.fillText("Speed: " + this.channel[1], this.screenx2 + 20, this.screeny2 + 40);
+    this.ctx.textAlign = "left";
+    this.ctx.fillText("Steer:", this.screenx2 + fontsize, this.screeny2 + fontsize);
+    this.ctx.fillText("Speed:", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
+    this.ctx.textAlign = "right";
+    this.ctx.fillText(this.channel[0], this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
+    this.ctx.fillText(this.channel[1], this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
 
   }
 
