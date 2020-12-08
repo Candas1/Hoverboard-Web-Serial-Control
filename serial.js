@@ -19,7 +19,10 @@ class Serial {
     this.error = 0;
     this.skip = 0;
     this.success = 0;
-    this.serial_frame = 0xABCD;
+    this.serial_start_frame = 0xABCD;
+    this.serial_length = 8;
+    this.ibus_length = 0x20;
+    this.ibus_command = 0x40;
     this.lastStatsUpdate = Date.now();
     this.statsUpdateFrequency = 500;
 
@@ -219,7 +222,7 @@ class Serial {
     }
     
     let frame = this.readdv.getUint16(0,true);
-    if (frame != this.serial_frame){
+    if (frame != this.serial_start_frame){
       this.skipByte();    
       return;
     }
@@ -259,30 +262,6 @@ class Serial {
     this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
   }
  
-  sendBinary() {
-    if (this.API == 'serial'){
-      this.outputStream = this.port.writable;
-      this.writer = this.outputStream.getWriter();
-    }
-
-    var ab = new ArrayBuffer(8);
-    var dv = new DataView(ab);
-
-    dv.setUint16(0,this.serial_frame,true);
-    dv.setInt16(2, control.steer,true);
-    dv.setInt16(4, control.speed,true);
-    dv.setUint16(6,this.serial_frame ^ control.steer ^ control.speed,true);
-  
-    let view = new Uint8Array(ab);
-
-    if (this.API == 'serial'){
-      this.writer.write(view);
-      this.writer.releaseLock();
-    }else{
-      this.characteristic.writeValue(view);
-    }
-  };
-
   readAscii(){
     let string = '';
     let i = 1;
@@ -341,22 +320,63 @@ class Serial {
     }
   }
 
+  sendBinary() {
+    var ab = new ArrayBuffer(protocol.value == "usart" ? this.serial_length : this.ibus_length);
+    var dv = new DataView(ab);
+
+    if (protocol.value == "usart"){
+      dv.setUint16(0,this.serial_start_frame,true);
+      dv.setInt16(2, control.channel[0],true);
+      dv.setInt16(4, control.channel[1],true);
+      dv.setUint16(6,this.serial_start_frame ^ control.channel[0] ^ control.channel[1],true);
+      let bytes = new Uint8Array(ab);
+      this.send(bytes);
+    }else{
+      // Write Ibus Start Frame
+      dv.setUint8(0,this.ibus_length);
+      dv.setUint8(1,this.ibus_command);
+      //control.channels = [0x5DB,0x5DC,0x554,0x5DC,0x3E8,0x7D0,0x5D2,0x3E8,0x5DC,0x5DC,0x5DC,0x5DC,0x5DC,0x5DC];
+      
+      // Write channel values
+      for (let i=0; i< control.channel.length * 2;i+=2){
+        dv.setUint16(i+2, control.map(control.channel[i/2] ,-1000,1000,1000,2000) ,true);
+      }
+
+      // Calculate checksum
+      let checksum = 0xFFFF;
+      for (let i=0; i<30;i++){
+        checksum -= dv.getUint8(i);
+      }
+      dv.setUint16(30,checksum,true);
+      
+      let bytes = new Uint8Array(ab);
+      this.send(bytes);
+    }
+  };
+
   sendAscii(text) {
+    let command = text + (crIn.checked ?"\r":"") + (lfIn.checked ?"\n":"");
+
+    let encoder = new TextEncoder();
+    let bytes = encoder.encode(command);
+    this.send(bytes);
+  };
+
+  async send(bytes){
     if (this.API == 'serial'){
       this.outputStream = this.port.writable;
       this.writer = this.outputStream.getWriter();
-    }
-
-    let command = text + (crIn.checked ?"\r":"") + (lfIn.checked ?"\n":"");
-
-    const encoder = new TextEncoder();
-    const bytes = encoder.encode(command);
-
-    if (this.API == 'serial'){
       this.writer.write(bytes);
       this.writer.releaseLock();
     }else{
-      this.characteristic.writeValue(bytes);
-    }
-  };
+      let chunksize = 20;
+      let sent = 0;
+      while(sent < bytes.length){
+        // Sent chunks of 20 bytes because of BLE limitation
+        //console.log(bytes.slice(sent,sent+chunksize));
+        this.characteristic.writeValueWithoutResponse(bytes.slice(sent,sent+chunksize));
+        sent += chunksize;
+      }
+    } 
+  }
 }

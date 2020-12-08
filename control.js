@@ -1,8 +1,7 @@
 class Control {
   constructor(cnv) {
     this.ctx = 
-    this.steer = 0;
-    this.speed = 0;
+    this.channel = new Array(14).fill(0);
     this.joystick = [{posx:0,posy:0,x:0,y:0,distance:0,clicked:false},
                      {posx:0,posy:0,x:0,y:0,distance:0,clicked:false}];
     this.distance = 0;
@@ -70,8 +69,8 @@ class Control {
         break;
     }
     
-    this.steer = Math.round(this.map(this.joystick[0].x,this.joystick[0].posx-this.joystickr1,this.joystick[0].posx+this.joystickr1,-1000,1000));
-    this.speed = Math.round(this.map(this.joystick[1].y,this.joystick[1].posy+this.joystickr1,this.joystick[1].posy-this.joystickr1,-1000,1000));
+    this.channel[0] = Math.round(this.map(this.joystick[0].x,this.joystick[0].posx-this.joystickr1,this.joystick[0].posx+this.joystickr1,-1000,1000));
+    this.channel[1] = Math.round(this.map(this.joystick[1].y,this.joystick[1].posy+this.joystickr1,this.joystick[1].posy-this.joystickr1,-1000,1000));
     this.display();
   }
 
@@ -156,8 +155,8 @@ class Control {
     // text
     this.ctx.font = "20px Consolas";
     this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Steer: " + this.steer, this.screenx2 + 20, this.screeny2 + 20);
-    this.ctx.fillText("Speed: " + this.speed, this.screenx2 + 20, this.screeny2 + 40);
+    this.ctx.fillText("Steer: " + this.channel[0], this.screenx2 + 20, this.screeny2 + 20);
+    this.ctx.fillText("Speed: " + this.channel[1], this.screenx2 + 20, this.screeny2 + 40);
 
   }
 
