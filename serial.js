@@ -378,7 +378,7 @@ class Serial {
       this.writer.write(bytes);
       this.writer.releaseLock();
     }else{
-      let chunksize = 20;
+      let chunksize = 32;
       let sent = 0;
       while(sent < bytes.length){
         // Sent chunks of 20 bytes because of BLE limitation
