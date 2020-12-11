@@ -103,6 +103,8 @@ class Graph {
 
     // Create new trace for each value
     for (let key in message){
+      if (key == "checksum" || key == "cmdLed") continue;
+      
       // New field
       if (!(key in this.key2trace)){ 
         this.key2trace[key] = this.countTrace; 

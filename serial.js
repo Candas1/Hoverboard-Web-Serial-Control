@@ -1,5 +1,5 @@
 class Serial {
-  constructor(size,log,graph) {
+  constructor(size) {
     this.API = 'bluetooth';
     this.bluetoothName = 'BT05';
     this.bluetoothService = 0xffe0;
@@ -14,8 +14,6 @@ class Serial {
     this.readdv = new DataView(this.readBuffer);
     this.writeOffset = 0;
     this.readOffset = 0;
-    this.log = log;
-    this.graph = graph;
     this.error = 0;
     this.skip = 0;
     this.success = 0;
@@ -26,14 +24,14 @@ class Serial {
     this.lastStatsUpdate = Date.now();
     this.statsUpdateFrequency = 500;
 
-    this.fieldsAscii = {1:'Input1',
-                        2:'Input2',
-                        3:'SpeedR',
-                        4:'SpeedL',
+    this.fieldsAscii = {1:'in1',
+                        2:'in2',
+                        3:'cmdR',
+                        4:'cmdL',
                         5:'BatADC',
-                        6:'BatVoltage',
+                        6:'BatV',
                         7:'TempADC',
-                        8:'TempDeg'
+                        8:'Temp'
                         };
   }
 
@@ -237,37 +235,37 @@ class Serial {
     }
 
     let message = {};
-    message.cmd1 = this.readdv.getInt16(2,true);
-    message.cmd2 = this.readdv.getInt16(4,true);
-    message.speedR = this.readdv.getInt16(6,true);
-    message.speedL = this.readdv.getInt16(8,true);
-    message.batVoltage = this.readdv.getInt16(10,true);
-    message.boardTemp = this.readdv.getInt16(12,true);
-    message.cmdLed = this.readdv.getUint16(14,true);
-    let checksum = this.readdv.getUint16(16,true);
+    message.cmd1     = this.readdv.getInt16(2,true);
+    message.cmd2     = this.readdv.getInt16(4,true);
+    message.speedR   = this.readdv.getInt16(6,true);
+    message.speedL   = this.readdv.getInt16(8,true);
+    message.BatV     = this.readdv.getInt16(10,true);
+    message.Temp     = this.readdv.getInt16(12,true);
+    message.cmdLed   = this.readdv.getUint16(14,true);
+    message.checksum = this.readdv.getUint16(16,true);
     let calcChecksum = frame ^ 
                        message.cmd1 ^ 
                        message.cmd2 ^ 
                        message.speedR ^ 
                        message.speedL ^ 
-                       message.batVoltage ^ 
-                       message.boardTemp ^ 
+                       message.BatV ^ 
+                       message.Temp ^ 
                        message.cmdLed;
     
     // Trick to convert calculated Checksum to unsigned
     this.readdv.setInt16(16,calcChecksum,true);
     calcChecksum = this.readdv.getUint16(16,true);
     
-    if ( checksum == calcChecksum ){
+    if ( message.checksum == calcChecksum ){
       this.success++;
-      this.graph.updateData(message);
+      graph.updateData(message);
+      control.updateTelemetry(message);
+      log.writeLog(message);
     }else{  
-      this.error++;  
+      this.error++;
+      log.write(Object.keys( message ).map( function(key){ return key + ":" +message[key] }).join(" "),2);
     }
 
-    message.checksum = checksum;
-    //message.calcChecksum = calcChecksum;
-    this.log.writeLog(message);
     this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
   }
  
@@ -298,15 +296,14 @@ class Serial {
     let message = {};
     let err = false;
 
+    // If first word doesn't contain semi-colon, no need to parse it
     if (words[0].split(":").length == 1 ){
-      // Print message, no need to parse it
       log.write(string,3);
       return true;
     }
     
     for(let j = 0; j < words.length; j++) {
-      let index = words[j].split(':')[0];
-      let value = words[j].split(':')[1];
+      let [index,value] = words[j].split(':');
       
       if (value === undefined) err = true;
       
@@ -321,12 +318,13 @@ class Serial {
       this.success++;
       log.writeLog(message);
       graph.updateData(message);
-      return true;
+      control.updateTelemetry(message);
     }else{
       this.error++;
       log.write(string,2);
-      return true;
     }
+
+    return true;
   }
 
   sendBinary() {
@@ -344,8 +342,6 @@ class Serial {
       // Write Ibus Start Frame
       dv.setUint8(0,this.ibus_length);
       dv.setUint8(1,this.ibus_command);
-      //control.channels = [0x5DB,0x5DC,0x554,0x5DC,0x3E8,0x7D0,0x5D2,0x3E8,0x5DC,0x5DC,0x5DC,0x5DC,0x5DC,0x5DC];
-      
       // Write channel values
       for (let i=0; i< control.channel.length * 2;i+=2){
         dv.setUint16(i+2, control.map(control.channel[i/2] ,-1000,1000,1000,2000) ,true);
@@ -378,12 +374,12 @@ class Serial {
       this.writer.write(bytes);
       this.writer.releaseLock();
     }else{
-      let chunksize = 32;
+      let chunksize = 20;
       let sent = 0;
       while(sent < bytes.length){
         // Sent chunks of 20 bytes because of BLE limitation
         //console.log(bytes.slice(sent,sent+chunksize));
-        this.characteristic.writeValueWithoutResponse(bytes.slice(sent,sent+chunksize));
+        await this.characteristic.writeValueWithResponse(bytes.slice(sent,sent+chunksize));
         sent += chunksize;
       }
     } 

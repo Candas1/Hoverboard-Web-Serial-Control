@@ -28,7 +28,7 @@ var view = 'log';
 
 log = new Log(loggerdiv);
 graph = new Graph();
-serial = new Serial(10000,log,graph);
+serial = new Serial(10000);
 control = new Control(controlcnv);
 voice = new Voice();
 

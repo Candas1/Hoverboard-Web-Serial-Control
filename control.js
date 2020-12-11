@@ -4,6 +4,7 @@ class Control {
     this.channel = new Array(14).fill(0);
     this.joystick = [{posx:0,posy:0,x:0,y:0,distance:0,clicked:false},
                      {posx:0,posy:0,x:0,y:0,distance:0,clicked:false}];
+    this.telemetry = {};
     this.distance = 0;
     this.cnv = cnv;
     this.ctx = controlcnv.getContext('2d');
@@ -127,6 +128,11 @@ class Control {
     this.display();
   }
 
+  updateTelemetry(message){
+    this.telemetry = message;
+    this.updateScreen();
+  }
+
   display(){
     // Case
     let gradient = this.ctx.createLinearGradient(0, this.cnv.height, this.cnv.width, this.cnv.height);
@@ -142,25 +148,36 @@ class Control {
     this.displayJoystick(0);
     this.displayJoystick(1);
 
-    // Screen outer rectangle
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(this.screenx1,this.screeny1,this.screenWidth1,this.screenHeight1);
+    this.updateScreen();
+  }
 
-    // Screen inner rectangle
-    this.ctx.fillStyle = "turquoise";
-    this.ctx.fillRect(this.screenx2,this.screeny2,this.screenWidth2,this.screenHeight2);
-
-    // text
-    let fontsize = Math.round(this.cnv.width / 50);
-    this.ctx.font =  fontsize +"px Consolas";
-    this.ctx.fillStyle = "blue";
-    this.ctx.textAlign = "left";
-    this.ctx.fillText("Steer:", this.screenx2 + fontsize, this.screeny2 + fontsize);
-    this.ctx.fillText("Speed:", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
-    this.ctx.textAlign = "right";
-    this.ctx.fillText(this.channel[0], this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
-    this.ctx.fillText(this.channel[1], this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
-
+  updateScreen(){
+     // Screen outer rectangle
+     this.ctx.fillStyle = "black";
+     this.ctx.fillRect(this.screenx1,this.screeny1,this.screenWidth1,this.screenHeight1);
+ 
+     // Screen inner rectangle
+     this.ctx.fillStyle = "turquoise";
+     this.ctx.fillRect(this.screenx2,this.screeny2,this.screenWidth2,this.screenHeight2);
+ 
+     // text
+     let fontsize = Math.round(this.cnv.width / 50);
+     this.ctx.font =  fontsize +"px Consolas";
+     this.ctx.fillStyle = "blue";
+     this.ctx.textAlign = "left";
+     this.ctx.fillText("Steer:", this.screenx2 + fontsize, this.screeny2 + fontsize);
+     this.ctx.fillText("Speed:", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
+     this.ctx.textAlign = "right";
+     this.ctx.fillText(this.channel[0], this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
+     this.ctx.fillText(this.channel[1], this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
+ 
+     this.ctx.textAlign = "right";
+     if (this.telemetry["BatV"] != undefined){
+       this.ctx.fillText(this.telemetry.BatV/100 + "V", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize);
+     }
+     if (this.telemetry["BatV"] != undefined){
+      this.ctx.fillText(this.telemetry.Temp/10 + "C", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize*2);
+    }
   }
 
   displayJoystick(joynum){
@@ -241,5 +258,4 @@ class Control {
     return this.clamp((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min, out_min,out_max);
   }
   
-
 }
