@@ -24,7 +24,7 @@
               <option value="bluetooth">Bluetooth</option>
           </select>
         </div>
-        <div class="two columns">
+        <div class="two columns" id='bauddiv'>
           <label for="baudrate">Baudrate</label>
           <select class="u-full-width" id="baudrate">
               <option value="9600">9600</option>
@@ -47,7 +47,7 @@
           <label for="cr">Stats</label>
           <input type="checkbox" id="stats" onclick="toggleStats()">
         </div>
-        <div class="five columns">
+        <div class="u-max-width">
           <br>
           <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button>
           <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="terminal"></ion-icon></button>

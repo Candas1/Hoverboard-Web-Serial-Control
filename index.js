@@ -25,6 +25,7 @@ var chartdiv   = document.getElementById('chartdiv');
 var controlcnv = document.getElementById('controlcnv');
 var outputdiv  = document.getElementById('outputdiv');
 var controldiv = document.getElementById('controldiv');
+var bauddiv    = document.getElementById('bauddiv');
 var view = 'log';
 
 log = new Log(loggerdiv);
@@ -37,6 +38,7 @@ window.addEventListener("load", function(event) {
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, only Web Bluetooth API is available
     API.remove(API.selectedIndex);
+    bauddiv.style.display = "none";
   }else{
     // if on computer,remove Web Serial API if not available
     if ("serial" in navigator === false) {
@@ -73,6 +75,7 @@ function switchView(newView){
   chartdiv.style.display = (view == "chart") ? "block" : "none";
   loggerdiv.style.display = (view == "log") ? "block" : "none";
   controlcnv.style.display = (view == "control") ? "block" : "none";
+  if (view == "chart") graph.relayout();
   if (view == "chart") graph.relayout();
   
   commanddiv.style.display   = (view == "log" && !serial.binary) ? "block" : "none";
