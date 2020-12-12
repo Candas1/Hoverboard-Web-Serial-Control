@@ -1,13 +1,12 @@
 var API = document.getElementById('API');
 var baudrate = document.getElementById('baudrate');
 var mode = document.getElementById('mode');
-var protocol = document.getElementById('protocol');
 var statsIn = document.getElementById('stats');
 
 var send_btn = document.getElementById('send');
 var connect_btn = document.getElementById('connect');
 var pause_btn = document.getElementById('pause');
-var listen_btn = document.getElementById('listen');
+var trash_btn = document.getElementById('trash');
 
 var commandIn = document.getElementById('command');
 var crIn = document.getElementById('cr');
@@ -24,13 +23,14 @@ var statsdiv   = document.getElementById('statsdiv');
 var loggerdiv  = document.getElementById('loggerdiv');
 var chartdiv   = document.getElementById('chartdiv');
 var controlcnv = document.getElementById('controlcnv');
+var outputdiv  = document.getElementById('outputdiv');
+var controldiv = document.getElementById('controldiv');
 var view = 'log';
 
 log = new Log(loggerdiv);
 graph = new Graph();
 serial = new Serial(10000);
 control = new Control(controlcnv);
-voice = new Voice();
 
 window.addEventListener("load", function(event) {
   
@@ -55,7 +55,6 @@ window.addEventListener("load", function(event) {
 });
 
 window.addEventListener("resize", function() {
-  console.log("resize");
   control.initCanvas();
 });
 
@@ -70,26 +69,20 @@ commandIn.addEventListener("keyup", function(event) {
 });
 
 function switchView(newView){
-  switch (newView){
-    case 'log':
-      chartdiv.style.display = "none";
-      loggerdiv.style.display = "block";
-      controlcnv.style.display = "none";
-      break;
-    case 'chart':
-      chartdiv.style.display = "block";
-      loggerdiv.style.display = "none";
-      controlcnv.style.display = "none";
-      graph.relayout();
-      break; 
-    case 'control':
-      chartdiv.style.display = "none";
-      loggerdiv.style.display = "none";
-      controlcnv.style.display = "block";
-      break;  
-  }
   view = newView;
+  chartdiv.style.display = (view == "chart") ? "block" : "none";
+  loggerdiv.style.display = (view == "log") ? "block" : "none";
+  controlcnv.style.display = (view == "control") ? "block" : "none";
+  if (view == "chart") graph.relayout();
+  
+  commanddiv.style.display   = (view == "log" && !serial.binary) ? "block" : "none";
+  statsdiv.style.display     = (view == "log" && statsIn.checked) ? "block" : "none";
+  outputdiv.style.display    = (view == "control") ? "none" : "block";
+  controldiv.style.display   = (view == "control") ? "block" : "none";
+  statsIn.disabled = !(view == "log");
 
+  loggerdiv.style.height = 55 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
+  
 }
 
 function deleteData(){
@@ -100,23 +93,27 @@ function deleteData(){
   }
 }
 
-function toggleMode(){
- serial.binary = (mode.value == "binary");
- commanddiv.style.display = (serial.binary) ? 'none' : 'block';
- protocol.disabled = (!serial.binary);
-}
-
 function toggleAPI(){
   serial.API = API.value;
   baudrate.disabled = (serial.API == "bluetooth");
 }
 
-function toggleProtocol(){
-  serial.protocol = protocol.value;
-}
+function toggleMode(){
+  switch (mode.value){
+    case "ascii":
+      serial.binary = false;
+      break;
+    case "usart":
+    case "ibus":  
+      serial.binary = true;
+      serial.protocol = mode.value;
+      break;
+  }
+  switchView(view);
+ }
 
 function toggleStats(){
-  statsdiv.style.display = (!statsIn.checked) ? 'none' : 'block';
+  switchView(view);
 }
 
 function pauseUpdate(){

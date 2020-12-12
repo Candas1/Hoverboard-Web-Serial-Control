@@ -39,23 +39,22 @@
           <label for="mode">Mode</label>
           <select class="u-full-width" id="mode" onchange="toggleMode()">
               <option value="ascii" selected>Ascii</option>
-              <option value="binary">Binary</option>
+              <option value="usart">USART</option>
+              <option value="ibus">IBUS</option>
           </select>  
         </div>
-        <div class="two columns">
-          <label for="protocol">Protocol</label>
-          <select class="u-full-width" id="protocol" onchange="toggleProtocol()">
-              <option value="usart" selected>USART</option>
-              <option value="ibus">IBUS</option>
-          </select>
-        </div>
-        <div class="two columns">
+        <div class="one columns">
           <label for="cr">Stats</label>
           <input type="checkbox" id="stats" onclick="toggleStats()">
         </div>
-        <div class="two columns">
+        <div class="two columns"></div>
+        
+        <div class="five columns">
           <br>
-          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button><br>
+          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button>
+          <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="terminal"></ion-icon></button>
+          <button id="graphbtn"   class="button" type="button" onclick="switchView('chart')"><ion-icon name="analytics"></ion-icon></button>
+          <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller"></ion-icon></button>
         </div>
       </div>
       <div class="row" id="commanddiv">
@@ -71,7 +70,8 @@
           <label for="lf">LF</label>
           <input type="checkbox" id="lf" checked>
         </div>
-        <div class="two columns">
+        <div class="one columns"><br></div>
+        <div class="one columns">
           <br>
           <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
         </div>
@@ -100,20 +100,20 @@
         <div class="two columns"></div>
       </div>      
       <div class="row">
-        <div class="ten columns" id="outputdiv">
-          <br>
-          <div class="u-full-width" id="loggerdiv"></div>
-          <div class="u-full-width" id="chartdiv"></div>
-          <canvas class="u-full-width" id="controlcnv"></canvas>
+        <div class="twelve columns" id="outputdiv">
+          <div class="eleven columns" >
+            <br>
+            <div class="u-full-width" id="loggerdiv"></div>
+            <div class="u-full-width" id="chartdiv"></div>
+          </div>
+          <div class="one columns">
+            <br>
+            <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
+            <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
+          </div>
         </div>
-        <div class="two columns">
-          <br>
-          <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
-          <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
-          <button id="listen"     class="button" type="button" onclick="voice.listen()"><ion-icon name="mic"></ion-icon></button><br>
-          <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="reader"></ion-icon></button><br>
-          <button id="graphbtn"   class="button" type="button" onclick="switchView('chart')"><ion-icon name="analytics"></ion-icon></button><br>
-          <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller"></ion-icon></button><br>
+        <div class="twelve columns" id="controldiv">  
+          <canvas class="u-full-width" id="controlcnv"></canvas>
         </div>
       </div>
     </div>
@@ -121,13 +121,11 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
-    <script src="annyang.min.js"></script>
     
     <script type="text/javascript" src="log.js"></script>
     <script type="text/javascript" src="serial.js"></script>
     <script type="text/javascript" src="graph.js"></script>
     <script type="text/javascript" src="control.js"></script>
-    <script type="text/javascript" src="voice.js"></script>
     <script type="text/javascript" src="index.js"></script>
 
   </body>

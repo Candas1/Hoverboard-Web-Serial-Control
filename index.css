@@ -15,10 +15,7 @@ input[type=checkbox] {
 #container{
   height: 100%;
   margin-left: 80px;
-}
-
-#outputdiv{
-  height: 70%;
+  margin-right: 80px;
 }
 
 #statsdiv{
@@ -26,13 +23,11 @@ input[type=checkbox] {
 }
 
 #chartdiv{
-  height: 100%;
-  flex: 1 1 auto;
+  height: 81%;
   display:none;
 }
 
 #loggerdiv{
-  height: 100%;
   font-size: 13px;
   color: white;
   background-color: black;
@@ -40,6 +35,7 @@ input[type=checkbox] {
 }
 
 #controlcnv{
+  height: 81%;
   display:none;
 }
 
