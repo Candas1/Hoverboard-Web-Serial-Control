@@ -1,6 +1,7 @@
 class Serial {
   constructor(size) {
     this.API = 'bluetooth';
+    this.protocol = '';
     this.bluetoothName = 'BT05';
     this.bluetoothService = 0xffe0;
     this.bluetoothCharacteristic = 0xffe1;
@@ -328,10 +329,10 @@ class Serial {
   }
 
   sendBinary() {
-    var ab = new ArrayBuffer(protocol.value == "usart" ? this.serial_length : this.ibus_length);
+    var ab = new ArrayBuffer(serial.protocol == "usart" ? this.serial_length : this.ibus_length);
     var dv = new DataView(ab);
 
-    if (protocol.value == "usart"){
+    if (serial.protocol == "usart"){
       dv.setUint16(0,this.serial_start_frame,true);
       dv.setInt16(2, control.channel[0],true);
       dv.setInt16(4, control.channel[1],true);
