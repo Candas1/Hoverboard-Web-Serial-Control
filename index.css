@@ -23,7 +23,7 @@ input[type=checkbox] {
 }
 
 #chartdiv{
-  height: 81%;
+  height: 75%;
   display:none;
 }
 
@@ -35,7 +35,6 @@ input[type=checkbox] {
 }
 
 #controlcnv{
-  height: 81%;
   display:none;
 }
 

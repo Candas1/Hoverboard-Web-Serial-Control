@@ -72,20 +72,42 @@ commandIn.addEventListener("keyup", function(event) {
 
 function switchView(newView){
   view = newView;
-  chartdiv.style.display = (view == "chart") ? "block" : "none";
-  loggerdiv.style.display = (view == "log") ? "block" : "none";
-  controlcnv.style.display = (view == "control") ? "block" : "none";
-  if (view == "chart") graph.relayout();
-  if (view == "chart") graph.relayout();
-  
-  commanddiv.style.display   = (view == "log" && !serial.binary) ? "block" : "none";
-  statsdiv.style.display     = (view == "log" && statsIn.checked) ? "block" : "none";
-  outputdiv.style.display    = (view == "control") ? "none" : "block";
-  controldiv.style.display   = (view == "control") ? "block" : "none";
+
   statsIn.disabled = !(view == "log");
 
-  loggerdiv.style.height = 55 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
+  switch (view){
+    case "log":
+      commanddiv.style.display   = (!serial.binary) ? "block" : "none";
+      statsdiv.style.display     = (statsIn.checked) ? "block" : "none";
   
+      loggerdiv.style.height = 50 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
+      chartdiv.style.display = "none";
+      controlcnv.style.display = "none";
+      controldiv.style.display = "none";
+      loggerdiv.style.display = "block";
+      outputdiv.style.display = "block";
+      break;
+    case "chart":
+      controlcnv.style.display = "none";
+      controldiv.style.display = "none";
+      loggerdiv.style.display = "none";
+      statsdiv.style.display   = "none";
+      commanddiv.style.display = "none";
+      chartdiv.style.display = "block";
+      outputdiv.style.display = "block";
+      graph.relayout();
+      break;
+    case "control":
+      loggerdiv.style.display  = "none";
+      chartdiv.style.display   = "none";
+      outputdiv.style.display  = "none";
+      statsdiv.style.display   = "none";
+      commanddiv.style.display = "none";
+      controlcnv.style.display = "block";
+      controldiv.style.display = "block";
+      control.initCanvas();
+      break;
+  }
 }
 
 function deleteData(){
