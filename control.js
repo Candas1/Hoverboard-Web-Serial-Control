@@ -39,7 +39,7 @@ class Control {
             x = event.offsetX;
             y = event.offsetY;
             distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
-            if ( distance < this.joystickr2 * 3){
+            if ( distance < this.joystickr2 * (event.type == "mousedown" ? 1 : 2) ){
               this.joystick[i].x = x;
               this.joystick[i].y = y; 
             }
@@ -58,7 +58,7 @@ class Control {
             x = event.touches[j].clientX - rect.left;
             y = event.touches[j].clientY - rect.top;
             distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
-            if ( distance < this.joystickr2 * 3){
+            if ( distance < this.joystickr2 * (event.type == "touchstart" ? 1 : 2) ){
               this.joystick[i].x = x;
               this.joystick[i].y = y; 
             }
