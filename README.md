@@ -10,30 +10,30 @@ https://candas1.github.io/Hoverboard-Web-Serial-Control/
 From a computer, you can use both WEB Serial API and WEB Bluetooth API.
 From mobile, only WEB Bluetooth API is supported (not supported on IOS).
 
-# APIs
-## WEB Serial API:
+## APIs
+### WEB Serial API:
 The tool is using Web Serial API to connect to the hoverboard through a FTDI.<br>
 https://web.dev/serial/<br>
 Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI.
 
-## WEB Bluetooth API:
+### WEB Bluetooth API:
 The tool is using Web Bluetooth API to connect to Bluetooth BLE devices (e.g. AT-09, HM-10...).<br>
 https://web.dev/bluetooth/<br>
 Make sure you [configured](https://github.com/Candas1/Hoverboard-Web-Serial-Control/wiki/Configure-BLE-device) your BLE device with the right baud rate.
 Click on connect button and select the right BLE device.
 
 
-# Modes
-## Ascii:
+## Modes
+### Ascii:
 If hoverboard is communicating through ASCII Serial debug, messages are being parsed if first word contains semicolon character.<br>
 Parsed data is displayed in the log and in the graph.<br>
 
-## Usart:
+### Usart:
 The tool sends binary commands to control the hoverboard (Speed/steer) via the virtual controller.<br>
 Feedback is received through Binary Serial Protocol,messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
 
-## Ibus:
+### Ibus:
 The tool sends Flysky Ibus commands to control the hoverboard (Speed/steer) via the virtual controller.<br>
 Feedback is received through Binary Serial Protocol (not ibus telemetry),messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
