@@ -39,29 +39,25 @@ class Log {
 
   // write to log buffer
   write(message,type){
-
     let line = this.addSpan("",type);
     line.appendChild(document.createTextNode(message));
     line.appendChild(document.createElement("br"));
     this.container.appendChild(line);
-
-    this.display();
   }
 
   writeLog(message){
-    
     let line = this.addSpan("",0);
     Object.keys( message ).map( 
       function(key){
-        line.appendChild(log.addSpan(key + ":" ,4));
+        line.appendChild(log.addSpan(key,4));
+        line.appendChild(log.addSpan(":" ,3));
         line.appendChild(log.addSpan(message[key] + " ", 5));
       }).join(" ");
     line.appendChild(document.createElement("br"));
     this.container.appendChild(line);
-    this.display();
   }
 
-  display(){
+  updateLog(){
     if (!this.isPaused) { 
       // Truncate if too many lines
       while (this.container.children.length > this.maxLogSize ){
@@ -69,7 +65,7 @@ class Log {
       }
       
       // limit scrolling frequency, it is slow and impacts when many messages are received
-      if ( Date.now() - this.lastLogScroll > this.logScrollFrequency) {
+      if ( ( Date.now() - this.lastLogScroll > this.logScrollFrequency) && (view == "log") ){
         this.lastLogScroll = Date.now();
         this.container.scrollTop = this.container.scrollHeight;
       }
@@ -80,7 +76,6 @@ class Log {
     while (this.container.children.length > 0 ){
       this.container.removeChild(this.container.firstChild);
     }
-    this.display();
   };
 
 }

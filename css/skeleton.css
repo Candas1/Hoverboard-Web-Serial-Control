@@ -172,6 +172,7 @@ input[type="reset"],
 input[type="button"] {
   display: inline-block;
   height: 38px;
+  margin-top: 5; /* to align with select and inputs */
   padding: 0 30px;
   color: #555;
   text-align: center;
@@ -278,7 +279,9 @@ fieldset {
   border-width: 0; }
 input[type="checkbox"],
 input[type="radio"] {
-  display: inline; }
+  display: inline; 
+  margin-top: 5; /* to align with select and inputs */
+}
 label > .label-body {
   display: inline-block;
   margin-left: .5rem;

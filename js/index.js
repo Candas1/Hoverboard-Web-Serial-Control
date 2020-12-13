@@ -53,8 +53,9 @@ window.addEventListener("load", function(event) {
   toggleAPI();
   toggleStats();
   serial.setDisconnected()
-  control.startSend();
+  setInterval(update,50);
 });
+
 
 window.addEventListener("resize", function() {
   control.initCanvas();
@@ -70,6 +71,16 @@ commandIn.addEventListener("keyup", function(event) {
   }
 });
 
+function update(){
+  // Send Commands
+  if (serial.connected){
+    if (serial.binary) serial.sendBinary();
+  }
+  graph.updateGraph();
+  log.updateLog();
+  control.updateScreen();
+}
+
 function switchView(newView){
   view = newView;
 
@@ -80,7 +91,7 @@ function switchView(newView){
       commanddiv.style.display   = (!serial.binary) ? "block" : "none";
       statsdiv.style.display     = (statsIn.checked) ? "block" : "none";
   
-      loggerdiv.style.height = 50 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
+      loggerdiv.style.height = 55 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
       chartdiv.style.display = "none";
       controlcnv.style.display = "none";
       controldiv.style.display = "none";
@@ -95,7 +106,7 @@ function switchView(newView){
       commanddiv.style.display = "none";
       chartdiv.style.display = "block";
       outputdiv.style.display = "block";
-      graph.relayout();
+      graph.updateGraph();
       break;
     case "control":
       loggerdiv.style.display  = "none";

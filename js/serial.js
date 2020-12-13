@@ -131,10 +131,6 @@ class Serial {
     }).
     then((server) => {
       //console.log(server);
-
-      // Update UI
-      this.setConnected();
-      
       this.server = server;
       return server.getPrimaryService(this.bluetoothService);
     })
@@ -147,6 +143,8 @@ class Serial {
     .then((characteristic) => {
       //console.log(characteristic);
       this.characteristic = characteristic;
+      // Update UI
+      this.setConnected();
       this.characteristic.addEventListener('characteristicvaluechanged',this.handleCharacteristicValueChanged);
     })
     .catch(error => {
@@ -329,7 +327,7 @@ class Serial {
   }
 
   sendBinary() {
-    var ab = new ArrayBuffer(serial.protocol == "usart" ? this.serial_length : this.ibus_length);
+    var ab = new ArrayBuffer(serial.protocol == "usart" ? this.serial_length : this.ibus_length );
     var dv = new DataView(ab);
 
     if (serial.protocol == "usart"){
@@ -350,10 +348,10 @@ class Serial {
 
       // Calculate checksum
       let checksum = 0xFFFF;
-      for (let i=0; i<30;i++){
+      for (let i=0; i<this.ibus_length-2;i++){
         checksum -= dv.getUint8(i);
       }
-      dv.setUint16(30,checksum,true);
+      dv.setUint16(this.ibus_length-2,checksum,true);
       
       let bytes = new Uint8Array(ab);
       this.send(bytes);
@@ -370,11 +368,13 @@ class Serial {
 
   async send(bytes){
     if (this.API == 'serial'){
+      // Web Serial
       this.outputStream = this.port.writable;
       this.writer = this.outputStream.getWriter();
       this.writer.write(bytes);
       this.writer.releaseLock();
     }else{
+      // Web Bluetooth
       let chunksize = 20;
       let sent = 0;
       while(sent < bytes.length){

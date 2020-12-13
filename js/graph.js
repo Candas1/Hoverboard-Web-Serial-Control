@@ -1,11 +1,9 @@
 class Graph {
   constructor(){
-
     this.isPaused = false;
     this.key2trace = {};
     this.traces = [];
     this.countTrace = 0;
-    this.points = 0;
     this.lastDataUpdate = Date.now();
     this.dataUpdateFrequency = 50;
     this.lastGraphUpdate = Date.now();
@@ -104,7 +102,7 @@ class Graph {
     // Create new trace for each value
     for (let key in message){
       if (key == "checksum" || key == "cmdLed") continue;
-      
+
       // New field
       if (!(key in this.key2trace)){ 
         this.key2trace[key] = this.countTrace; 
@@ -119,10 +117,14 @@ class Graph {
         this.update.y[this.key2trace[key]].push(message[key]);
       }
     }
+  }
 
-    this.points++;
-
-    if (!this.isPaused && (view=='chart') && ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) ){
+  updateGraph(){
+    if ( (!this.isPaused) && 
+         (view=='chart') && 
+         ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) &&
+         (this.update.x.length > 0)
+       ){
       // extend traces and relayout
       Plotly.extendTraces(chartdiv, this.update, this.traces);
       this.initUpdateStruct();
@@ -135,7 +137,6 @@ class Graph {
   clear(){
     this.initUpdateStruct();
     Plotly.update(chartdiv, this.update);
-    this.points = 0;
   }
 
   subplot(param){
@@ -176,11 +177,10 @@ class Graph {
   }
 
   relayout(){
-    let time = new Date();
+    let time = new Date(this.lastDataUpdate);
     var olderTime = time.setSeconds(time.getSeconds() - 10);	
     var futureTime = time.setSeconds(time.getSeconds() + 10);
-
-    //this.layout.xaxis.range = [this.points - 1000,this.points-2];
+    
     this.layout.xaxis.range = [olderTime,futureTime];
     this.layout.xaxis.autorange = false;
     this.layout.xaxis.autoscale = true;

@@ -81,14 +81,6 @@ class Control {
 
   }
 
-  startSend(){
-    setInterval(function(){
-      if (serial.connected && serial.binary){
-        serial.sendBinary();
-      }
-    },50);
-  }
-
   initCanvas(){
     this.cnv.width= this.cnv.parentElement.clientWidth;
     this.cnv.height= this.cnv.parentElement.clientWidth / this.ratio;
@@ -130,7 +122,6 @@ class Control {
 
   updateTelemetry(message){
     this.telemetry = message;
-    this.updateScreen();
   }
 
   display(){

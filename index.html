@@ -9,9 +9,9 @@
   <meta http-equiv="origin-trial" content="AmcoP97xSqB7QVZctDvX9VUrB7+37Xnf5lcPJu0lnRWnnFZCH8oaLdCnXdJK9aSBfvvpdIgGK5b5VRh6UeqXhAEAAABkeyJvcmlnaW4iOiJodHRwczovL2NhbmRhczEuZ2l0aHViLmlvOjQ0MyIsImZlYXR1cmUiOiJTZXJpYWwiLCJleHBpcnkiOjE2MTAwMzg5OTAsImlzU3ViZG9tYWluIjp0cnVlfQ==">
   <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
   <head>
-    <link rel="stylesheet" href="normalize.css">
-    <link rel="stylesheet" href="skeleton.css">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/index.css">
   </head>
   
   <body>
@@ -38,9 +38,9 @@
         <div class="two columns">
           <label for="mode">Mode</label>
           <select class="u-full-width" id="mode" onchange="toggleMode()">
-              <option value="ascii" selected>Ascii</option>
-              <option value="usart">Usart</option>
-              <option value="ibus">Ibus</option>
+              <option value="ascii" selected>ASCII</option>
+              <option value="usart">USART</option>
+              <option value="ibus">IBUS</option>
           </select>  
         </div>
         <div class="one columns">
@@ -100,12 +100,12 @@
       <div class="row">
         <div class="twelve columns" id="outputdiv">
           <div class="eleven columns" >
-            <br>
+            
             <div class="u-full-width" id="loggerdiv"></div>
             <div class="u-full-width" id="chartdiv"></div>
           </div>
           <div class="one columns">
-            <br>
+            
             <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
             <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
           </div>
@@ -120,11 +120,11 @@
     <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
     
-    <script type="text/javascript" src="log.js"></script>
-    <script type="text/javascript" src="serial.js"></script>
-    <script type="text/javascript" src="graph.js"></script>
-    <script type="text/javascript" src="control.js"></script>
-    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="js/log.js"></script>
+    <script type="text/javascript" src="js/serial.js"></script>
+    <script type="text/javascript" src="js/graph.js"></script>
+    <script type="text/javascript" src="js/control.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
 
   </body>
 </html>
