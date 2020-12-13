@@ -38,16 +38,15 @@ class Serial {
 
 
   setConnected(){
-    this.connected = true;
     connect_btn.innerHTML = '<ion-icon name="flash-off"></ion-icon>';
-    API.disabled = baudrate.disabled = this.connected;
+    API.disabled = baudrate.disabled = this.connected = true;
     send_btn.disabled = !this.connected;  
   }
 
   setDisconnected(){
-    this.connected = false;
     connect_btn.innerHTML = '<ion-icon name="flash"></ion-icon>';
-    API.disabled = baudrate.disabled = this.connected;
+    API.disabled = this.connected = false;
+    baudrate.disabled = (this.API == "bluetooth");
     send_btn.disabled = !this.connected;
   } 
 
