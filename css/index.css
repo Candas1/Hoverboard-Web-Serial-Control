@@ -29,6 +29,7 @@ input[type=checkbox] {
 
 #loggerdiv{
   font-size: 13px;
+  font-family: Consolas;
   color: white;
   background-color: black;
   overflow: auto;

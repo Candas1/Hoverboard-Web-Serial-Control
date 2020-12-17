@@ -4,6 +4,8 @@ class Graph {
     this.key2trace = {};
     this.traces = [];
     this.countTrace = 0;
+    this.newDatapoints = 0;
+    this.subplotview = false;
     this.lastDataUpdate = Date.now();
     this.dataUpdateFrequency = 50;
     this.lastGraphUpdate = Date.now();
@@ -91,7 +93,21 @@ class Graph {
     }
 
     Plotly.newPlot(chartdiv, data , this.layout, config);
+
+    //chartdiv.on('plotly_legendclick', this.legendClick.bind(this) ); 
+
+
   }  
+
+  legendClick(data){
+    if (this.subplotview){
+      // if subplotview is active, toggle the visibility of the selected axis
+      let yaxis = 'yaxis' + ( data.curveNumber==0?'':(data.curveNumber+1)); 
+      this.layout[yaxis] = JSON.parse(JSON.stringify(this.yaxis));
+      this.layout[yaxis].visible = !this.layout[yaxis].visible;
+      Plotly.relayout(chartdiv, this.layout);
+    }
+  }
 
   async updateData(message){
     if ( Date.now() - this.lastDataUpdate < this.dataUpdateFrequency) return;
@@ -115,6 +131,7 @@ class Graph {
       }else{
         this.update.x[this.key2trace[key]].push(time);
         this.update.y[this.key2trace[key]].push(message[key]);
+        this.newDatapoints++;
       }
     }
   }
@@ -123,13 +140,14 @@ class Graph {
     if ( (!this.isPaused) && 
          (view=='chart') && 
          ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) &&
-         (this.update.x.length > 0)
+         (this.newDatapoints > 0)
        ){
       // extend traces and relayout
       Plotly.extendTraces(chartdiv, this.update, this.traces);
       this.initUpdateStruct();
       this.relayout();
       this.lastGraphUpdate = Date.now();
+      this.newDatapoints = 0;
       //console.log("Graph Updated");
     }
   }
@@ -140,13 +158,13 @@ class Graph {
   }
 
   subplot(param){
-
+    this.subplotview = param;
     let update = {yaxis:[]};
     for(let i=0;i<this.countTrace;i++){
       let yaxis = 'yaxis' + ( i==0?'':(i+1));
-      update.yaxis.push("y" + (param == 0 ? "" : (i+1)) );
+      update.yaxis.push("y" + (!param ? "" : (i+1)) );
       this.layout[yaxis] = JSON.parse(JSON.stringify(this.yaxis));
-      if (param == 0) {
+      if (!param) {
         this.layout[yaxis]['domain'] = [0,1];
       }else{
         this.layout[yaxis]['domain'] = this.getDomain(i);

@@ -30,9 +30,9 @@
               <option value="9600">9600</option>
               <option value="14400">14400</option>
               <option value="19200">19200</option>
-              <option value="38400" selected>38400</option>
+              <option value="38400">38400</option>
               <option value="57600">57600</option>
-              <option value="115200">115200</option>
+              <option value="115200" selected>115200</option>
           </select>
         </div>
         <div class="two columns">
@@ -100,7 +100,6 @@
       <div class="row">
         <div class="twelve columns" id="outputdiv">
           <div class="eleven columns" >
-            
             <div class="u-full-width" id="loggerdiv"></div>
             <div class="u-full-width" id="chartdiv"></div>
           </div>
@@ -108,6 +107,7 @@
             
             <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
             <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
+            <button id="plot"       class="button" type="button" onclick="togglePlot()"><ion-icon name="arrow-down-circle"></ion-icon><br>
           </div>
         </div>
         <div class="twelve columns" id="controldiv">  
@@ -120,6 +120,7 @@
     <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
     
+    <script type="text/javascript" src="js/timer.js"></script>
     <script type="text/javascript" src="js/log.js"></script>
     <script type="text/javascript" src="js/serial.js"></script>
     <script type="text/javascript" src="js/graph.js"></script>

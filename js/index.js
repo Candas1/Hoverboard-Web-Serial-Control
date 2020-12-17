@@ -7,6 +7,7 @@ var send_btn = document.getElementById('send');
 var connect_btn = document.getElementById('connect');
 var pause_btn = document.getElementById('pause');
 var trash_btn = document.getElementById('trash');
+var plot_btn = document.getElementById('plot');
 
 var commandIn = document.getElementById('command');
 var crIn = document.getElementById('cr');
@@ -53,7 +54,17 @@ window.addEventListener("load", function(event) {
   toggleAPI();
   toggleStats();
   serial.setDisconnected()
-  setInterval(update,50);
+  if (typeof(Worker)!=="undefined"){
+    // Use webworker for interval to work even if tab is unfocused
+    w = new Worker("js/timer.js");
+    // Run Update
+    w.onmessage = function (event) {
+      update();
+    };
+  } else {
+    // Web workers are not supported by your browser
+    setInterval(update,50);
+  }
 });
 
 
@@ -91,7 +102,7 @@ function switchView(newView){
       commanddiv.style.display   = (!serial.binary) ? "block" : "none";
       statsdiv.style.display     = (statsIn.checked) ? "block" : "none";
   
-      loggerdiv.style.height = 55 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
+      loggerdiv.style.height = 54 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
       chartdiv.style.display = "none";
       controlcnv.style.display = "none";
       controldiv.style.display = "none";
@@ -160,6 +171,11 @@ function pauseUpdate(){
   }
   log.isPaused = !log.isPaused;
   graph.isPaused = !graph.isPaused;
+}
+
+function togglePlot(){
+  graph.subplot(!graph.subplotview)
+  plot_btn.innerHTML = '<ion-icon name="arrow-' + (graph.subplotview ? 'up' : 'down') + '-circle"></ion-icon>';
 }
 
 function sendCommand() {

@@ -2,6 +2,7 @@ class Log {
   constructor(container) {
     this.maxLogSize = 1000;
     this.container = container;
+    this.fragment = document.createDocumentFragment();
     this.isPaused = false;
     this.lastLogUpdate = Date.now();
     this.logUpdateFrequency = 200;
@@ -9,11 +10,11 @@ class Log {
     this.logScrollFrequency = 400;
   }
 
-  addSpan(text,type){
-    let span = document.createElement("span");
+  addElement(elementType,text,messageType){
+    let span = document.createElement(elementType);
     span.appendChild(document.createTextNode(text));
 
-    switch (type){
+    switch (messageType){
       case 0:
         span.className = 'line';
         break;
@@ -39,34 +40,38 @@ class Log {
 
   // write to log buffer
   write(message,type){
-    let line = this.addSpan("",type);
+    let line = this.addElement("span","",type);
     line.appendChild(document.createTextNode(message));
     line.appendChild(document.createElement("br"));
-    this.container.appendChild(line);
+    this.fragment.appendChild(line);
   }
 
   writeLog(message){
-    let line = this.addSpan("",0);
+    let line = this.addElement("span","",0);
     Object.keys( message ).map( 
       function(key){
-        line.appendChild(log.addSpan(key,4));
-        line.appendChild(log.addSpan(":" ,3));
-        line.appendChild(log.addSpan(message[key] + " ", 5));
+        line.appendChild(log.addElement("span",key,4));
+        line.appendChild(log.addElement("span",":" ,3));
+        line.appendChild(log.addElement("span",message[key] + " ", 5));
       }).join(" ");
     line.appendChild(document.createElement("br"));
-    this.container.appendChild(line);
+    this.fragment.appendChild(line);
   }
 
   updateLog(){
-    if (!this.isPaused) { 
+    if (!this.isPaused && this.fragment.childElementCount > 0) { 
+  
+      // Add elements kept in fragment
+      this.container.appendChild(this.fragment);
+      
       // Truncate if too many lines
       while (this.container.children.length > this.maxLogSize ){
         this.container.removeChild(this.container.firstChild);
-      }
-      
+      }   
+    
       // limit scrolling frequency, it is slow and impacts when many messages are received
       if ( ( Date.now() - this.lastLogScroll > this.logScrollFrequency) && (view == "log") ){
-        this.lastLogScroll = Date.now();
+        this.lastLogScroll = Date.now(); 
         this.container.scrollTop = this.container.scrollHeight;
       }
     }
