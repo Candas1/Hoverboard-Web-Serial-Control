@@ -108,6 +108,7 @@ function switchView(newView){
       controldiv.style.display = "none";
       loggerdiv.style.display = "block";
       outputdiv.style.display = "block";
+      plot_btn.style.visibility = "hidden";
       break;
     case "chart":
       controlcnv.style.display = "none";
@@ -117,6 +118,7 @@ function switchView(newView){
       commanddiv.style.display = "none";
       chartdiv.style.display = "block";
       outputdiv.style.display = "block";
+      plot_btn.style.visibility = "visible";
       graph.updateGraph();
       break;
     case "control":
