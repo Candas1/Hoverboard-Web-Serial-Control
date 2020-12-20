@@ -17,102 +17,105 @@
   <body>
     <div id="container">
       <div class="row" id="serialdiv">
-        <div class="two columns">
-          <label for="view">View</label>
-          <select class="u-full-width" id="view" onchange="switchView(viewIn.value)">
-            <option id="optlog"  value="log" selected>Terminal</option>
-            <option id="optchart" value="chart">Chart</option>
-            <option id="optctrl " value="control">Control</option>
-          </select>
+        <div class="eleven columns">
+          <div class="two columns">
+            <label for="view">View</label>
+            <select class="u-full-width" id="view" onchange="switchView(viewIn.value)">
+              <option id="optlog"  value="log" selected>Terminal</option>
+              <option id="optchart" value="chart">Chart</option>
+              <option id="optctrl " value="control">Control</option>
+            </select>
+          </div>
+          <div class="two columns">
+            <label for="API">API</label>
+            <select class="u-full-width" id="API" onchange="toggleAPI()">
+                <option value="serial" selected>Serial</option>
+                <option value="bluetooth">Bluetooth</option>
+            </select>
+          </div>
+          <div class="two columns" id='bauddiv'>
+            <label for="baudrate">Baudrate</label>
+            <select class="u-full-width" id="baudrate">
+                <option value="9600">9600</option>
+                <option value="14400">14400</option>
+                <option value="19200">19200</option>
+                <option value="38400">38400</option>
+                <option value="57600">57600</option>
+                <option value="115200" selected>115200</option>
+            </select>
+          </div>
+          <div class="two columns">
+            <label for="mode">Mode</label>
+            <select class="u-full-width" id="mode" onchange="toggleMode()">
+                <option value="ascii" selected>ASCII</option>
+                <option value="usart">USART</option>
+                <option value="ibus">IBUS</option>
+            </select>  
+          </div>
+          <div class="two columns" id="statsindiv">
+            <label for="stats">Stats</label>
+            <input type="checkbox" id="stats" onclick="toggleStats()">
+          </div>
+          <div class="two columns" id="chartindiv">
+            <label for="subplot">Subplot</label>
+            <select class="u-full-width" id="subplot" onclick="toggleSubplot()">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+          <div class="two columns" id="ctrlindiv">
+            <label for="mixer">Mixer</label>
+            <select class="u-full-width" id="mixer" onclick="toggleMixer()">
+              <option id="optmix1" value="mix1" selected>&#11020;&#11021;</option>
+              <option id="optmix2" value="mix2">&#10012;&#10006;</option>
+              <option id="optmix3" value="mix3">&#10006;&#10012;</option>
+            </select>
+          </div>
         </div>
-        <div class="two columns">
-          <label for="API">API</label>
-          <select class="u-full-width" id="API" onchange="toggleAPI()">
-              <option value="serial" selected>Serial</option>
-              <option value="bluetooth">Bluetooth</option>
-          </select>
-        </div>
-        <div class="two columns" id='bauddiv'>
-          <label for="baudrate">Baudrate</label>
-          <select class="u-full-width" id="baudrate">
-              <option value="9600">9600</option>
-              <option value="14400">14400</option>
-              <option value="19200">19200</option>
-              <option value="38400">38400</option>
-              <option value="57600">57600</option>
-              <option value="115200" selected>115200</option>
-          </select>
-        </div>
-        <div class="two columns">
-          <label for="mode">Mode</label>
-          <select class="u-full-width" id="mode" onchange="toggleMode()">
-              <option value="ascii" selected>ASCII</option>
-              <option value="usart">USART</option>
-              <option value="ibus">IBUS</option>
-          </select>  
-        </div>
-        <div class="two columns" id="statsindiv">
-          <label for="stats">Stats</label>
-          <input type="checkbox" id="stats" onclick="toggleStats()">
-        </div>
-        <div class="two columns" id="chartindiv">
-          <label for="subplot">Subplot</label>
-          <select class="u-full-width" id="subplot" onclick="toggleSubplot()">
-            <option value="no" selected>No</option>
-            <option value="yes">Yes</option>
-          </select>
-        </div>
-        <div class="two columns" id="ctrlindiv">
-          <label for="mixer">Mixer</label>
-          <select class="u-full-width" id="mixer" onclick="toggleMixer()">
-            <option id="optmix1" value="mix1" selected>&#11020;&#11021;</option>
-            <option id="optmix2" value="mix2">&#10012;&#10006;</option>
-            <option id="optmix3" value="mix3">&#10006;&#10012;</option>
-          </select>
-        </div>
-        <div class="one columns"><br></div>
         <div class="one columns">
           <br>
           <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button>
         </div>
       </div>
-      <div class="row" id="statsdiv"> 
-        <div class="two columns">
-          <label for="write">Write</label>
-          <input class="u-full-width" type="number" id="write" value="0" disabled>
+      <div class="row" id="statsdiv">
+        <div class="eleven columns"> 
+          <div class="two columns">
+            <label for="write">Write</label>
+            <input class="u-full-width" type="number" id="write" value="0" disabled>
+          </div>
+          <div class="two columns">
+            <label for="read">Read</label>
+            <input class="u-full-width" type="number" id="read" value="0" disabled>
+          </div>    
+          <div class="two columns">
+            <label for="success">Success</label>
+            <input class="u-full-width" type="number" id="success" value="0" disabled>
+          </div>
+          <div class="two columns">
+            <label for="skip">Skip</label>
+            <input class="u-full-width" type="number" id="skip" value="0" disabled>
+          </div>
+          <div class="two columns">
+            <label for="error">Error</label>
+            <input class="u-full-width" type="number" id="error" value="0" disabled>
+          </div>
         </div>
-        <div class="two columns">
-          <label for="read">Read</label>
-          <input class="u-full-width" type="number" id="read" value="0" disabled>
-        </div>    
-        <div class="two columns">
-          <label for="success">Success</label>
-          <input class="u-full-width" type="number" id="success" value="0" disabled>
-        </div>
-        <div class="two columns">
-          <label for="skip">Skip</label>
-          <input class="u-full-width" type="number" id="skip" value="0" disabled>
-        </div>
-        <div class="two columns">
-          <label for="error">Error</label>
-          <input class="u-full-width" type="number" id="error" value="0" disabled>
-        </div>
-        <div class="two columns"></div>
       </div>
       <div class="row" id="commanddiv">
-        <div class="eight columns">
-          <label for="command">Command</label>
-          <input class="u-full-width" type="text" id="command" value="">
+        <div class="eleven columns">
+          <div class="eight columns">
+            <label for="command">Command</label>
+            <input class="u-full-width" type="text" id="command" value="">
+          </div>
+          <div class="one columns">
+            <label for="cr">CR</label>
+            <input type="checkbox" id="cr" checked>
+          </div>
+          <div class="one columns"> 
+            <label for="lf">LF</label>
+            <input type="checkbox" id="lf" checked>
+          </div>
         </div>
-        <div class="one columns">
-          <label for="cr">CR</label>
-          <input type="checkbox" id="cr" checked>
-        </div>
-        <div class="one columns"> 
-          <label for="lf">LF</label>
-          <input type="checkbox" id="lf" checked>
-        </div>
-        <div class="one columns"><br></div>
         <div class="one columns">
           <br>
           <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
