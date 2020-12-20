@@ -54,18 +54,18 @@
           </div>
           <div class="two columns" id="statsindiv">
             <label for="stats">Stats</label>
-            <input type="checkbox" id="stats" onclick="toggleStats()">
+            <input type="checkbox" id="stats" onchange="toggleStats()">
           </div>
           <div class="two columns" id="chartindiv">
             <label for="subplot">Subplot</label>
-            <select class="u-full-width" id="subplot" onclick="toggleSubplot()">
+            <select class="u-full-width" id="subplot" onchange="toggleSubplot()">
               <option value="no" selected>No</option>
               <option value="yes">Yes</option>
             </select>
           </div>
           <div class="two columns" id="ctrlindiv">
             <label for="mixer">Mixer</label>
-            <select class="u-full-width" id="mixer" onclick="toggleMixer()">
+            <select class="u-full-width" id="mixer" onchange="toggleMixer()">
               <option id="optmix1" value="mix1" selected>&#11020;&#11021;</option>
               <option id="optmix2" value="mix2">&#10012;&#10006;</option>
               <option id="optmix3" value="mix3">&#10006;&#10012;</option>
