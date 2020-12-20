@@ -2,29 +2,60 @@ class Serial {
   constructor(size) {
     this.API = 'bluetooth';
     this.protocol = '';
-    this.bluetoothName = 'BT05';
-    this.bluetoothService = 0xffe0;
-    this.bluetoothCharacteristic = 0xffe1;
     this.connected = false;
     this.binary = false;
+    this.lastStatsUpdate = Date.now();
+    this.statsUpdateFrequency = 500;
+    
+
+    // Buffer
     this.bufferSize = size;
     this.writeBuffer = new ArrayBuffer(this.bufferSize);
     this.writedv = new DataView(this.writeBuffer);
-    this.messageSize = 18;
-    this.readBuffer = new ArrayBuffer(this.messageSize);
-    this.readdv = new DataView(this.readBuffer);
     this.writeOffset = 0;
     this.readOffset = 0;
+    
+    // Web bluetooth
+    this.bluetoothName = 'BT05';
+    this.bluetoothService = 0xffe0;
+    this.bluetoothCharacteristic = 0xffe1;
+    
+    // Transmition Statistics
     this.error = 0;
     this.skip = 0;
     this.success = 0;
+    
+    // UART binary
     this.serial_start_frame = 0xABCD;
+    
+    // Length of outgoing UART binary messages
     this.serial_length = 8;
-    this.ibus_length = 0x20;
-    this.ibus_command = 0x40;
-    this.lastStatsUpdate = Date.now();
-    this.statsUpdateFrequency = 500;
 
+    // UART incoming binary messages
+    this.usartFeedback = new Struct(
+      { frame:"uint16",
+        cmd1:"int16",
+        cmd2:"int16",
+        speedR:"int16",
+        speedL:"int16",
+        batV:"int16",
+        temp:"int16",
+        cmdLed:"uint16",
+        checksum:"uint16"
+      },0,true);                     
+    this.messageSize = this.usartFeedback.byteLength;
+    this.readBuffer = new ArrayBuffer(this.messageSize);
+    this.readdv = new DataView(this.readBuffer);
+
+    // UART incoming binary messages
+    this.usartCommand = new Struct(
+      { frame:["uint16",this.serial_start_frame],
+        steer:"int16",
+        speed:"int16",
+        checksum:"uint16",
+      },0,true);
+
+    // labels for incoming Ascii messages
     this.fieldsAscii = {1:'in1',
                         2:'in2',
                         3:'cmdR',
@@ -34,8 +65,11 @@ class Serial {
                         7:'TempADC',
                         8:'Temp'
                         };
-  }
 
+    // IBUS
+    this.ibus_length = 0x20;
+    this.ibus_command = 0x40;
+  }
 
   setConnected(){
     connect_btn.innerHTML = '<ion-icon name="flash-off"></ion-icon>';
@@ -226,34 +260,23 @@ class Serial {
       this.readdv.setUint8(i,val,true);
     }
     
-    let frame = this.readdv.getUint16(0,true);
-    if (frame != this.serial_start_frame){
+    // Read struct
+    let message = this.usartFeedback.read(this.readdv);
+    if (message.frame != this.serial_start_frame){
       this.skipByte();    
-      return;
+      return;  
     }
-
-    let message = {};
-    message.cmd1     = this.readdv.getInt16(2,true);
-    message.cmd2     = this.readdv.getInt16(4,true);
-    message.speedR   = this.readdv.getInt16(6,true);
-    message.speedL   = this.readdv.getInt16(8,true);
-    message.BatV     = this.readdv.getInt16(10,true);
-    message.Temp     = this.readdv.getInt16(12,true);
-    message.cmdLed   = this.readdv.getUint16(14,true);
-    message.checksum = this.readdv.getUint16(16,true);
-    let calcChecksum = frame ^ 
-                       message.cmd1 ^ 
-                       message.cmd2 ^ 
-                       message.speedR ^ 
-                       message.speedL ^ 
-                       message.BatV ^ 
-                       message.Temp ^ 
-                       message.cmdLed;
+    // Checksum is XOR of all fields except checksum cast to Uint
+    let calcChecksum = new Uint16Array([
+                           Object.keys(message)
+                                 .filter(key => key != "checksum" )
+                                 .map( key => message[key])
+                                 .reduce( (acc,curr) => (acc ^ curr) )
+                           ])[0];
     
-    // Trick to convert calculated Checksum to unsigned
-    this.readdv.setInt16(16,calcChecksum,true);
-    calcChecksum = this.readdv.getUint16(16,true);
+                   
     
+    // validate checksum
     if ( message.checksum == calcChecksum ){
       this.success++;
       graph.updateData(message);
@@ -261,7 +284,7 @@ class Serial {
       log.writeLog(message);
     }else{  
       this.error++;
-      log.write(Object.keys( message ).map( function(key){ return key + ":" +message[key] }).join(" "),2);
+      log.write(Object.keys( message ).map( key => (key + ":" + message[key])).join(" "),2);
     }
 
     this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
@@ -330,11 +353,14 @@ class Serial {
     var dv = new DataView(ab);
 
     if (serial.protocol == "usart"){
-      dv.setUint16(0,this.serial_start_frame,true);
-      dv.setInt16(2, control.channel[0],true);
-      dv.setInt16(4, control.channel[1],true);
-      dv.setUint16(6,this.serial_start_frame ^ control.channel[0] ^ control.channel[1],true);
-      let bytes = new Uint8Array(ab);
+      let bytes = new Uint8Array(
+          this.usartCommand.write(
+            { 
+              steer:control.channel[0],
+              speed:control.channel[1],
+              checksum:this.serial_start_frame ^ control.channel[0] ^ control.channel[1],
+            })
+      );
       this.send(bytes);
     }else{
       // Write Ibus Start Frame

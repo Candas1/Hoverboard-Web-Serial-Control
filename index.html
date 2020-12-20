@@ -18,6 +18,14 @@
     <div id="container">
       <div class="row" id="serialdiv">
         <div class="two columns">
+          <label for="view">View</label>
+          <select class="u-full-width" id="view" onchange="switchView(viewIn.value)">
+            <option id="optlog"  value="log" selected>Terminal</option>
+            <option id="optchart" value="chart">Chart</option>
+            <option id="optctrl " value="control">Control</option>
+          </select>
+        </div>
+        <div class="two columns">
           <label for="API">API</label>
           <select class="u-full-width" id="API" onchange="toggleAPI()">
               <option value="serial" selected>Serial</option>
@@ -43,35 +51,29 @@
               <option value="ibus">IBUS</option>
           </select>  
         </div>
-        <div class="one columns">
-          <label for="cr">Stats</label>
+        <div class="two columns" id="statsindiv">
+          <label for="stats">Stats</label>
           <input type="checkbox" id="stats" onclick="toggleStats()">
         </div>
-        <div class="u-max-width">
-          <br>
-          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button>
-          <button id="logbtn"     class="button" type="button" onclick="switchView('log')"><ion-icon name="terminal"></ion-icon></button>
-          <button id="graphbtn"   class="button" type="button" onclick="switchView('chart')"><ion-icon name="analytics"></ion-icon></button>
-          <button id="controlbtn" class="button" type="button" onclick="switchView('control')"><ion-icon name="game-controller"></ion-icon></button>
+        <div class="two columns" id="chartindiv">
+          <label for="subplot">Subplot</label>
+          <select class="u-full-width" id="subplot" onclick="toggleSubplot()">
+            <option value="no" selected>No</option>
+            <option value="yes">Yes</option>
+          </select>
         </div>
-      </div>
-      <div class="row" id="commanddiv">
-        <div class="eight columns">
-          <label for="command">Command</label>
-          <input class="u-full-width" type="text" id="command" value="">
-        </div>
-        <div class="one columns">
-          <label for="cr">CR</label>
-          <input type="checkbox" id="cr" checked>
-        </div>
-        <div class="one columns"> 
-          <label for="lf">LF</label>
-          <input type="checkbox" id="lf" checked>
+        <div class="two columns" id="ctrlindiv">
+          <label for="mixer">Mixer</label>
+          <select class="u-full-width" id="mixer" onclick="toggleMixer()">
+            <option id="optmix1" value="mix1" selected>&#11020;&#11021;</option>
+            <option id="optmix2" value="mix2">&#10012;&#10006;</option>
+            <option id="optmix3" value="mix3">&#10006;&#10012;</option>
+          </select>
         </div>
         <div class="one columns"><br></div>
         <div class="one columns">
           <br>
-          <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
+          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button>
         </div>
       </div>
       <div class="row" id="statsdiv"> 
@@ -96,17 +98,35 @@
           <input class="u-full-width" type="number" id="error" value="0" disabled>
         </div>
         <div class="two columns"></div>
-      </div>      
+      </div>
+      <div class="row" id="commanddiv">
+        <div class="eight columns">
+          <label for="command">Command</label>
+          <input class="u-full-width" type="text" id="command" value="">
+        </div>
+        <div class="one columns">
+          <label for="cr">CR</label>
+          <input type="checkbox" id="cr" checked>
+        </div>
+        <div class="one columns"> 
+          <label for="lf">LF</label>
+          <input type="checkbox" id="lf" checked>
+        </div>
+        <div class="one columns"><br></div>
+        <div class="one columns">
+          <br>
+          <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
+        </div>
+      </div>
       <div class="row">
         <div class="twelve columns" id="outputdiv">
-          <div class="eleven columns" >
+          <div class="eleven columns">
             <div class="u-full-width" id="loggerdiv"></div>
             <div class="u-full-width" id="chartdiv"></div>
           </div>
           <div class="one columns">
             <button id="trash"      class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
             <button id="pause"      class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
-            <button id="plot"       class="button" type="button" onclick="togglePlot()"><ion-icon name="arrow-down-circle"></ion-icon><br>
           </div>
         </div>
         <div class="twelve columns" id="controldiv">  
@@ -119,6 +139,7 @@
     <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
     
+    <script type="text/javascript" src="js/struct.min.js"></script>
     <script type="text/javascript" src="js/timer.js"></script>
     <script type="text/javascript" src="js/log.js"></script>
     <script type="text/javascript" src="js/serial.js"></script>

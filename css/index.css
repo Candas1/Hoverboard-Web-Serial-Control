@@ -18,6 +18,18 @@ input[type=checkbox] {
   margin-right: 50px;
 }
 
+#statsindiv{
+  display:block;
+}
+
+#chartindiv{
+  display:none;
+}
+
+#ctrlindiv{
+  display:none;
+}
+
 #statsdiv{
   display:none;
 }

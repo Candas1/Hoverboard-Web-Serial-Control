@@ -2,12 +2,14 @@ var API = document.getElementById('API');
 var baudrate = document.getElementById('baudrate');
 var mode = document.getElementById('mode');
 var statsIn = document.getElementById('stats');
+var subplotIn = document.getElementById('subplot');
+var mixerIn = document.getElementById('mixer');
+var viewIn = document.getElementById('view');
 
 var send_btn = document.getElementById('send');
 var connect_btn = document.getElementById('connect');
 var pause_btn = document.getElementById('pause');
 var trash_btn = document.getElementById('trash');
-var plot_btn = document.getElementById('plot');
 
 var commandIn = document.getElementById('command');
 var crIn = document.getElementById('cr');
@@ -19,6 +21,9 @@ var success = document.getElementById('success');
 var error = document.getElementById('error');
 
 var serialdiv  = document.getElementById('serialdiv');
+var statsindiv = document.getElementById('statsindiv');
+var chartindiv = document.getElementById('chartindiv');
+var ctrlindiv  = document.getElementById('ctrlindiv');
 var commanddiv = document.getElementById('commanddiv');
 var statsdiv   = document.getElementById('statsdiv');
 var loggerdiv  = document.getElementById('loggerdiv');
@@ -31,8 +36,8 @@ var view = 'log';
 
 log = new Log(loggerdiv);
 graph = new Graph();
-serial = new Serial(10000);
 control = new Control(controlcnv);
+serial = new Serial(10000);
 
 window.addEventListener("load", function(event) {
   
@@ -53,6 +58,9 @@ window.addEventListener("load", function(event) {
   toggleMode();
   toggleAPI();
   toggleStats();
+  toggleMixer();
+  toggleSubplot();
+
   serial.setDisconnected()
   if (typeof(Worker)!=="undefined"){
     // Use webworker for interval to work even if tab is unfocused
@@ -99,29 +107,39 @@ function switchView(newView){
 
   switch (view){
     case "log":
-      commanddiv.style.display   = (!serial.binary) ? "block" : "none";
-      statsdiv.style.display     = (statsIn.checked) ? "block" : "none";
-  
-      loggerdiv.style.height = 54 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
-      chartdiv.style.display = "none";
+      commanddiv.style.display = (!serial.binary) ? "block" : "none";
+      statsdiv.style.display   = (statsIn.checked) ? "block" : "none";
+      
+      chartindiv.style.display = "none";
+      ctrlindiv.style.display  = "none";
+      statsindiv.style.display = "block";
+
+      loggerdiv.style.height   = 54 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
+      chartdiv.style.display   = "none";
       controlcnv.style.display = "none";
       controldiv.style.display = "none";
-      loggerdiv.style.display = "block";
-      outputdiv.style.display = "block";
-      plot_btn.style.visibility = "hidden";
+      loggerdiv.style.display  = "block";
+      outputdiv.style.display  = "block";
       break;
     case "chart":
+      statsindiv.style.display = "none";
+      ctrlindiv.style.display  = "none";
+      chartindiv.style.display = "block";
+      
       controlcnv.style.display = "none";
       controldiv.style.display = "none";
-      loggerdiv.style.display = "none";
+      loggerdiv.style.display  = "none";
       statsdiv.style.display   = "none";
       commanddiv.style.display = "none";
-      chartdiv.style.display = "block";
-      outputdiv.style.display = "block";
-      plot_btn.style.visibility = "visible";
+      chartdiv.style.display   = "block";
+      outputdiv.style.display  = "block";
       graph.updateGraph();
       break;
     case "control":
+      statsindiv.style.display = "none";
+      chartindiv.style.display = "none";  
+      ctrlindiv.style.display  = "block";
+      
       loggerdiv.style.display  = "none";
       chartdiv.style.display   = "none";
       outputdiv.style.display  = "none";
@@ -131,14 +149,6 @@ function switchView(newView){
       controldiv.style.display = "block";
       control.initCanvas();
       break;
-  }
-}
-
-function deleteData(){
-  if (view == "log"){
-    log.clear();
-  }else{
-    graph.clear();
   }
 }
 
@@ -165,6 +175,22 @@ function toggleStats(){
   switchView(view);
 }
 
+function toggleMixer(){
+  control.mixer = mixerIn.value;
+}
+
+function toggleSubplot(){
+  graph.subplot(subplotIn.value == "yes");
+}
+
+function deleteData(){
+  if (view == "log"){
+    log.clear();
+  }else{
+    graph.clear();
+  }
+}
+
 function pauseUpdate(){
   if (log.isPaused){
     pause_btn.innerHTML = '<ion-icon name="pause"></ion-icon>';
@@ -175,10 +201,6 @@ function pauseUpdate(){
   graph.isPaused = !graph.isPaused;
 }
 
-function togglePlot(){
-  graph.subplot(!graph.subplotview)
-  plot_btn.innerHTML = '<ion-icon name="arrow-' + (graph.subplotview ? 'up' : 'down') + '-circle"></ion-icon>';
-}
 
 function sendCommand() {
   serial.sendAscii(commandIn.value);

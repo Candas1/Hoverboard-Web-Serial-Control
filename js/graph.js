@@ -93,11 +93,9 @@ class Graph {
     }
 
     Plotly.newPlot(chartdiv, data , this.layout, config);
-
     //chartdiv.on('plotly_legendclick', this.legendClick.bind(this) ); 
 
-
-  }  
+  }
 
   legendClick(data){
     if (this.subplotview){
@@ -117,7 +115,7 @@ class Graph {
 
     // Create new trace for each value
     for (let key in message){
-      if (key == "checksum" || key == "cmdLed") continue;
+      if (key == "frame" || key == "checksum" || key == "cmdLed") continue;
 
       // New field
       if (!(key in this.key2trace)){ 
@@ -137,18 +135,17 @@ class Graph {
   }
 
   updateGraph(){
-    if ( (!this.isPaused) && 
-         (view=='chart') && 
-         ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency) &&
-         (this.newDatapoints > 0)
+    if ( (!this.isPaused) && (view=='chart') && 
+         ( Date.now() - this.lastGraphUpdate > this.graphUpdateFrequency)
        ){
-      // extend traces and relayout
-      Plotly.extendTraces(chartdiv, this.update, this.traces);
-      this.initUpdateStruct();
+       if (this.newDatapoints > 0){
+        // extend traces and relayout
+        Plotly.extendTraces(chartdiv, this.update, this.traces);
+        this.initUpdateStruct();
+        this.newDatapoints = 0;
+      }
       this.relayout();
       this.lastGraphUpdate = Date.now();
-      this.newDatapoints = 0;
-      //console.log("Graph Updated");
     }
   }
 
