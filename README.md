@@ -27,7 +27,7 @@ Click on connect button and select the right BLE device.
 
 ## Modes
 ### Ascii:
-If hoverboard is communicating through ASCII Serial debug, messages are being parsed if first word contains semicolon character.<br>
+If hoverboard is communicating through ASCII Serial debug, debug messages are being parsed if first word contains semicolon character.<br>
 Parsed data is displayed in the log and in the graph.<br>
 
 ### Usart:
