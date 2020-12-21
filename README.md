@@ -40,7 +40,7 @@ Parsed data is displayed in the log and in the graph.<br>
 The tool sends Flysky Ibus commands to control the hoverboard (Speed/steer) via the virtual controller.<br>
 Feedback is received through Binary Serial Protocol (not ibus telemetry),messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
-To-do : This mode is not working with BLE yet because of limitation of message size (20 bytes).
+This mode is not working with BLE yet because of limitation of message size (20 bytes).
 
 ## Views
 ### Terminal
@@ -61,10 +61,27 @@ This view let's you visualize a plot of received values:
 * pause and scroll left to see old values
 
 If subplots are enabled, each value will be visualized on a different axis.<br>
-To-do : hidding a variable in subplot mode should hide the corresponding axis also.
 
 ### Control
 This view will display a virtual RC remote to control the hoverboard if you use variant USART or IBUS.<br>
 You can use the mixer setting to assign the desired joystick.
 
+
+## TODO
+* Terminal view
+  * [ ] Possibility to select a different protocol for sending and receiving (e.g. sending UART binary but receiving ASCII debug
+
+* Chart view
+  * [ ] Hidding a chart variable in subplot mode should hide the corresponding axis also
+  * [ ] Possibility to dowload csv file
+  
+* Control view
+  * [ ] Possibility to use Sideboard protocol for sending commands
+  * [ ] Switches for sideboard/ibus protocol
+  * [ ] Hold mode to hold command even after release of the joystick during tests
+
+* New views
+  * [ ] Interface for configuring the firmware (missing in firmware also)
+  * [ ] Driving view with gauges for speed in rpm/kmh, battery voltage/capacity, power consumption/regen, ...
+  * [ ] Settings view to be able to customize the tool ( refresh frequencies, serial frame structure, ... )
 
