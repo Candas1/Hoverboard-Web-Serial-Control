@@ -9,7 +9,7 @@ https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC
 
 
 
-From a computer, you can use both WEB Serial API and WEB Bluetooth API.
+From a computer, you can use both WEB Serial API and WEB Bluetooth API.<br>
 From mobile, only WEB Bluetooth API is supported (not supported on IOS).
 
 ## APIs
@@ -27,8 +27,9 @@ Click on connect button and select the right BLE device.
 
 ## Modes
 ### Ascii:
-If hoverboard is communicating through ASCII Serial debug, debug messages are being parsed if first word contains semicolon character.<br>
-Parsed data is displayed in the log and in the graph.<br>
+If hoverboard is communicating through ASCII Serial debug, messages in following format will be parsed and displayed in the log and in the chart.<br>
+`in1:345 in2:1337 cmdR:0 cmdL:0 BatADC:0 BatV:0 TempADC:0 Temp:0\n`<br>
+Other messages (first word not containing ':' ) will be simply displayed in the log.
 
 ### Usart:
 The tool sends binary commands to control the hoverboard (Speed/steer) via the virtual controller.<br>
@@ -40,3 +41,30 @@ The tool sends Flysky Ibus commands to control the hoverboard (Speed/steer) via 
 Feedback is received through Binary Serial Protocol (not ibus telemetry),messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
 To-do : This mode is not working with BLE yet because of limitation of message size (20 bytes).
+
+## Views
+### Terminal
+This view let's you visualize incoming Ascii and Binary messages:<br>
+* Pausing will stop automatic scrolling
+
+If stats are enabled, you can visualize following information:<br>
+* Buffer write and read offset
+* Number of successful messages
+* Skipped Bytes
+* Errors
+
+In Ascii mode, commands can also be sent (not handled by hoverboard firmware but can be used with other devices)
+
+### Chart
+This view let's you visualize a plot of received values:
+* click on the legend to hide/show the values
+* pause and scroll left to see old values
+
+If subplots are enabled, each value will be visualized on a different axis.<br>
+To-do : hidding a variable in subplot mode should hide the corresponding axis also.
+
+### Control
+This view will display a virtual RC remote to control the hoverboard if you use variant USART or IBUS.<br>
+You can use the mixer setting to assign the desired joystick.
+
+
