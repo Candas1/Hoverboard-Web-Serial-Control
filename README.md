@@ -1,12 +1,11 @@
 # Hoverboard-Web-Serial-Control
 
-Experiment to control hoverboard, log and plot output data through a simple webpage.<br>
+Web tool to control hoverboard, log and plot output data through a simple webpage.<br>
 The tool doesn't need installation and is accessible via this link.<br>
 https://candas1.github.io/Hoverboard-Web-Serial-Control/
 
 It works with USART serial protocol and USART DEBUG in following firmware:<br>
 https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC
-
 
 
 From a computer, you can use both WEB Serial API and WEB Bluetooth API.<br>
@@ -16,7 +15,7 @@ From mobile, only WEB Bluetooth API is supported (not supported on IOS).
 ### WEB Serial API:
 The tool is using Web Serial API to connect to the hoverboard through a COM port of your PC(FTDI,Bluetooth 2.0,...).<br>
 https://web.dev/serial/<br>
-Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI.
+Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI/Bluetooth 2.0 device.
 
 ### WEB Bluetooth API:
 The tool is using Web Bluetooth API to connect to Bluetooth BLE devices (e.g. AT-09, HM-10...).<br>
