@@ -7,6 +7,7 @@ https://candas1.github.io/Hoverboard-Web-Serial-Control/
 It works with USART serial protocol and USART DEBUG in following firmware:<br>
 https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC
 
+The APIs are only supported on chromium based browsers like Chrome or Edge.
 
 From a computer, you can use both WEB Serial API and WEB Bluetooth API.<br>
 From mobile, only WEB Bluetooth API is supported (not supported on IOS).
