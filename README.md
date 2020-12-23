@@ -16,7 +16,7 @@ From mobile, only WEB Bluetooth API is supported (not supported on IOS).
 ### WEB Serial API:
 The tool is using Web Serial API to connect to the hoverboard through a COM port of your PC(FTDI,Bluetooth 2.0,...).<br>
 https://web.dev/serial/<br>
-Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI/Bluetooth 2.0 device.
+Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI/Bluetooth 2.0 device(e.g. HC-05).
 
 ### WEB Bluetooth API:
 The tool is using Web Bluetooth API to connect to Bluetooth BLE devices (e.g. AT-09, HM-10...).<br>
