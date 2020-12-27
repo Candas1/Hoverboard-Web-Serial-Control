@@ -212,10 +212,10 @@ class Control {
  
      this.ctx.textAlign = "right";
      if (this.telemetry["BatV"] != undefined){
-       this.ctx.fillText(this.telemetry.BatV/100 + "V", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize);
+       this.ctx.fillText(this.telemetry.batV/100 + "V", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize);
      }
      if (this.telemetry["BatV"] != undefined){
-      this.ctx.fillText(this.telemetry.Temp/10 + "C", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize*2);
+      this.ctx.fillText(this.telemetry.temp/10 + "C", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize*2);
     }
   }
 

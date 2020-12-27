@@ -60,10 +60,10 @@ class Serial {
                         2:'in2',
                         3:'cmdR',
                         4:'cmdL',
-                        5:'BatADC',
-                        6:'BatV',
-                        7:'TempADC',
-                        8:'Temp'
+                        5:'batADC',
+                        6:'batV',
+                        7:'tempADC',
+                        8:'temp'
                         };
 
     // IBUS
