@@ -218,7 +218,6 @@ function pauseUpdate(){
   graph.isPaused = !graph.isPaused;
 }
 
-
 function sendCommand() {
   serial.sendAscii(commandIn.value);
 }
