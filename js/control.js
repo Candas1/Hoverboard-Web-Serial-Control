@@ -211,10 +211,10 @@ class Control {
      this.ctx.fillText(this.channel[1], this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
  
      this.ctx.textAlign = "right";
-     if (this.telemetry["BatV"] != undefined){
+     if (this.telemetry["batV"] != undefined){
        this.ctx.fillText(this.telemetry.batV/100 + "V", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize);
      }
-     if (this.telemetry["BatV"] != undefined){
+     if (this.telemetry["temp"] != undefined){
       this.ctx.fillText(this.telemetry.temp/10 + "C", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize*2);
     }
   }
