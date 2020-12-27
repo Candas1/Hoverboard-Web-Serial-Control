@@ -86,6 +86,11 @@ window.addEventListener("resize", function() {
   speedo.initCanvas();
 });
 
+window.addEventListener("orientationchange", function(event) {
+  control.initCanvas();
+  speedo.initCanvas();
+});
+
 window.onbeforeunload = function(event){ serial.connected = false;};
 
 // Execute a function when the user releases a key on the keyboard
