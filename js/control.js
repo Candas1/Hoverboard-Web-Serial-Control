@@ -4,19 +4,18 @@ class Control {
     this.ctx = cnv.getContext('2d');
     
     this.channel = new Array(14).fill(0);
-    this.joystick = [{posx:0,posy:0,x:0,y:0,normx:0,normy:0,distance:0,clicked:false},
-                     {posx:0,posy:0,x:0,y:0,normx:0,normy:0,distance:0,clicked:false}];
+    this.joystick = [{posx:0,posy:0,x:0,y:0,normx:0,normy:0,distance:0,clicked:false,visible:true},
+                     {posx:0,posy:0,x:0,y:0,normx:0,normy:0,distance:0,clicked:false,visible:true}];
     this.telemetry = {};
     this.distance = 0;
-    this.ratio = 4.25/2;     
     this.mixer = "mix1";
     this.hold  = false;    
     this.initCanvas();
 
-['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
-  this.cnv.addEventListener(evt, this.handleEvents.bind(this), false));
+  ['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
+    this.cnv.addEventListener(evt, this.handleEvents.bind(this), false));
 
-}
+  }
 
   handleEvents(event){
     let i = 0;
@@ -39,6 +38,7 @@ class Control {
           let x = 0;
           let y = 0;
           for (i = 0; i < this.joystick.length;i++){
+            if (!this.joystick[i].visible) continue;
             x = event.offsetX;
             y = event.offsetY;
             distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
@@ -56,6 +56,7 @@ class Control {
         let x = 0;
         let y = 0;
         for (i = 0; i < this.joystick.length;i++){
+          if (!this.joystick[i].visible) continue;
           for (j= 0; j< event.touches.length;j++){
             let rect = event.touches[j].target.getBoundingClientRect();
             x = event.touches[j].clientX - rect.left;
@@ -63,7 +64,7 @@ class Control {
             distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
             if ( distance < this.joystickr2 * (event.type == "touchstart" ? 1 : 2) ){
               this.joystick[i].x = x;
-              this.joystick[i].y = y; 
+              this.joystick[i].y = y;
             }
           }
         }
@@ -107,40 +108,61 @@ class Control {
   }
 
   initCanvas(){
-    this.cnv.width= this.cnv.parentElement.clientWidth;
-    this.cnv.height= this.cnv.parentElement.clientWidth / this.ratio;
 
-    this.joystick[0].posx = (this.cnv.width / 3 / 2);
-    this.joystick[0].posy = (this.cnv.height / 3 / 2) + this.cnv.height/5;
-    
-    this.joystick[1].posx = (this.cnv.width - this.cnv.width / 3 /2);
-    this.joystick[1].posy = (this.cnv.height / 3 / 2) + this.cnv.height/5;
-    
-    this.joystickr1 = (this.cnv.height / 3 / 2); //inner ring
+    this.cnv.width= this.cnv.parentElement.clientWidth;
+    this.cnv.height= this.cnv.parentElement.clientHeight; 
+
+    if (window.screen.orientation.type.includes("landscape")){
+      this.joystick[0].posx = (this.cnv.width / 6);
+      this.joystick[0].posy = (this.cnv.height / 6) + this.cnv.height/5;
+      this.joystick[0].visible = true;
+
+      this.joystick[1].posx = (this.cnv.width - this.cnv.width / 6);
+      this.joystick[1].posy = (this.cnv.height / 6) + this.cnv.height/5;
+      this.joystick[1].visible = true;
+
+      this.joystickr1 = (this.cnv.height / 6); //inner ring
+    }else{
+      this.joystick[0].posx = (this.cnv.width / 2);
+      this.joystick[0].posy = this.cnv.height - (this.cnv.height / 3);
+      this.joystick[0].visible = true;
+
+      this.joystick[1].visible = false;
+      this.mixer = mixerIn.value = "mix2";
+      this.joystickr1 = (this.cnv.height / 8); //inner ring
+    }
+
     this.joystickr2 = this.joystickr1 * 1.2; // outer circle
     this.joystickr3 = this.joystickr1 * 0.5; // inner circle
     this.joystickr4 = this.joystickr1 * 0.7; // outer square
     this.joystickr5 = this.joystickr3 * 0.7; // inner square
     this.joystickr6 = this.joystickr1 * 0.2; // knob
 
-    this.screenx1 = this.cnv.width / 3;
-    this.screeny1 = this.cnv.height / 3 * 1.5;
+    if (window.screen.orientation.type.includes("landscape")){
+      this.screenx1 = this.cnv.width / 3;
+      this.screeny1 = this.cnv.height / 1.75;
+      this.screenWidth1 = this.cnv.width / 3;
+      this.screenHeight1 = this.cnv.height / 3;
+    }else{
+      this.screenWidth1 = this.cnv.width / 1.2;
+      this.screenHeight1 = this.cnv.height / 8;  
+      this.screeny1 = this.cnv.height / 20;
+    }
     
-    this.screenWidth1 = this.cnv.width / 3;
-    this.screenHeight1 = this.cnv.height / 3;
-    
-    this.screenx2 = this.screenx1 * 1.05;
-    this.screeny2 = this.screeny1 * 1.05;
-    
-    this.screenWidth2 = this.screenWidth1 * 0.9;
-    this.screenHeight2 = this.screenHeight1 * 0.85;    
+    // Center screen Horizontally
+    this.screenx1 = (this.cnv.width - this.screenWidth1) /2;
 
+    this.screenWidth2 = this.screenWidth1 * 0.9;
+    this.screenHeight2 = this.screenHeight1 * 0.85;
+
+    this.screenx2 = this.screenx1 + (this.screenWidth1 - this.screenWidth2) /2;
+    this.screeny2 = this.screeny1 + (this.screenHeight1 - this.screenHeight2) /2;    
+    
     this.joystick[0].x = this.joystick[0].posx;
     this.joystick[0].y = this.joystick[0].posy;
 
     this.joystick[1].x = this.joystick[1].posx;
     this.joystick[1].y = this.joystick[1].posy;
-
 
     this.display();
   }
@@ -161,8 +183,9 @@ class Control {
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
 
-    this.displayJoystick(0);
-    this.displayJoystick(1);
+    for(let i = 0; i<this.joystick.length;i++){
+      if (this.joystick[i].visible) this.displayJoystick(i);
+    }
 
     this.updateScreen();
   }
@@ -177,7 +200,7 @@ class Control {
      this.ctx.fillRect(this.screenx2,this.screeny2,this.screenWidth2,this.screenHeight2);
  
      // text
-     let fontsize = Math.round(this.cnv.width / 50);
+     let fontsize = Math.round(this.screenWidth2 / 20);
      this.ctx.font =  fontsize +"px Consolas";
      this.ctx.fillStyle = "blue";
      this.ctx.textAlign = "left";

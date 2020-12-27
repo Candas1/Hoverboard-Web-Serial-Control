@@ -1,6 +1,7 @@
 var API = document.getElementById('API');
 var baudrate = document.getElementById('baudrate');
-var mode = document.getElementById('mode');
+var sendin = document.getElementById('sendin');
+var recin = document.getElementById('recin');
 var statsIn = document.getElementById('stats');
 var subplotIn = document.getElementById('subplot');
 var mixerIn = document.getElementById('mixer');
@@ -26,17 +27,21 @@ var chartindiv = document.getElementById('chartindiv');
 var ctrlindiv  = document.getElementById('ctrlindiv');
 var commanddiv = document.getElementById('commanddiv');
 var statsdiv   = document.getElementById('statsdiv');
+var recdiv     = document.getElementById('recdiv');
+var senddiv    = document.getElementById('senddiv');
+var outputdiv  = document.getElementById('outputdiv');
 var loggerdiv  = document.getElementById('loggerdiv');
 var chartdiv   = document.getElementById('chartdiv');
 var controlcnv = document.getElementById('controlcnv');
-var outputdiv  = document.getElementById('outputdiv');
-var controldiv = document.getElementById('controldiv');
+var speedocnv  = document.getElementById('speedocnv');
 var bauddiv    = document.getElementById('bauddiv');
+var buttondiv  = document.getElementById('buttondiv');
 var view = 'log';
 
 log = new Log(loggerdiv);
 graph = new Graph();
 control = new Control(controlcnv);
+speedo = new Speedo(speedocnv);
 serial = new Serial(10000);
 
 window.addEventListener("load", function(event) {
@@ -78,6 +83,7 @@ window.addEventListener("load", function(event) {
 
 window.addEventListener("resize", function() {
   control.initCanvas();
+  speedo.initCanvas();
 });
 
 window.onbeforeunload = function(event){ serial.connected = false;};
@@ -93,61 +99,80 @@ commandIn.addEventListener("keyup", function(event) {
 function update(){
   // Send Commands
   if (serial.connected){
-    if (serial.binary) serial.sendBinary();
+    if (serial.protocol != "ascii") serial.sendBinary();
   }
   graph.updateGraph();
   log.updateLog();
   control.updateScreen();
+  speedo.update();
 }
 
 function switchView(newView){
   view = newView;
-
-  statsIn.disabled = !(view == "log");
-
   switch (view){
     case "log":
-      commanddiv.style.display = (!serial.binary) ? "block" : "none";
+      commanddiv.style.display = (sendin.value == "ascii") ? "block" : "none";
       statsdiv.style.display   = (statsIn.checked) ? "block" : "none";
       
       chartindiv.style.display = "none";
       ctrlindiv.style.display  = "none";
       statsindiv.style.display = "block";
+      recdiv.style.display     = "block";
+      senddiv.style.display    = "block"; 
 
-      loggerdiv.style.height   = 54 + (statsdiv.style.display == "none") * 13 + (commanddiv.style.display == "none") * 13 + "%";
       chartdiv.style.display   = "none";
       controlcnv.style.display = "none";
-      controldiv.style.display = "none";
+      speedocnv.style.display = "none";
       loggerdiv.style.display  = "block";
-      outputdiv.style.display  = "block";
+      buttondiv.style.display  = "block";
       break;
     case "chart":
       statsindiv.style.display = "none";
       ctrlindiv.style.display  = "none";
       chartindiv.style.display = "block";
-      
+      recdiv.style.display     = "block";
+      senddiv.style.display    = "none"; 
+
       controlcnv.style.display = "none";
-      controldiv.style.display = "none";
+      speedocnv.style.display = "none";
       loggerdiv.style.display  = "none";
       statsdiv.style.display   = "none";
       commanddiv.style.display = "none";
       chartdiv.style.display   = "block";
-      outputdiv.style.display  = "block";
+      buttondiv.style.display  = "block";
       graph.updateGraph();
       break;
     case "control":
       statsindiv.style.display = "none";
       chartindiv.style.display = "none";  
       ctrlindiv.style.display  = "block";
+      recdiv.style.display     = "block";
+      senddiv.style.display    = "block"; 
       
       loggerdiv.style.display  = "none";
       chartdiv.style.display   = "none";
-      outputdiv.style.display  = "none";
       statsdiv.style.display   = "none";
       commanddiv.style.display = "none";
+      speedocnv.style.display  = "none";
+      buttondiv.style.display  = "none";
       controlcnv.style.display = "block";
-      controldiv.style.display = "block";
       control.initCanvas();
+      break;
+    case "speedo":
+      statsindiv.style.display = "none";
+      chartindiv.style.display = "none";  
+      ctrlindiv.style.display  = "none";
+      recdiv.style.display     = "block";
+      senddiv.style.display    = "none"; 
+      
+      loggerdiv.style.display  = "none";
+      chartdiv.style.display   = "none";
+      statsdiv.style.display   = "none";
+      commanddiv.style.display = "none";
+      controlcnv.style.display = "none";
+      buttondiv.style.display  = "none";
+      speedocnv.style.display  = "block";
+      speedo.initCanvas();
       break;
   }
 }
@@ -158,16 +183,8 @@ function toggleAPI(){
 }
 
 function toggleMode(){
-  switch (mode.value){
-    case "ascii":
-      serial.binary = false;
-      break;
-    case "usart":
-    case "ibus":  
-      serial.binary = true;
-      serial.protocol = mode.value;
-      break;
-  }
+  serial.binaryReceive = (recin.value == "binary");
+  serial.protocol = sendin.value;
   switchView(view);
  }
 

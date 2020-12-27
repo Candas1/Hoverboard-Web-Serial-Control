@@ -1,13 +1,12 @@
 class Serial {
   constructor(size) {
-    this.API = 'bluetooth';
-    this.protocol = '';
+    this.API = 'serial';
+    this.protocol = 'ascii';
     this.connected = false;
-    this.binary = false;
+    this.binaryReceive = false;
     this.lastStatsUpdate = Date.now();
     this.statsUpdateFrequency = 500;
     
-
     // Buffer
     this.bufferSize = size;
     this.writeBuffer = new ArrayBuffer(this.bufferSize);
@@ -40,6 +39,7 @@ class Serial {
         speedL:"int16",
         batV:"int16",
         temp:"int16",
+        //DCLink:"int16",
         cmdLed:"uint16",
         checksum:"uint16"
       },0,true);                     
@@ -67,8 +67,8 @@ class Serial {
                         };
 
     // IBUS
-    this.ibus_length = 0x20;
-    this.ibus_command = 0x40;
+    this.ibus_channels = 14;
+    this.ibus_length = this.ibus_channels*2+4;
   }
 
   setConnected(){
@@ -129,7 +129,6 @@ class Serial {
               break;
             }
     
-            //if (serial.binary) serial.sendBinary();
             this.bufferWrite(value);
             this.readLoop();
             if (!this.connected) break;
@@ -189,7 +188,6 @@ class Serial {
     let chunk = new Uint8Array(event.target.value.buffer);
     serial.bufferWrite(chunk);
     serial.readLoop();
-    //serial.sendBinary();
   }
 
   onDisconnected(event) {
@@ -206,7 +204,7 @@ class Serial {
   }
 
   readLoop(){
-    if (this.binary){
+    if (this.binaryReceive){
       // read as long as there is enough data in the buffer
       while ( (this.writeOffset) >= (this.readOffset + this.messageSize)){
         this.readBinary();
@@ -278,10 +276,7 @@ class Serial {
     
     // validate checksum
     if ( message.checksum == calcChecksum ){
-      this.success++;
-      graph.updateData(message);
-      control.updateTelemetry(message);
-      log.writeLog(message);
+      this.update(message);
     }else{  
       this.error++;
       log.write(Object.keys( message ).map( key => (key + ":" + message[key])).join(" "),2);
@@ -336,10 +331,7 @@ class Serial {
     }
   
     if (!err && Object.entries(message).length > 0) {
-      this.success++;
-      log.writeLog(message);
-      graph.updateData(message);
-      control.updateTelemetry(message);
+      this.update(message);
     }else{
       this.error++;
       log.write(string,2);
@@ -348,10 +340,15 @@ class Serial {
     return true;
   }
 
-  sendBinary() {
-    var ab = new ArrayBuffer(serial.protocol == "usart" ? this.serial_length : this.ibus_length );
-    var dv = new DataView(ab);
+  update(message){
+    this.success++;
+    graph.updateData(message);
+    control.updateTelemetry(message);
+    speedo.updateTelemetry(message);
+    log.writeLog(message);
+  }
 
+  sendBinary() {
     if (serial.protocol == "usart"){
       let bytes = new Uint8Array(
           this.usartCommand.write(
@@ -363,11 +360,14 @@ class Serial {
       );
       this.send(bytes);
     }else{
+      var ab = new ArrayBuffer(this.ibus_length);
+      var dv = new DataView(ab);
+      
       // Write Ibus Start Frame
       dv.setUint8(0,this.ibus_length);
       dv.setUint8(1,this.ibus_command);
       // Write channel values
-      for (let i=0; i< control.channel.length * 2;i+=2){
+      for (let i=0; i< this.ibus_channels * 2;i+=2){
         dv.setUint16(i+2, control.map(control.channel[i/2] ,-1000,1000,1000,2000) ,true);
       }
 
@@ -404,7 +404,6 @@ class Serial {
       let sent = 0;
       while(sent < bytes.length){
         // Sent chunks of 20 bytes because of BLE limitation
-        //console.log(bytes.slice(sent,sent+chunksize));
         await this.characteristic.writeValueWithResponse(bytes.slice(sent,sent+chunksize));
         sent += chunksize;
       }
