@@ -37,17 +37,17 @@ class Speedo {
     this.color.red.shadowColor = '#fa1402';
 
     // Speed km/h
-    this.speedometer.push({x:0,y:0,r:0,value:10,min:0,max:60,step:12,start:155,end:385,icon:"",unit:"km/h",display:"big",color:"blue"});
+    this.speedometer.push({x:0,y:0,r:0,value:0,min:0,max:60,step:12,start:155,end:385,icon:"",unit:"km/h",display:"big",color:"blue"});
     // ???
     this.speedometer.push({x:0,y:0,r:0,value:0,min:0,max:10,step:10,start:125,end:55,icon:"",unit:"",display:"none",color:"orange"});
     // Speed rpm
-    this.speedometer.push({x:0,y:0,r:0,value:300,min:0,max:1000,step:10,start:155,end:385,icon:"",unit:"rpm",display:"big",color:"blue"});
+    this.speedometer.push({x:0,y:0,r:0,value:0,min:0,max:1000,step:10,start:155,end:385,icon:"",unit:"rpm",display:"big",color:"blue"});
     // Battery V
-    this.speedometer.push({x:0,y:0,r:0,value:40.1,min:32,max:42,step:10,start:125,end:55,icon:"🔋",unit:"V",display:"small",color:"green"});
+    this.speedometer.push({x:0,y:0,r:0,value:0,min:32,max:42,step:10,start:125,end:55,icon:"🔋",unit:"V",display:"small",color:"green"});
     // Current A
     this.speedometer.push({x:0,y:0,r:0,value:0,min:-30,max:30,step:12,start:155,end:385,icon:"",unit:"A",display:"big",color:"purple"});
     // Temp degrees
-    this.speedometer.push({x:0,y:0,r:0,value:35.2,min:25,max:55,step:6,start:125,end:55,icon:"🌡",unit:"°",display:"small",color:"red"});
+    this.speedometer.push({x:0,y:0,r:0,value:0,min:25,max:55,step:6,start:125,end:55,icon:"🌡",unit:"°",display:"small",color:"red"});
     this.initCanvas();
   }
 
