@@ -37,6 +37,7 @@ var speedocnv  = document.getElementById('speedocnv');
 var bauddiv    = document.getElementById('bauddiv');
 var buttondiv  = document.getElementById('buttondiv');
 var view = 'log';
+var lastClick = 0;
 
 log = new Log(loggerdiv);
 graph = new Graph();
@@ -101,9 +102,10 @@ commandIn.addEventListener("keyup", function(event) {
   }
 });
 
-speedocnv.addEventListener('dblclick', function (e) {
+speedocnv.addEventListener('click', function (e) {
   e.preventDefault();
-  speedo.runDemo();
+  if (Date.now() - lastClick < 300) speedo.runDemo();
+  lastClick = Date.now();
 });
 
 function update(){

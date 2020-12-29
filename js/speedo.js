@@ -31,7 +31,7 @@ class Speedo {
     this.speedometer["empty"]    = {name:"empty"   ,x:0,y:0,r:0,value:0,min:0  ,max:10  ,step:10,start:125,end:55 ,decimal:0,icon:""  ,unit:""    ,display:"none" ,color:"orange"};
     this.speedometer["speedRPM"] = {name:"speedRPM",x:0,y:0,r:0,value:0,min:0  ,max:1000,step:10,start:155,end:385,decimal:0,icon:""  ,unit:"rpm" ,display:"big"  ,color:[{name:"blue",from:0,to:800},{name:"purple",from:800,to:1000}]};
     this.speedometer["batV"]     = {name:"batV"    ,x:0,y:0,r:0,value:0,min:32 ,max:42  ,step:10,start:125,end:55 ,decimal:1,icon:"🔋",unit:"V"   ,display:"small",color:[{name:"red",from:0,to:36},{name:"orange",from:36,to:38},{name:"green",from:38,to:42}]};
-    this.speedometer["DCLink"]   = {name:"DCLink"  ,x:0,y:0,r:0,value:0,min:-30,max:30  ,step:12,start:155,end:385,decimal:1,icon:""  ,unit:"A"   ,display:"big"  ,color:[{name:"red",from:-30,to:-20},{name:"green",from:-20,to:0},{name:"green",from:0,to:20},{name:"red",from:20,to:30}]};
+    this.speedometer["DCLink"]   = {name:"DCLink"  ,x:0,y:0,r:0,value:0,min:-30,max:30  ,step:12,start:155,end:385,decimal:1,icon:""  ,unit:"A"   ,display:"big"  ,color:[{name:"red",from:-30,to:-20},{name:"orange",from:-20,to:-10},{name:"green",from:-10,to:0},{name:"green",from:0,to:10},{name:"orange",from:10,to:20},{name:"red",from:20,to:30}]};
     this.speedometer["temp"]     = {name:"temp"    ,x:0,y:0,r:0,value:0,min:25 ,max:55  ,step:6 ,start:125,end:55 ,decimal:1,icon:"🌡",unit:"°"   ,display:"small",color:[{name:"green",from:0,to:35.8},{name:"orange",from:35.8,to:48.9},{name:"red",from:48.9,to:55}]};
     this.initCanvas();
   }
@@ -86,6 +86,8 @@ class Speedo {
     if (message.temp!= undefined){
       this.setValue("temp",message.temp / 10);
     }
+
+    if (this.demo) this.runDemo();
   }
 
   setValue(key,value){
