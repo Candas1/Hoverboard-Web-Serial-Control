@@ -2,52 +2,37 @@ class Speedo {
   constructor(cnv) {
     this.cnv = cnv;
     this.ctx = cnv.getContext('2d');
-
+    this.direction = 1;
     this.speedometer = [];
     this.color = { blue:{},orange:{},red:{},green:{},purple:{}};
     
     // Blue
-    this.color.blue["gradient"] = this.ctx.createLinearGradient(0, this.cnv.height, 0, 0);
-    this.color.blue.gradient.addColorStop(0, '#00b8fe');
-    this.color.blue.gradient.addColorStop(1, '#41dcf4');
-    this.color.blue.shadowColor = '#41dcf4';
+    this.color.blue.color1 = '#00b8fe';
+    this.color.blue.color2 = '#41dcf4';
 
     // Purple
-    this.color.purple["gradient"] = this.ctx.createLinearGradient(0, this.cnv.height, 0, 0);
-    this.color.purple.gradient.addColorStop(0, '#9900cc');
-    this.color.purple.gradient.addColorStop(1, '#cc00cc');
-    this.color.purple.shadowColor = '#cc00cc';
-
+    this.color.purple.color1 = '#9900cc';
+    this.color.purple.color2 = '#cc00cc';
+    
     // Green
-    this.color.green["gradient"] = this.ctx.createLinearGradient(0, this.cnv.height, 0, 0);
-    this.color.green.gradient.addColorStop(0, '#33cc33');
-    this.color.green.gradient.addColorStop(1, '#00ff00');
-    this.color.green.shadowColor = '#00ff00';
-
+    this.color.green.color1 = '#33cc33';
+    this.color.green.color2 = '#00ff00';
+    
     // Orange
-    this.color.orange["gradient"] = this.ctx.createLinearGradient(0, this.cnv.height, 0, 0);
-    this.color.orange.gradient.addColorStop(0, '#f7b733');
-    this.color.orange.gradient.addColorStop(1, '#fc4a1a');
-    this.color.orange.shadowColor = '#fc4a1a';
+    this.color.orange.color1 = '#f7b733';
+    this.color.orange.color2 = '#fc4a1a';
 
     // Red
-    this.color.red["gradient"] = this.ctx.createLinearGradient(0, this.cnv.height, 0, 0);
-    this.color.red.gradient.addColorStop(0, '#fc4a1a');
-    this.color.red.gradient.addColorStop(1, '#fa1402');
-    this.color.red.shadowColor = '#fa1402';
+    this.color.red.color1 = '#fc4a1a';
+    this.color.red.color2 = '#fa1402';
 
-    // Speed km/h
-    this.speedometer.push({x:0,y:0,r:0,value:0,min:0,max:60,step:12,start:155,end:385,icon:"",unit:"km/h",display:"big",color:"blue"});
-    // ???
-    this.speedometer.push({x:0,y:0,r:0,value:0,min:0,max:10,step:10,start:125,end:55,icon:"",unit:"",display:"none",color:"orange"});
-    // Speed rpm
-    this.speedometer.push({x:0,y:0,r:0,value:0,min:0,max:1000,step:10,start:155,end:385,icon:"",unit:"rpm",display:"big",color:"blue"});
-    // Battery V
-    this.speedometer.push({x:0,y:0,r:0,value:0,min:32,max:42,step:10,start:125,end:55,icon:"🔋",unit:"V",display:"small",color:"green"});
-    // Current A
-    this.speedometer.push({x:0,y:0,r:0,value:0,min:-30,max:30,step:12,start:155,end:385,icon:"",unit:"A",display:"big",color:"purple"});
-    // Temp degrees
-    this.speedometer.push({x:0,y:0,r:0,value:0,min:25,max:55,step:6,start:125,end:55,icon:"🌡",unit:"°",display:"small",color:"red"});
+    this.speedometer = {};
+    this.speedometer["speedKMH"] = {name:"speedKMH",x:0,y:0,r:0,value:0,min:0  ,max:60  ,step:12,start:155,end:385,decimal:0,icon:""  ,unit:"km/h",display:"big"  ,color:"blue"};
+    this.speedometer["empty"]    = {name:"empty"   ,x:0,y:0,r:0,value:0,min:0  ,max:10  ,step:10,start:125,end:55 ,decimal:0,icon:""  ,unit:""    ,display:"none" ,color:"orange"};
+    this.speedometer["speedRPM"] = {name:"speedRPM",x:0,y:0,r:0,value:0,min:0  ,max:1000,step:10,start:155,end:385,decimal:0,icon:""  ,unit:"rpm" ,display:"big"  ,color:[{name:"blue",from:0,to:800},{name:"purple",from:800,to:1000}]};
+    this.speedometer["batV"]     = {name:"batV"    ,x:0,y:0,r:0,value:0,min:32 ,max:42  ,step:10,start:125,end:55 ,decimal:1,icon:"🔋",unit:"V"   ,display:"small",color:[{name:"red",from:0,to:36},{name:"orange",from:36,to:38},{name:"green",from:38,to:42}]};
+    this.speedometer["DCLink"]   = {name:"DCLink"  ,x:0,y:0,r:0,value:0,min:-30,max:30  ,step:12,start:155,end:385,decimal:1,icon:""  ,unit:"A"   ,display:"big"  ,color:[{name:"red",from:-30,to:-20},{name:"green",from:-20,to:0},{name:"green",from:0,to:20},{name:"red",from:20,to:30}]};
+    this.speedometer["temp"]     = {name:"temp"    ,x:0,y:0,r:0,value:0,min:25 ,max:55  ,step:6 ,start:125,end:55 ,decimal:1,icon:"🌡",unit:"°"   ,display:"small",color:[{name:"green",from:0,to:35.8},{name:"orange",from:35.8,to:48.9},{name:"red",from:48.9,to:55}]};
     this.initCanvas();
   }
 
@@ -57,34 +42,31 @@ class Speedo {
     this.cnv.height = this.cnv.parentElement.clientHeight;
 
     if (window.screen.orientation.type.includes("landscape")){
-      this.speedometer[3].x = this.speedometer[2].x = this.cnv.width/2;
-      this.speedometer[3].y = this.speedometer[2].y = this.cnv.height/2;
-      this.speedometer[3].r = this.speedometer[2].r = this.cnv.height/2.5;
+      this.speedometer.batV.x = this.speedometer.speedRPM.x = this.cnv.width/2;
+      this.speedometer.batV.y = this.speedometer.speedRPM.y = this.cnv.height/2;
+      this.speedometer.batV.r = this.speedometer.speedRPM.r = this.cnv.height/2.5;
  
-      this.speedometer[1].x = this.speedometer[0].x = (this.speedometer[2].x - this.speedometer[2].r) /2;
-      this.speedometer[1].y = this.speedometer[0].y = this.cnv.height/2;
-      this.speedometer[1].r = this.speedometer[0].r = this.speedometer[2].r/1.5;
+      this.speedometer.empty.x = this.speedometer.speedKMH.x = (this.speedometer.speedRPM.x - this.speedometer.speedRPM.r) /2;
+      this.speedometer.empty.y = this.speedometer.speedKMH.y = this.cnv.height/2;
+      this.speedometer.empty.r = this.speedometer.speedKMH.r = this.speedometer.speedRPM.r/1.5;
 
-      this.speedometer[5].x = this.speedometer[4].x = this.cnv.width - (this.speedometer[2].x - this.speedometer[2].r) /2;
-      this.speedometer[5].y = this.speedometer[4].y = this.cnv.height/2;
-      this.speedometer[5].r = this.speedometer[4].r = this.speedometer[2].r/1.5;
+      this.speedometer.temp.x = this.speedometer.DCLink.x = this.cnv.width - (this.speedometer.speedRPM.x - this.speedometer.speedRPM.r) /2;
+      this.speedometer.temp.y = this.speedometer.DCLink.y = this.cnv.height/2;
+      this.speedometer.temp.r = this.speedometer.DCLink.r = this.speedometer.speedRPM.r/1.5;
     }else{
-      this.speedometer[3].x = this.speedometer[2].x = this.cnv.width/2;
-      this.speedometer[3].y = this.speedometer[2].y = this.cnv.height/2;
-      this.speedometer[3].r = this.speedometer[2].r = this.cnv.height/5;
+      this.speedometer.batV.x = this.speedometer.speedRPM.x = this.cnv.width/2;
+      this.speedometer.batV.y = this.speedometer.speedRPM.y = this.cnv.height/2;
+      this.speedometer.batV.r = this.speedometer.speedRPM.r = this.cnv.height/5;
  
-      this.speedometer[1].x = this.speedometer[0].x = this.cnv.width/2;
-      this.speedometer[1].y = this.speedometer[0].y = (this.speedometer[2].y - this.speedometer[2].r) /2;
-      this.speedometer[1].r = this.speedometer[0].r = this.speedometer[2].r/1.5;
+      this.speedometer.empty.x = this.speedometer.speedKMH.x = this.cnv.width/2;
+      this.speedometer.empty.y = this.speedometer.speedKMH.y = (this.speedometer.speedRPM.y - this.speedometer.speedRPM.r) /2;
+      this.speedometer.empty.r = this.speedometer.speedKMH.r = this.speedometer.speedRPM.r/1.5;
 
-      this.speedometer[5].x = this.speedometer[4].x = this.cnv.width/2;
-      this.speedometer[5].y = this.speedometer[4].y = this.cnv.height - (this.speedometer[2].y - this.speedometer[2].r) /2;
-      this.speedometer[5].r = this.speedometer[4].r = this.speedometer[2].r/1.5;
+      this.speedometer.temp.x = this.speedometer.DCLink.x = this.cnv.width/2;
+      this.speedometer.temp.y = this.speedometer.DCLink.y = this.cnv.height - (this.speedometer.speedRPM.y - this.speedometer.speedRPM.r) /2;
+      this.speedometer.temp.r = this.speedometer.DCLink.r = this.speedometer.speedRPM.r/1.5;
     }
     
-    this.speedometer[2].gradient = this.speedometer[2].gradient = this.speedometer[0].gradient = this.Gradient1;
-    this.speedometer[5].gradient = this.speedometer[3].gradient = this.speedometer[1].gradient = this.Gradient2;
-
     this.display();
   }
 
@@ -92,34 +74,70 @@ class Speedo {
     if (message.speedR!= undefined && message.speedL != undefined){
       let speedRPM = Math.abs(message.speedR) + Math.abs(message.speedL);
       speedRPM = Math.round( speedRPM / Math.max(1,(message.speedR!=0) + (message.speedL!=0)) );
-      this.speedometer[0].value = Math.round( 2 * Math.PI * 16 * speedRPM * 60 / 100000);
-      this.speedometer[2].value = speedRPM;
+      this.setValue("speedKMH",Math.round( 2 * Math.PI * 16 * speedRPM * 60 / 100000));
+      this.setValue("speedRPM",speedRPM);
     }
     if (message.batV!= undefined){
-      this.speedometer[3].value = (message.batV / 100).toFixed(1);
+      this.setValue("batV",message.batV / 100);
     }
     if (message.DCLink!= undefined){
-      this.speedometer[4].value = message.DCLink / 10;
+      this.setValue("DCLink", message.DCLink / 10);
     }
     if (message.temp!= undefined){
-      this.speedometer[5].value = (message.temp / 10).toFixed(1);
+      this.setValue("temp",message.temp / 10);
+    }
+  }
+
+  setValue(key,value){
+    
+    if (key in this.speedometer){
+      this.speedometer[key].value = value;
+      this.speedometer[key].max = Math.max(this.speedometer[key].max,value);
+      this.speedometer[key].min = Math.min(this.speedometer[key].min,value);
+      if (Array.isArray(this.speedometer[key].color)){
+        this.speedometer[key].color[0].from = this.speedometer[key].min;
+        this.speedometer[key].color[this.speedometer[key].color.length-1].to = this.speedometer[key].max;
+      }
     }
   }
 
   update(){
-    if (view=="speedo") this.display();
+    if (view=="speedo"){ 
+      if (this.demo){
+        let switchDir = false;
+        let step = 100;
+        for(let key in this.speedometer){
+          this.setValue(key,this.speedometer[key].value + (this.speedometer[key].max-this.speedometer[key].min)/step * this.direction);
+          if ((this.speedometer[key].value <= this.speedometer[key].min) ||
+              (this.speedometer[key].value >= this.speedometer[key].max)){
+            switchDir = true;
+          }
+        }
+        if (switchDir) this.direction *= -1;
+      }
+      this.display();
+    }
+  }
+
+  runDemo(){
+    this.demo = !this.demo;
+    for(let key in this.speedometer){
+      this.setValue(key,!this.demo?0:this.speedometer[key].min);
+    }
   }
 
   display(){
     this.ctx.fillStyle ="black";
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
      
-    for (let i=0;i<this.speedometer.length;i++){
-      this.drawSpeedo(this.speedometer[i]);
+    for (let key in this.speedometer){
+      this.drawSpeedo(this.speedometer[key]);
     }
   }
 
-  drawNeedle(speedo,rotation) {
+  drawNeedle(speedo,color) {
+    let rotation = this.calcAngle(speedo,Math.min(speedo.value,speedo.max));
+    this.ctx.strokeStyle = this.color[color].color1;
     this.ctx.lineWidth = 2;
     this.ctx.save();
     this.ctx.translate(speedo.x, speedo.y);
@@ -141,15 +159,42 @@ class Speedo {
     let x = (speedo.x + speedo.r/1.4 * Math.cos(rotation));
     let y = (speedo.y + speedo.r/1.4 * Math.sin(rotation));
 
-    let fontsize = speedo.r / 10;
-    this.ctx.font = fontsize + "px MuseoSans_900-webfont";
-    this.ctx.fillText(speed, x, y);
+    if (speed != ""){
+      let fontsize = speedo.r / 10;
+      this.ctx.font = fontsize + "px MuseoSans_900-webfont";
+      this.ctx.fillText(Math.round(speed), x, y);
+    }
   }
 
-  calculateAngle(x, start, end) {
-    let degree = (end - start) * (x) + start;
-    let radian = Math.min(degree,end > start ? end : start) * (Math.PI / 180);
+  calcAngle(speedo, val) {
+    let x = (val-speedo.min) / (speedo.max-speedo.min);
+    let degree = (speedo.end - speedo.start) * (x) + speedo.start;
+    let radian = Math.min(degree,speedo.end > speedo.start ? speedo.end : speedo.start) * (Math.PI / 180);
     return radian;
+  }
+
+  getGradient(color){
+    let gradient = this.ctx.createLinearGradient(0, this.cnv.height, 0, 0);
+    gradient.addColorStop(0,this.color[color].color1);
+    gradient.addColorStop(1,this.color[color].color2);
+    return gradient;
+  }
+
+  drawArc(speedo,start,end,color){
+    this.ctx.beginPath();
+    this.ctx.lineWidth = speedo.r/10;
+    this.ctx.shadowBlur = 20;
+    this.ctx.shadowColor = this.color[color].color2;
+    this.ctx.strokeStyle = this.getGradient(color);
+    let startA = this.calcAngle(speedo,start);
+    let endA   = this.calcAngle(speedo,end);  
+    this.ctx.arc(speedo.x, 
+                 speedo.y, 
+                 speedo.r/1.05,
+                 startA<endA?startA:endA,
+                 startA<endA?endA:startA,
+                 false);
+    this.ctx.stroke();
   }
 
   drawSpeedo(speedo) {
@@ -177,14 +222,13 @@ class Speedo {
     this.ctx.stroke();
 
     this.ctx.fillStyle = "#FFF";
-    if (speedo.display !="none"){
-      
+    if (speedo.display !="none"){  
       if (speedo.display =="big"){
         // Value
         let fontsize1 = speedo.r / 4;
         this.ctx.font = fontsize1 + "px MuseoSans_900-webfont";
         this.ctx.textAlign = "center";
-        this.ctx.fillText(speedo.value, speedo.x, speedo.y);
+        this.ctx.fillText(parseFloat(speedo.value).toFixed(speedo.decimal), speedo.x, speedo.y);
 
         // Unit
         let fontsize2 = speedo.r / 10;
@@ -195,34 +239,41 @@ class Speedo {
         let fontsize1 = speedo.r / 10;
         this.ctx.font = fontsize1 + "px MuseoSans_900-webfont";
         this.ctx.textAlign = "center";
-        this.ctx.fillText(speedo.icon + speedo.value + speedo.unit, speedo.x, speedo.y + speedo.r/1.8);
+        this.ctx.fillText(speedo.icon + parseFloat(speedo.value).toFixed(speedo.decimal) + speedo.unit, speedo.x, speedo.y + speedo.r/1.8);
       }
     }
-
+   
     // Ticks and labels 
     for (let i = 0; i <= speedo.step ; i++ ){
       let step = speedo.min + i * Math.round((speedo.max-speedo.min)/speedo.step);
-      this.drawTick(speedo,this.calculateAngle(i/speedo.step, speedo.start, speedo.end ), i % 2 == 0 ? 3 : 1, i % 2 == 0 ? step : '');
+      let sliceEnd = this.calcAngle(speedo,step);
+      this.drawTick(speedo,sliceEnd, i % 2 == 0 ? 3 : 1, i % 2 == 0 ? step : '');
     }
     
     // Value Arc
-    let angleVal = this.calculateAngle( (speedo.value-speedo.min) / (speedo.max-speedo.min), speedo.start , speedo.end);
-    let angleStart = this.calculateAngle( -(speedo.min) / (speedo.max-speedo.min), speedo.start , speedo.end);
-    this.ctx.beginPath();
-    this.ctx.lineWidth = speedo.r/10;
-    this.ctx.shadowBlur = 20;
-    this.ctx.shadowColor = this.color[speedo.color].shadowColor;
-    this.ctx.strokeStyle = this.color[speedo.color].gradient;
-    this.ctx.arc(speedo.x, 
-                 speedo.y, 
-                 speedo.r/1.05,
-                 angleStart,
-                 angleVal,
-                 speedo.end > speedo.start ? false : true);
-    this.ctx.stroke();
-    
-    this.ctx.strokeStyle = speedo.gradient;
-    this.drawNeedle(speedo,angleVal);
+    if (Array.isArray(speedo.color)){
+      for(let i=0; i<speedo.color.length;i++){
+        let from  = speedo.color[i].from;
+        let to    = speedo.color[i].to;
+        let color = speedo.color[i].name;
+        if ((speedo.value >= 0 && to>0 && speedo.value > to)||
+            (speedo.value < 0 && from<0 && speedo.value < from)){
+          this.drawArc(speedo,from,to,color);
+        }else{
+          if (this.inRange(speedo.value,from,to)){
+            if (speedo.value >= 0 && to>0){
+              this.drawArc(speedo,from,speedo.value,color);
+            }else{
+              this.drawArc(speedo,to,speedo.value,color);
+            }         
+            this.drawNeedle(speedo,color);
+          }
+        }
+      }
+    }else{
+      this.drawArc(speedo,0,speedo.value,speedo.color);
+      this.drawNeedle(speedo,speedo.color);
+    }
 
     this.ctx.strokeStyle = "#000";
     this.ctx.shadowColor = "#000";
@@ -234,6 +285,10 @@ class Speedo {
 
   map(x, in_min, in_max, out_min, out_max) {
     return this.clamp((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min, out_min,out_max);
+  }
+
+  inRange(x, min, max) {
+    return ((x-min)*(x-max) <= 0);
   }
   
 }

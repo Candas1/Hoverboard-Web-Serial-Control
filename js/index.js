@@ -101,6 +101,10 @@ commandIn.addEventListener("keyup", function(event) {
   }
 });
 
+speedocnv.addEventListener('dblclick', function (e) {
+  speedo.runDemo();
+});
+
 function update(){
   // Send Commands
   if (serial.connected){
