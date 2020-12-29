@@ -102,6 +102,7 @@ commandIn.addEventListener("keyup", function(event) {
 });
 
 speedocnv.addEventListener('dblclick', function (e) {
+  event.preventDefault();
   speedo.runDemo();
 });
 
