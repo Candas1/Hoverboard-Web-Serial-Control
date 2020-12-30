@@ -14,6 +14,7 @@ class Graph {
       x: [],
       y: [],
       name: "",
+      legendgroup : "",
       mode: 'lines',
       line: {width:2}, //,shape: 'spline',smoothing:1.2},
       type: 'scattergl',
@@ -74,26 +75,39 @@ class Graph {
 
     this.layout = {
       grid:{ rows:1, columns:1, pattern:'independent' , roworder:'top to bottom'},
-      margin: {l:50, r:0, t:20, b:0},
+      margin: {l:50, r:0, t:50, b:10},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
       dragmode: 'pan',
       legend:{
+        y: 0.95,
         itemclick:'toggle',
         itemdoubleclick:'toggleothers',
-        title: { text:"Channels"} 
+        tracegroupgap:20,
+        title:{
+          text:"Channels",
+          font:{
+            color: '#FFF',
+          },
+        },
+        font:{
+          color: '#FFF',
+        },
       },
       autosize: true,
       yaxis: JSON.parse(JSON.stringify(this.yaxis)),
       xaxis: JSON.parse(JSON.stringify(this.xaxis)),
     };
-
+    
     const config = {
-      responsive: true
+      responsive: true,
+      displayModeBar: true,
+      modeBarButtonsToRemove: ['lasso2d','plotlylogo'],
     }
 
     Plotly.newPlot(chartdiv, data , this.layout, config);
     //chartdiv.on('plotly_legendclick', this.legendClick.bind(this) ); 
+    //chartdiv.on('plotly_click', function(data){ graph.isPaused = !graph.isPaused});
 
   }
 
@@ -120,7 +134,7 @@ class Graph {
       // New field
       if (!(key in this.key2trace)){ 
         this.key2trace[key] = this.countTrace; 
-        this.trace.name = key; 
+        this.trace.legendgroup = this.trace.name = key; 
         Plotly.addTraces(chartdiv,[this.trace]);
         this.traces.push(this.countTrace);
         this.countTrace++; 

@@ -22,6 +22,7 @@ var success = document.getElementById('success');
 var error = document.getElementById('error');
 
 var serialdiv  = document.getElementById('serialdiv');
+var APIdiv     = document.getElementById('APIdiv');
 var statsindiv = document.getElementById('statsindiv');
 var chartindiv = document.getElementById('chartindiv');
 var ctrlindiv  = document.getElementById('ctrlindiv');
@@ -34,8 +35,8 @@ var loggerdiv  = document.getElementById('loggerdiv');
 var chartdiv   = document.getElementById('chartdiv');
 var controlcnv = document.getElementById('controlcnv');
 var speedocnv  = document.getElementById('speedocnv');
-var bauddiv    = document.getElementById('bauddiv');
 var buttondiv  = document.getElementById('buttondiv');
+
 var view = 'log';
 var lastClick = 0;
 
@@ -123,27 +124,32 @@ function switchView(newView){
   view = newView;
   switch (view){
     case "log":
-      commanddiv.style.display = (sendin.value == "ascii") ? "block" : "none";
+      bauddiv.style.display    = "block";
+      APIdiv.style.display     = "block"; 
+      commanddiv.style.display = "block";
       statsdiv.style.display   = (statsIn.checked) ? "block" : "none";
       
       chartindiv.style.display = "none";
       ctrlindiv.style.display  = "none";
       statsindiv.style.display = "block";
       recdiv.style.display     = "block";
-      senddiv.style.display    = "block"; 
+      senddiv.style.display    = "none"; 
 
       chartdiv.style.display   = "none";
       controlcnv.style.display = "none";
-      speedocnv.style.display = "none";
+      speedocnv.style.display  = "none";
       loggerdiv.style.display  = "block";
-      buttondiv.style.display  = "block";
+      pause_btn.style.visibility = "hidden";
+      trash_btn.style.visibility = "hidden";
       break;
     case "chart":
+      APIdiv.style.display     = "none";
+      bauddiv.style.display    = "none";
       statsindiv.style.display = "none";
       ctrlindiv.style.display  = "none";
       chartindiv.style.display = "block";
-      recdiv.style.display     = "block";
-      senddiv.style.display    = "none"; 
+      recdiv.style.display     = "none";
+      senddiv.style.display    = "none";
 
       controlcnv.style.display = "none";
       speedocnv.style.display = "none";
@@ -151,38 +157,47 @@ function switchView(newView){
       statsdiv.style.display   = "none";
       commanddiv.style.display = "none";
       chartdiv.style.display   = "block";
-      buttondiv.style.display  = "block";
+      pause_btn.style.visibility = "visible";
+      trash_btn.style.visibility = "visible";
       graph.updateGraph();
       break;
     case "control":
+      APIdiv.style.display     = "none";
+      bauddiv.style.display    = "none";
       statsindiv.style.display = "none";
       chartindiv.style.display = "none";  
       ctrlindiv.style.display  = "block";
-      recdiv.style.display     = "block";
-      senddiv.style.display    = "block"; 
+      recdiv.style.display     = "none";
+      senddiv.style.display    = "block";
+      pause_btn.style.visibility = "hidden";
+      trash_btn.style.visibility = "hidden";
+      
       
       loggerdiv.style.display  = "none";
       chartdiv.style.display   = "none";
       statsdiv.style.display   = "none";
       commanddiv.style.display = "none";
       speedocnv.style.display  = "none";
-      buttondiv.style.display  = "none";
       controlcnv.style.display = "block";
       control.initCanvas();
       break;
     case "speedo":
+      APIdiv.style.display     = "none";
+      bauddiv.style.display    = "none";
+      pause_btn.style.visibility = "hidden";
+      trash_btn.style.visibility = "hidden";
+      
       statsindiv.style.display = "none";
       chartindiv.style.display = "none";  
       ctrlindiv.style.display  = "none";
-      recdiv.style.display     = "block";
-      senddiv.style.display    = "none"; 
+      recdiv.style.display     = "none";
+      senddiv.style.display    = "none";
       
       loggerdiv.style.display  = "none";
       chartdiv.style.display   = "none";
       statsdiv.style.display   = "none";
       commanddiv.style.display = "none";
       controlcnv.style.display = "none";
-      buttondiv.style.display  = "none";
       speedocnv.style.display  = "block";
       speedo.initCanvas();
       break;

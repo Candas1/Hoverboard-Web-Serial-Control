@@ -349,37 +349,40 @@ class Serial {
   }
 
   sendBinary() {
-    if (serial.protocol == "usart"){
-      let bytes = new Uint8Array(
-          this.usartCommand.write(
-            { 
-              steer:control.channel[0],
-              speed:control.channel[1],
-              checksum:this.serial_start_frame ^ control.channel[0] ^ control.channel[1],
-            })
-      );
-      this.send(bytes);
-    }else{
-      var ab = new ArrayBuffer(this.ibus_length);
-      var dv = new DataView(ab);
-      
-      // Write Ibus Start Frame
-      dv.setUint8(0,this.ibus_length);
-      dv.setUint8(1,this.ibus_command);
-      // Write channel values
-      for (let i=0; i< this.ibus_channels * 2;i+=2){
-        dv.setUint16(i+2, control.map(control.channel[i/2] ,-1000,1000,1000,2000) ,true);
-      }
+    switch (serial.protocol){
+      case "usart":
+        let bytesUsart = new Uint8Array(
+            this.usartCommand.write(
+              { 
+                steer:control.channel[0],
+                speed:control.channel[1],
+                checksum:this.serial_start_frame ^ control.channel[0] ^ control.channel[1],
+              })
+        );
+        this.send(bytesUsart);
+        break;
+      case "ibus":
+        var ab = new ArrayBuffer(this.ibus_length);
+        var dv = new DataView(ab);
+        
+        // Write Ibus Start Frame
+        dv.setUint8(0,this.ibus_length);
+        dv.setUint8(1,this.ibus_command);
+        // Write channel values
+        for (let i=0; i< this.ibus_channels * 2;i+=2){
+          dv.setUint16(i+2, control.map(control.channel[i/2] ,-1000,1000,1000,2000) ,true);
+        }
 
-      // Calculate checksum
-      let checksum = 0xFFFF;
-      for (let i=0; i<this.ibus_length-2;i++){
-        checksum -= dv.getUint8(i);
-      }
-      dv.setUint16(this.ibus_length-2,checksum,true);
-      
-      let bytes = new Uint8Array(ab);
-      this.send(bytes);
+        // Calculate checksum
+        let checksum = 0xFFFF;
+        for (let i=0; i<this.ibus_length-2;i++){
+          checksum -= dv.getUint8(i);
+        }
+        dv.setUint16(this.ibus_length-2,checksum,true);
+        
+        let bytesIbus = new Uint8Array(ab);
+        this.send(bytesIbus);
+        break;
     }
   };
 

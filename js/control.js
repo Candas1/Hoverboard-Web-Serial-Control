@@ -174,12 +174,10 @@ class Control {
   display(){
     // Case
     let gradient = this.ctx.createLinearGradient(0, this.cnv.height, this.cnv.width, this.cnv.height);
-    gradient.addColorStop(0, 'white');
-    gradient.addColorStop(0.05, 'lightgrey');
+    gradient.addColorStop(0, 'lightgrey');
     gradient.addColorStop(0.4, 'grey');
     gradient.addColorStop(0.6, 'grey');
-    gradient.addColorStop(0.95, 'lightgrey');
-    gradient.addColorStop(1, 'white');
+    gradient.addColorStop(1, 'lightgrey');
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
 

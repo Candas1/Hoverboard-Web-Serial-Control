@@ -17,28 +17,28 @@
   
   <body>
     <div id="container">
-      <div class="row" id="serialdiv">
-        <div class="ten columns">
-          <div class="two columns">
+      <div class="row" id="serialdiv">  
+        <div class="eight columns">
+          <div class="two columns" id="viewdiv">
             <label for="view">View</label>
             <select class="u-full-width" id="view" onchange="switchView(viewIn.value)">
-              <option value="log" selected>📃Log</option>
-              <option value="chart">📈Chart</option>
-              <option value="control">🎮Control</option>
-              <option value="speedo">🚘Drive</option>
+              <option value="log" selected>📃Log  </option>
+              <option value="chart"       >📈Chart</option>
+              <option value="control"     >🎮Ctrl </option>
+              <option value="speedo"      >🚘Dash </option>
             </select>
           </div>
-          <div class="two columns">
+          <div class="two columns" id="APIdiv">
             <label for="API">API</label>
             <select class="u-full-width" id="API" onchange="toggleAPI()">
                 <option value="serial" selected>Serial</option>
-                <option value="bluetooth">Bluetooth</option>
+                <option value="bluetooth">Ble</option>
             </select>
           </div>
           <div class="two columns" id='bauddiv'>
             <label for="baudrate">Baudrate</label>
             <select class="u-full-width" id="baudrate">
-                <option value="9600">9600</option>
+                <option value="9600" >9600 </option>
                 <option value="14400">14400</option>
                 <option value="19200">19200</option>
                 <option value="38400">38400</option>
@@ -53,24 +53,24 @@
                 <option value="binary">Binary</option>
             </select>  
           </div>
-          <div class="two columns" id="senddiv">
-            <label for="sendin">Send</label>
-            <select class="u-full-width" id="sendin" onchange="toggleMode()">
-              <option value="ascii" selected>Ascii</option>
-              <option value="usart">Usart</option>
-              <option value="ibus">Ibus</option>
-            </select>  
-          </div>
-          <div class="two columns" id="statsindiv">
+          <div class="one columns" id="statsindiv">
             <label for="stats">Stats</label>
             <input type="checkbox" id="stats" onchange="toggleStats()">
           </div>
           <div class="two columns" id="chartindiv">
             <label for="subplot">Subplot</label>
             <select class="u-full-width" id="subplot" onchange="toggleSubplot()">
-              <option value="no" selected>No</option>
-              <option value="yes">Yes</option>
+              <option value="no" selected>No </option>
+              <option value="yes"        >Yes</option>
             </select>
+          </div>
+          <div class="two columns" id="senddiv">
+            <label for="sendin">Send</label>
+            <select class="u-full-width" id="sendin" onchange="toggleMode()">
+              <option value="off" selected>Off  </option>
+              <option value="usart"       >Usart</option>
+              <option value="ibus"        >Ibus </option>
+            </select>  
           </div>
           <div class="two columns" id="ctrlindiv">
             <label for="mixer">Mixer</label>
@@ -81,13 +81,15 @@
             </select>
           </div>
         </div>
-        <div class="two columns">
-          <br>
-          <button id="connect"    class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button>
+        <div id="buttondiv">
+          <label for="pause"><br></label>
+          <button id="pause" class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button>
+          <button id="trash" class="button" type="button" onclick="deleteData()" ><ion-icon name="trash"></ion-icon></button> 
+          <button id="connect" class="button" type="button" onclick="serial.connect()"><ion-icon name="flash"></ion-icon></button>
         </div>
       </div>
       <div class="row" id="statsdiv">
-        <div class="eleven columns"> 
+        <div class="nine columns"> 
           <div class="two columns">
             <label for="write">Write</label>
             <input class="u-full-width" type="number" id="write" value="0" disabled>
@@ -111,8 +113,8 @@
         </div>
       </div>
       <div class="row" id="commanddiv">
-        <div class="ten columns">
-          <div class="eight columns">
+        <div class="eight columns">
+          <div class="nine columns">
             <label for="command">Command</label>
             <input class="u-full-width" type="text" id="command" value="">
           </div>
@@ -125,25 +127,21 @@
             <input type="checkbox" id="lf" checked>
           </div>
         </div>
-        <div class="two columns">
-          <br>
-          <button class="button" type="button" id="send" disabled="true" onclick="sendCommand()"><ion-icon name="send"></ion-icon></button>
+        <div id="buttondiv2">
+          <label for="send"><br></label>
+          <button id="send"   class="button" type="button" onclick="sendCommand()" disabled="true"><ion-icon name="send"></ion-icon></button>
+          <button id="pause1" class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button>
+          <button id="trash1" class="button" type="button" onclick="deleteData()" ><ion-icon name="trash"></ion-icon></button> 
         </div>
       </div>
       <div id="outputdiv">
-        <div class="ten columns">
-          <div class="u-full-width" id="loggerdiv"></div>
-          <div class="u-full-width" id="chartdiv"></div>    
-          </div>
-        <div class="two columns" id="buttondiv">
-          <button id="trash" class="button" type="button" onclick="deleteData()"><ion-icon name="trash"></ion-icon></button><br>
-          <button id="pause" class="button" type="button" onclick="pauseUpdate()"><ion-icon name="pause"></ion-icon></button><br>
-        </div>
         <div class="twelve columns">
-          <canvas class="u-full-width" id="controlcnv"></canvas>
-          <canvas class="u-full-width" id="speedocnv"></canvas>
+          <div class="u-full-width" id="loggerdiv"></div>
+          <div class="u-full-width" id="chartdiv"></div>
         </div>
       </div>
+      <canvas class="u-full-width" id="controlcnv"></canvas>
+      <canvas class="u-full-width" id="speedocnv"></canvas>
     </div>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
