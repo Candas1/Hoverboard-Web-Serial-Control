@@ -3,6 +3,7 @@ class Speedo {
     this.cnv = cnv;
     this.ctx = cnv.getContext('2d');
     this.direction = 1;
+    this.autolimit = true;
     this.speedometer = [];
     this.color = { blue:{},orange:{},red:{},green:{},purple:{}};
     
@@ -94,11 +95,13 @@ class Speedo {
     
     if (key in this.speedometer){
       this.speedometer[key].value = value;
-      this.speedometer[key].max = Math.max(this.speedometer[key].max,value);
-      this.speedometer[key].min = Math.min(this.speedometer[key].min,value);
-      if (Array.isArray(this.speedometer[key].color)){
-        this.speedometer[key].color[0].from = this.speedometer[key].min;
-        this.speedometer[key].color[this.speedometer[key].color.length-1].to = this.speedometer[key].max;
+      if (this.autolimit){
+        this.speedometer[key].max = Math.max(this.speedometer[key].max,value);
+        this.speedometer[key].min = Math.min(this.speedometer[key].min,value);
+        if (Array.isArray(this.speedometer[key].color)){
+          this.speedometer[key].color[0].from = this.speedometer[key].min;
+          this.speedometer[key].color[this.speedometer[key].color.length-1].to = this.speedometer[key].max;
+        }
       }
     }
   }
@@ -123,9 +126,11 @@ class Speedo {
 
   runDemo(){
     this.demo = !this.demo;
+    this.autolimit = false;
     for(let key in this.speedometer){
       this.setValue(key,!this.demo?0:this.speedometer[key].min);
     }
+    this.autolimit = true;
   }
 
   display(){

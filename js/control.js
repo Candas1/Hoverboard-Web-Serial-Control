@@ -114,11 +114,11 @@ class Control {
 
     if (window.screen.orientation.type.includes("landscape")){
       this.joystick[0].posx = (this.cnv.width / 6);
-      this.joystick[0].posy = (this.cnv.height / 6) + this.cnv.height/5;
+      this.joystick[0].posy = (this.cnv.height / 6) + this.cnv.height/4;
       this.joystick[0].visible = true;
 
       this.joystick[1].posx = (this.cnv.width - this.cnv.width / 6);
-      this.joystick[1].posy = (this.cnv.height / 6) + this.cnv.height/5;
+      this.joystick[1].posy = this.joystick[0].posy;
       this.joystick[1].visible = true;
 
       this.joystickr1 = (this.cnv.height / 6); //inner ring
