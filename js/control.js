@@ -4,12 +4,12 @@ class Control {
     this.ctx = cnv.getContext('2d');
     
     this.channel = new Array(14).fill(0);
-    this.joystick = [{name:"1",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,clicked:false,visible:true},
-                     {name:"2",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,clicked:false,visible:true},
-                     {name:"SWA",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:2,hold:true,clicked:false,visible:true},
-                     {name:"SWB",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:3,hold:true,clicked:false,visible:true},
-                     {name:"SWC",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:3,hold:true,clicked:false,visible:true},
-                     {name:"SWD",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:2,hold:true,clicked:false,visible:true}];
+    this.joystick = [{name:"1",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,vibrate:false,clicked:false,visible:true},
+                     {name:"2",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,vibrate:false,clicked:false,visible:true},
+                     {name:"SWA",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:2,hold:true,vibrate:true,clicked:false,visible:true},
+                     {name:"SWB",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:3,hold:true,vibrate:true,clicked:false,visible:true},
+                     {name:"SWC",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:3,hold:true,vibrate:true,clicked:false,visible:true},
+                     {name:"SWD",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:2,hold:true,vibrate:true,clicked:false,visible:true}];
     this.telemetry = {};
     this.mixer = "mix1";
     this.hold  = false;    
@@ -161,7 +161,7 @@ class Control {
       this.joystick[4].posx = (this.cnv.width / 3.4) + 3 * (this.cnv.width /3/4);
       this.joystick[5].posx = (this.cnv.width / 3.4) + 4 * (this.cnv.width /3/4);
 
-      this.joystick[5].posy = this.joystick[4].posy = this.joystick[3].posy = this.joystick[2].posy = (this.cnv.height / 5);
+      this.joystick[5].posy = this.joystick[4].posy = this.joystick[3].posy = this.joystick[2].posy = (this.cnv.height / 4);
       this.joystick[5].visible = this.joystick[4].visible = this.joystick[3].visible = this.joystick[2].visible = true;
       this.joystick[5].r = this.joystick[4].r = this.joystick[3].r = this.joystick[2].r = (this.cnv.height / 30)
 
