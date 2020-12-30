@@ -92,10 +92,10 @@ class Speedo {
   }
 
   setValue(key,value){
-    
     if (key in this.speedometer){
       this.speedometer[key].value = value;
       if (this.autolimit){
+        // Adjust limits automatically
         this.speedometer[key].max = Math.max(this.speedometer[key].max,value);
         this.speedometer[key].min = Math.min(this.speedometer[key].min,value);
         if (Array.isArray(this.speedometer[key].color)){
@@ -126,11 +126,10 @@ class Speedo {
 
   runDemo(){
     this.demo = !this.demo;
-    this.autolimit = false;
     for(let key in this.speedometer){
       this.setValue(key,!this.demo?0:this.speedometer[key].min);
     }
-    this.autolimit = true;
+    this.autolimit = !this.demo;
   }
 
   display(){
@@ -144,6 +143,8 @@ class Speedo {
 
   drawNeedle(speedo,color) {
     let rotation = this.calcAngle(speedo,Math.min(speedo.value,speedo.max));
+    this.ctx.shadowBlur = 10;
+    this.ctx.shadowColor = this.color[color].color1;
     this.ctx.strokeStyle = this.color[color].color1;
     this.ctx.lineWidth = 2;
     this.ctx.save();
@@ -163,10 +164,9 @@ class Speedo {
     this.ctx.strokeRect(speedo.r/1.14, -1 / 2, speedo.r/10, 1);
     this.ctx.restore();
 
-    let x = (speedo.x + speedo.r/1.4 * Math.cos(rotation));
-    let y = (speedo.y + speedo.r/1.4 * Math.sin(rotation));
-
     if (speed != ""){
+      let x = (speedo.x + speedo.r/1.4 * Math.cos(rotation));
+      let y = (speedo.y + speedo.r/1.4 * Math.sin(rotation));
       let fontsize = speedo.r / 10;
       this.ctx.font = fontsize + "px MuseoSans_900-webfont";
       this.ctx.fillText(Math.round(speed), x, y);
@@ -211,7 +211,7 @@ class Speedo {
     // Outer Ring
     if (speedo.display =="big"){
       this.ctx.beginPath();
-      this.ctx.lineWidth = 1;
+      this.ctx.lineWidth = 2;
       this.ctx.arc(speedo.x, speedo.y, speedo.r, 0, 2 * Math.PI);
       this.ctx.stroke();
       
@@ -254,7 +254,7 @@ class Speedo {
     for (let i = 0; i <= speedo.step ; i++ ){
       let step = speedo.min + i * Math.round((speedo.max-speedo.min)/speedo.step);
       let sliceEnd = this.calcAngle(speedo,step);
-      this.drawTick(speedo,sliceEnd, i % 2 == 0 ? 3 : 1, i % 2 == 0 ? step : '');
+      this.drawTick(speedo,sliceEnd, i % 2 == 0 ? 3 : 1, i % 2 == 0 ? step.toString() : '');
     }
     
     // Value Arc

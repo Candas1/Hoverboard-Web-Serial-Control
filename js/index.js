@@ -129,10 +129,23 @@ commandIn.addEventListener("keyup", function(event) {
 });
 
 speedocnv.addEventListener('click', function (e) {
+  // Start demo of double click on speedometer canavs
   e.preventDefault();
   if (Date.now() - lastClick < 300) speedo.runDemo();
   lastClick = Date.now();
+
+  serialdiv.style.visibility = "visible";
+  setTimeout(function(){ 
+    if (view == "speedo" && Date.now() - lastClick >= 3000) serialdiv.style.visibility = "hidden";}, 3000);
 });
+
+viewIn.addEventListener('click', function (e) {
+  // Start demo of double click on speedometer canavs
+  e.preventDefault();
+  lastClick = Date.now();
+});
+
+
 
 function update(){
   // Send Commands
@@ -147,6 +160,7 @@ function update(){
 
 function switchView(newView){
   view = newView;
+  serialdiv.style.visibility = "visible";
   switch (view){
     case "log":
       bauddiv.style.display    = (serial.API == "serial")?"block":"none";
@@ -225,6 +239,7 @@ function switchView(newView){
       controlcnv.style.display = "none";
       speedocnv.style.display  = "block";
       speedo.initCanvas();
+      speedocnv.click();
       break;
   }
 }
