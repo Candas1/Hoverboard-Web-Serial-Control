@@ -54,7 +54,8 @@ window.addEventListener("load", function(event) {
     bauddiv.style.display = "none";
 
     if ('wakeLock' in navigator) {
-      // Screen Wake Lock API supported 🎉
+      // Screen Wake Lock API supported, request lock to prevent screen from going to sleep when page is visible
+      wakeLock = null;
       requestWakeLock();
       document.addEventListener('visibilitychange', handleVisibilityChange);
     }
@@ -90,13 +91,12 @@ window.addEventListener("load", function(event) {
 
 
 async function handleVisibilityChange(){
-  if (wakeLock !== null && document.visibilityState === 'visible') {
-    await requestWakeLock();
-  }
+  await requestWakeLock();
 };
 
 // Function that attempts to request a screen wake lock.
 async function requestWakeLock(){
+  if (document.visibilityState !== 'visible') return;
   try {
     wakeLock = await navigator.wakeLock.request("screen");
     wakeLock.addEventListener('release', () => {
