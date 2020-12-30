@@ -124,7 +124,7 @@ function switchView(newView){
   view = newView;
   switch (view){
     case "log":
-      bauddiv.style.display    = "block";
+      bauddiv.style.display    = (serial.API == "serial")?"block":"none";
       APIdiv.style.display     = "block"; 
       commanddiv.style.display = "block";
       statsdiv.style.display   = (statsIn.checked) ? "block" : "none";
@@ -206,7 +206,7 @@ function switchView(newView){
 
 function toggleAPI(){
   serial.API = API.value;
-  baudrate.disabled = (serial.API == "bluetooth");
+  switchView(view);
 }
 
 function toggleMode(){
