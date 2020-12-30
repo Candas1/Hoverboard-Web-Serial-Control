@@ -52,6 +52,12 @@ window.addEventListener("load", function(event) {
     // if on Mobile phone, only Web Bluetooth API is available
     API.remove(API.selectedIndex);
     bauddiv.style.display = "none";
+
+    if ('wakeLock' in navigator) {
+      // Screen Wake Lock API supported 🎉
+      requestWakeLock();
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
   }else{
     // if on computer,remove Web Serial API if not available
     if ("serial" in navigator === false) {
@@ -82,6 +88,25 @@ window.addEventListener("load", function(event) {
   }
 });
 
+
+async function handleVisibilityChange(){
+  if (wakeLock !== null && document.visibilityState === 'visible') {
+    await requestWakeLock();
+  }
+};
+
+// Function that attempts to request a screen wake lock.
+async function requestWakeLock(){
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener('release', () => {
+      console.log('Screen Wake Lock released:', wakeLock.released);
+    });
+    console.log('Screen Wake Lock released:', wakeLock.released);
+  } catch (err) {
+    console.error(`${err.name}, ${err.message}`);
+  }
+};
 
 window.addEventListener("resize", function() {
   control.initCanvas();
