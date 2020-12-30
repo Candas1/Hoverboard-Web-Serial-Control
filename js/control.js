@@ -28,7 +28,6 @@ class Control {
       }
     }
 
-    event.preventDefault();
     switch (event.type){
       case "mousedown":
         this.joystick[0].clicked = true;
@@ -45,6 +44,7 @@ class Control {
             if ( distance < this.joystickr2 * (event.type == "mousedown" ? 1 : 2) ){
               this.joystick[i].x = x;
               this.joystick[i].y = y;
+              event.preventDefault();
             }
           }
         }
@@ -65,6 +65,7 @@ class Control {
             if ( distance < this.joystickr2 * (event.type == "touchstart" ? 1 : 2) ){
               this.joystick[i].x = x;
               this.joystick[i].y = y;
+              event.preventDefault();
             }
           }
         }
