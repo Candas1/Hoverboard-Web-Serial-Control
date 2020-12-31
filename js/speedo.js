@@ -126,6 +126,8 @@ class Speedo {
 
   runDemo(){
     this.demo = !this.demo;
+
+    this.direction = 1;
     for(let key in this.speedometer){
       this.setValue(key,!this.demo?0:this.speedometer[key].min);
     }
