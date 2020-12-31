@@ -1,15 +1,16 @@
 class Control {
   constructor(cnv) {
     this.cnv = cnv;
+    this.mode = "control";
     this.ctx = cnv.getContext('2d');
     
     this.channel = new Array(14).fill(0);
-    this.joystick = [{name:"1",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,clicked:false,visible:true},
-                     {name:"2",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,clicked:false,visible:true},
-                     {name:"SWA",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:2,hold:true,clicked:false,visible:true},
-                     {name:"SWB",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:3,hold:true,clicked:false,visible:true},
-                     {name:"SWC",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:3,hold:true,clicked:false,visible:true},
-                     {name:"SWD",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0,maxx:0,miny:1,maxy:2,hold:true,clicked:false,visible:true}];
+    this.inputs = [{name:"JOY1",type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,vibrate:false,visible:true},
+                   {name:"JOY2",type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,vibrate:false,visible:true},
+                   {name:"SWA" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:2   ,hold:true ,vibrate:true ,visible:true},
+                   {name:"SWB" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:3   ,hold:true ,vibrate:true ,visible:true},
+                   {name:"SWC" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:3   ,hold:true ,vibrate:true ,visible:true},
+                   {name:"SWD" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:2   ,hold:true ,vibrate:true ,visible:true}];
     this.telemetry = {};
     this.mixer = "mix1";
     this.hold  = false;    
@@ -21,114 +22,110 @@ class Control {
   }
 
   handleEvents(event){
-    let i = 0;
-    let j = 0;
-
     if (!this.hold){
       this.initPos();
     }
 
     event.preventDefault();
+
+    let coordinates = [];
     switch (event.type){
       case "mousedown":
-        this.joystick[0].clicked = true;
+        this.clicked = true;
       case "mousemove":
-        if (this.joystick[0].clicked){
-          let distance = 0;
-          let x = 0;
-          let y = 0;
+        if (this.clicked){
           let rect = event.target.getBoundingClientRect();
-          for (i = 0; i < this.joystick.length;i++){
-            if (!this.joystick[i].visible) continue;
-            x = event.clientX - rect.left;
-            y = event.clientY - rect.top;
-            distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
-            if ( distance < this.joystick[i].r * (event.type == "mousedown" ? 1 : 2) ){
-              this.joystick[i].x = x;
-              this.joystick[i].y = y;
-            }
-          }
+          coordinates.push([event.clientX - rect.left,event.clientY - rect.top]);
         }
         break;
       case "mouseup":
-        this.joystick[0].clicked = false;
+        this.clicked = false;
         break;
       case "touchstart":
       case "touchmove":
       case "touchend":
-        let distance = 0;
-        let x = 0;
-        let y = 0;
-        for (i = 0; i < this.joystick.length;i++){
-          if (!this.joystick[i].visible) continue;
-          for (j= 0; j< event.touches.length;j++){
-            let rect = event.touches[j].target.getBoundingClientRect();
-            x = event.touches[j].clientX - rect.left;
-            y = event.touches[j].clientY - rect.top;
-            distance = this.calcDistance(x,y,this.joystick[i].posx,this.joystick[i].posy);
-            if ( distance < this.joystick[i].r * (event.type == "touchstart" ? 1 : 2) ){
-              this.joystick[i].x = x;
-              this.joystick[i].y = y;
-            }
-          }
+        for (let i = 0; i< event.touches.length;i++){
+          let rect = event.touches[i].target.getBoundingClientRect();
+          coordinates.push([event.touches[i].clientX - rect.left,event.touches[i].clientY - rect.top]);
         }
         break;
     }
 
-    // Normalize
-    for (i = 0;i<this.joystick.length;i++){
-      this.joystick[i].normx = Math.round(this.map(this.joystick[i].x,this.joystick[i].posx-this.joystick[i].r,this.joystick[i].posx+this.joystick[i].r,this.joystick[i].minx,this.joystick[i].maxx));
-      this.joystick[i].normy = Math.round(this.map(this.joystick[i].y,this.joystick[i].posy+this.joystick[i].r,this.joystick[i].posy-this.joystick[i].r,this.joystick[i].miny,this.joystick[i].maxy));
-    
-      if (this.joystick[i].vibrate){
-        if ((this.joystick[i].prevx != this.joystick[i].normx) ||
-           (this.joystick[i].prevy != this.joystick[i].normy)){
-            navigator.vibrate([100]);     
+    for (let i in this.inputs){
+      if (!this.inputs[i].visible) continue;
+      for (let j= 0; j < coordinates.length;j++){
+        let [x,y] = coordinates[j];
+        let distance = this.calcDistance(x,y,this.inputs[i].posx,this.inputs[i].posy);
+        if ( distance < this.inputs[i].r*2){
+          //(event.type == "touchstart" ? 1 : 2)
+          if (this.mode =="control"){
+            this.inputs[i].x = x;
+            this.inputs[i].y = y;
+          }else{
+            // If in edit mode, move the joystick
+            this.inputs[i].posx = Math.round(x/20)*20;
+            this.inputs[i].posy = Math.round(y/20)*20;
+          }
         }
       }
 
-      this.joystick[i].prevx = this.joystick[i].normx;
-      this.joystick[i].prevy = this.joystick[i].normy;
+      if (this.mode == "control"){
+        // Calculate normalized value
+        this.inputs[i].normx = Math.round(this.map(this.inputs[i].x,this.inputs[i].posx-this.inputs[i].r,this.inputs[i].posx+this.inputs[i].r,this.inputs[i].minx,this.inputs[i].maxx));
+        this.inputs[i].normy = Math.round(this.map(this.inputs[i].y,this.inputs[i].posy+this.inputs[i].r,this.inputs[i].posy-this.inputs[i].r,this.inputs[i].miny,this.inputs[i].maxy));
+      
+        // If value changed, vibrate (switches)
+        if (this.inputs[i].vibrate){
+          if ((this.inputs[i].prevx != this.inputs[i].normx) ||
+            (this.inputs[i].prevy != this.inputs[i].normy)){
+              navigator.vibrate([100]);     
+          }
+        }
+
+        this.inputs[i].prevx = this.inputs[i].normx;
+        this.inputs[i].prevy = this.inputs[i].normy;
+      }
     }
 
-    this.Mixer();
+    if (this.mode == "control") this.Mixer();
     this.display();
   }
 
   Mixer(){
     switch(this.mixer){
       case "mix1":
-        this.channel[0] = this.joystick[0].normx;
-        this.channel[1] = this.joystick[1].normy;
+        this.channel[0] = this.inputs[0].normx;
+        this.channel[1] = this.inputs[1].normy;
         break;
       case "mix2":
-        this.channel[0] = this.joystick[0].normx;
-        this.channel[1] = this.joystick[0].normy;
+        this.channel[0] = this.inputs[0].normx;
+        this.channel[1] = this.inputs[0].normy;
         break;
       case "mix3":
-        this.channel[0] = this.joystick[1].normx;
-        this.channel[1] = this.joystick[1].normy;
+        this.channel[0] = this.inputs[1].normx;
+        this.channel[1] = this.inputs[1].normy;
         break;  
     }
   }
 
   initPos(){
-    for (let i = 0;i<this.joystick.length;i++){
-      if (!this.joystick[i].hold){
-        this.joystick[i].x = this.joystick[i].posx;
-        this.joystick[i].y = this.joystick[i].posy;
+    for (let i = 0;i<this.inputs.length;i++){
+      if (!this.inputs[i].hold){
+        this.inputs[i].x = this.inputs[i].posx;
+        this.inputs[i].y = this.inputs[i].posy;
       }
     }
   }
 
   calcPos(){
-    for (let i = 0;i<this.joystick.length;i++){
-      let r1 = this.joystick[i].r;
+    for (let i in this.inputs){
+      let r1 = this.inputs[i].r;
       let r2 = r1 * 1.2; // outer circle
       let r6 = r1 * 0.2; // knob
 
-      this.joystick[i].x = (this.joystick[i].minx == this.joystick[i].maxx)?this.joystick[i].posx:this.map(this.joystick[i].normx,this.joystick[i].minx,this.joystick[i].maxx,this.joystick[i].posx-r2+r6,this.joystick[i].posx+r2-r6);
-      this.joystick[i].y = (this.joystick[i].miny == this.joystick[i].maxy)?this.joystick[i].posy:this.map(this.joystick[i].normy,this.joystick[i].maxy,this.joystick[i].miny,this.joystick[i].posy-r2+r6,this.joystick[i].posy+r2-r6);
+      this.inputs[i].x = (this.inputs[i].minx == this.inputs[i].maxx)?this.inputs[i].posx:this.map(this.inputs[i].normx,this.inputs[i].minx,this.inputs[i].maxx,this.inputs[i].posx-r2+r6,this.inputs[i].posx+r2-r6);
+      this.inputs[i].y = (this.inputs[i].miny == this.inputs[i].maxy)?this.inputs[i].posy:this.map(this.inputs[i].normy,this.inputs[i].maxy,this.inputs[i].miny,this.inputs[i].posy-r2+r6,this.inputs[i].posy+r2-r6);
+      
     }
   }
 
@@ -145,45 +142,45 @@ class Control {
     if (window.screen.orientation.type.includes("landscape")){
       
       // Joysticks
-      this.joystick[0].posx = (this.cnv.width / 6);
-      this.joystick[0].posy = this.cnv.height / 2;
-      this.joystick[0].visible = true;
+      this.inputs[0].posx = (this.cnv.width / 6);
+      this.inputs[0].posy = this.cnv.height / 2;
+      this.inputs[0].visible = true;
 
-      this.joystick[1].posx = (this.cnv.width - this.joystick[0].posx);
-      this.joystick[1].posy = this.joystick[0].posy;
-      this.joystick[1].visible = true;
+      this.inputs[1].posx = (this.cnv.width - this.inputs[0].posx);
+      this.inputs[1].posy = this.inputs[0].posy;
+      this.inputs[1].visible = true;
 
-      this.joystick[1].r = this.joystick[0].r = (this.cnv.height / 6); //inner ring
+      this.inputs[1].r = this.inputs[0].r = (this.cnv.height / 6); //inner ring
 
       // Switches
-      this.joystick[2].posx = (this.cnv.width / 3.4) + (this.cnv.width /3/4);
-      this.joystick[3].posx = (this.cnv.width / 3.4) + 2 * (this.cnv.width /3/4);
-      this.joystick[4].posx = (this.cnv.width / 3.4) + 3 * (this.cnv.width /3/4);
-      this.joystick[5].posx = (this.cnv.width / 3.4) + 4 * (this.cnv.width /3/4);
+      this.inputs[2].posx = (this.cnv.width / 3.4) + (this.cnv.width /3/4);
+      this.inputs[3].posx = (this.cnv.width / 3.4) + 2 * (this.cnv.width /3/4);
+      this.inputs[4].posx = (this.cnv.width / 3.4) + 3 * (this.cnv.width /3/4);
+      this.inputs[5].posx = (this.cnv.width / 3.4) + 4 * (this.cnv.width /3/4);
 
-      this.joystick[5].posy = this.joystick[4].posy = this.joystick[3].posy = this.joystick[2].posy = (this.cnv.height / 5);
-      this.joystick[5].visible = this.joystick[4].visible = this.joystick[3].visible = this.joystick[2].visible = true;
-      this.joystick[5].r = this.joystick[4].r = this.joystick[3].r = this.joystick[2].r = (this.cnv.height / 30)
+      this.inputs[5].posy = this.inputs[4].posy = this.inputs[3].posy = this.inputs[2].posy = (this.cnv.height / 4);
+      this.inputs[5].visible = this.inputs[4].visible = this.inputs[3].visible = this.inputs[2].visible = true;
+      this.inputs[5].r = this.inputs[4].r = this.inputs[3].r = this.inputs[2].r = (this.cnv.height / 30)
 
     }else{
       // Joysticks
-      this.joystick[0].posx = (this.cnv.width / 2);
-      this.joystick[0].posy = 2 * (this.cnv.height / 3);
-      this.joystick[0].visible = true;
+      this.inputs[0].posx = (this.cnv.width / 2);
+      this.inputs[0].posy = 2 * (this.cnv.height / 3);
+      this.inputs[0].visible = true;
 
-      this.joystick[1].visible = false;
+      this.inputs[1].visible = false;
       this.mixer = mixerIn.value = "mix2";
-      this.joystick[1].r = this.joystick[0].r = (this.cnv.height / 8); //inner ring
+      this.inputs[1].r = this.inputs[0].r = (this.cnv.height / 8); //inner ring
     
       // Switches
-      this.joystick[2].posx = (this.cnv.width / 8);
-      this.joystick[3].posx = 3 * (this.cnv.width / 8);
-      this.joystick[4].posx = 5 * (this.cnv.width / 8);
-      this.joystick[5].posx = 7 * (this.cnv.width / 8);
+      this.inputs[2].posx = (this.cnv.width / 8);
+      this.inputs[3].posx = 3 * (this.cnv.width / 8);
+      this.inputs[4].posx = 5 * (this.cnv.width / 8);
+      this.inputs[5].posx = 7 * (this.cnv.width / 8);
 
-      this.joystick[5].posy = this.joystick[4].posy = this.joystick[3].posy = this.joystick[2].posy = (this.cnv.height / 6);
-      this.joystick[5].visible = this.joystick[4].visible = this.joystick[3].visible = this.joystick[2].visible = true;
-      this.joystick[5].r = this.joystick[4].r = this.joystick[3].r = this.joystick[2].r = (this.cnv.height / 30)
+      this.inputs[5].posy = this.inputs[4].posy = this.inputs[3].posy = this.inputs[2].posy = (this.cnv.height / 6);
+      this.inputs[5].visible = this.inputs[4].visible = this.inputs[3].visible = this.inputs[2].visible = true;
+      this.inputs[5].r = this.inputs[4].r = this.inputs[3].r = this.inputs[2].r = (this.cnv.height / 30)
 
     }
 
@@ -213,6 +210,11 @@ class Control {
     this.telemetry = message;
   }
 
+  toggleMode(){
+    this.mode = (this.mode =="edit")?"control":"edit";
+    this.display();
+  }
+
   display(){
     // Case
     let gradient = this.ctx.createLinearGradient(0, this.cnv.height, this.cnv.width, this.cnv.height);
@@ -223,8 +225,8 @@ class Control {
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
 
-    for(let i in this.joystick){
-      if (this.joystick[i].visible) this.displayJoystick(this.joystick[i]);
+    for(let i in this.inputs){
+      if (this.inputs[i].visible) this.displayJoystick(this.inputs[i]);
     }
 
     this.updateScreen();
@@ -246,19 +248,19 @@ class Control {
      this.ctx.textAlign = "left";
      this.ctx.fillText("Steer", this.screenx2 + fontsize, this.screeny2 + fontsize);
      this.ctx.fillText("Speed", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
-     this.ctx.fillText(this.joystick[2].name , this.screenx2 + fontsize, this.screeny2 + fontsize*3);
-     this.ctx.fillText(this.joystick[3].name , this.screenx2 + fontsize, this.screeny2 + fontsize*4);
-     this.ctx.fillText(this.joystick[4].name , this.screenx2 + fontsize, this.screeny2 + fontsize*5);
-     this.ctx.fillText(this.joystick[5].name , this.screenx2 + fontsize, this.screeny2 + fontsize*6);
+     this.ctx.fillText(this.inputs[2].name , this.screenx2 + fontsize, this.screeny2 + fontsize*3);
+     this.ctx.fillText(this.inputs[3].name , this.screenx2 + fontsize, this.screeny2 + fontsize*4);
+     this.ctx.fillText(this.inputs[4].name , this.screenx2 + fontsize, this.screeny2 + fontsize*5);
+     this.ctx.fillText(this.inputs[5].name , this.screenx2 + fontsize, this.screeny2 + fontsize*6);
      
      
      this.ctx.textAlign = "right";
      this.ctx.fillText(this.channel[0], this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
      this.ctx.fillText(this.channel[1], this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
-     this.ctx.fillText(this.joystick[2].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*3);
-     this.ctx.fillText(this.joystick[3].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*4);
-     this.ctx.fillText(this.joystick[4].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*5);
-     this.ctx.fillText(this.joystick[5].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*6);
+     this.ctx.fillText(this.inputs[2].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*3);
+     this.ctx.fillText(this.inputs[3].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*4);
+     this.ctx.fillText(this.inputs[4].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*5);
+     this.ctx.fillText(this.inputs[5].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*6);
      
 
      this.ctx.textAlign = "right";
@@ -270,40 +272,46 @@ class Control {
     }
   }
 
-  displayJoystick(joystick){
-    let r1 = joystick.r;
+  displayJoystick(input){
+    let r1 = input.r;
     let r2 = r1 * 1.2; // outer circle
     let r3 = r1 * 0.5; // inner circle
     let r4 = r1 * 0.7; // outer square
     let r5 = r1 * 0.35; // inner square
     let r6 = r1 * 0.2; // knob
+    let r7 = r6 * 0.5; // knob basis
 
     // Initial position
-    let posx = joystick.posx;
-    let posy = joystick.posy;
+    let posx = input.posx;
+    let posy = input.posy;
     
     // Current position
-    let x = joystick.x;
-    let y = joystick.y;
+    let x = input.x;
+    let y = input.y;
 
-    // Inner Circle position 
-    let x2 = (joystick.minx == joystick.maxx)?posx:this.map(x,posx-r2+r6,posx+r2-r6,posx-r4/2+r6,posx+r4/2-r6)
-    let y2 = (joystick.miny == joystick.maxy)?posy:this.map(y,posy-r2+r6,posy+r2-r6,posy-r4/2+r6,posy+r4/2-r6)
     
-    // Knob position
-    //let x3 = (joystick.minx == joystick.maxx)?posx:this.clamp(x,posx-r2+r6,posx+r2-r6);
-    let x3 = (joystick.minx == joystick.maxx)?posx:this.map(joystick.normx,joystick.minx,joystick.maxx,posx-r2+r6,posx+r2-r6);
-    //let y3 = (joystick.miny == joystick.maxy)?posy:this.clamp(y,posy-r2+r6,posy+r2-r6); 
-    let y3 = (joystick.miny == joystick.maxy)?posy:this.map(joystick.normy,joystick.maxy,joystick.miny,posy-r2+r6,posy+r2-r6);
-    
-    if (joystick.name != ""){
-      let textx = (joystick.posx + joystick.r*1.4 * Math.cos(Math.PI/2*3));
-      let texty = (joystick.posy + joystick.r*1.4 * Math.sin(Math.PI/2*3));
-      let fontsize = this.cnv.width / 100;
+    if (input.name != ""){
+      let textx = (input.posx + input.r*1.4 * Math.cos(Math.PI/2*3));
+      let texty = (input.posy + input.r*1.4 * Math.sin(Math.PI/2*3));
+      let fontsize = 0;
+      if (window.screen.orientation.type.includes("landscape")){
+        fontsize = this.cnv.width / 100;
+      }else{
+        fontsize = this.cnv.height / 100;
+      }
       this.ctx.font = fontsize + "px MuseoSans_900-webfont";
       this.ctx.textAlign = "center";
       this.ctx.fillStyle = "#000";
-      this.ctx.fillText(joystick.name, textx, texty);
+      this.ctx.fillText(input.name, textx, texty);
+    }
+
+    if (this.mode == "edit"){
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "red";
+      this.ctx.lineWidth = 2;
+      this.ctx.arc(posx, posy, r1*2, 0, 2 * Math.PI, false);
+      this.ctx.closePath();
+      this.ctx.fill();
     }
 
     // Outer ring - doesn't move
@@ -317,54 +325,139 @@ class Control {
     this.ctx.closePath();
     this.ctx.fill();
 
-    // Outer circle - doesn't move
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "black";
-    this.ctx.arc(posx, posy, r1, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
+    // Knob position
+    let x3 = (input.minx == input.maxx)?posx:this.map(input.normx,input.minx,input.maxx,posx-r2+r6,posx+r2-r6);
+    let y3 = (input.miny == input.maxy)?posy:this.map(input.normy,input.maxy,input.miny,posy-r2+r6,posy+r2-r6);
 
-    // Outer square - doesn't move
-    gradient = this.ctx.createLinearGradient(posx,posy-r4,posx,posy + r4);
-    gradient.addColorStop(0, 'black');
-    gradient.addColorStop(0.45, 'grey');
-    gradient.addColorStop(0.55, 'grey');
-    gradient.addColorStop(1, 'black');
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(posx-r4,posy-r4,r4*2,r4*2);
+  
+    if (input.type == "joystick"){
 
-    // Inner circle - can move vertically
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "black";
-    this.ctx.arc(posx,y2,r3, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
+      // Knob basis position 
+      let x2 = (input.minx == input.maxx)?posx:this.map(x,posx-r2+r6,posx+r2-r6,posx-r3+r6,posx+r3-r6);
+      let y2 = (input.miny == input.maxy)?posy:this.map(y,posy-r2+r6,posy+r2-r6,posy-r3+r6/2,posy+r3-r6/2);        
+      
+      // Outer circle - doesn't move
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "black";
+      this.ctx.arc(posx, posy, r1, 0, 2 * Math.PI, false);
+      this.ctx.closePath();
+      this.ctx.fill();
 
-    // Inner square - can move vertically
-    gradient = this.ctx.createLinearGradient(posx-r5,posy, posx + r5, posy);
-    gradient.addColorStop(0, 'black');
-    gradient.addColorStop(0.45, 'grey');
-    gradient.addColorStop(0.55, 'grey');
-    gradient.addColorStop(1, 'black');
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(posx-r5,
-                      y2-r5,
-                      r5*2,
-                      r5*2);
+      // Outer square - doesn't move
+      gradient = this.ctx.createLinearGradient(posx,posy-r4,posx,posy + r4);
+      gradient.addColorStop(0, 'black');
+      gradient.addColorStop(0.45, 'grey');
+      gradient.addColorStop(0.55, 'grey');
+      gradient.addColorStop(1, 'black');
+      this.ctx.fillStyle = gradient;
+      this.ctx.fillRect(posx-r4,posy-r4,r4*2,r4*2);
 
-    // Center circle - can move both ways
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "black";
-    this.ctx.arc(x2,y2,r6, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
+      // Inner circle - can move vertically
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "black";
+      this.ctx.arc(posx,y2,r3, 0, 2 * Math.PI, false);
+      this.ctx.closePath();
+      this.ctx.fill();
 
-    // Knob - can move both ways
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "red";
-    this.ctx.arc(x3,y3,r6, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
+      // Inner square - can move vertically
+      gradient = this.ctx.createLinearGradient(posx-r5,posy, posx + r5, posy);
+      gradient.addColorStop(0, 'black');
+      gradient.addColorStop(0.45, 'grey');
+      gradient.addColorStop(0.55, 'grey');
+      gradient.addColorStop(1, 'black');
+      this.ctx.fillStyle = gradient;
+      this.ctx.fillRect(posx-r5,
+                        y2-r5,
+                        r5*2,
+                        r5*2);
+
+      // Knob basis - can move both ways
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "black";
+      this.ctx.arc(x2,y2,r7, 0, 2 * Math.PI, false);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Pole
+      this.ctx.beginPath();
+      this.ctx.moveTo(x2-r7,y2);
+      this.ctx.lineTo(x3-r6,y3);
+      this.ctx.lineTo(x3+r6,y3);
+      this.ctx.lineTo(x2+r7,y2);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(x2,y2-r7);
+      this.ctx.lineTo(x3,y3-r6);
+      this.ctx.lineTo(x3,y3+r6);
+      this.ctx.lineTo(x2,y2+r7);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+
+      // Knob end - can move both ways
+      this.ctx.beginPath();
+      this.ctx.fillStyle = "red";
+      this.ctx.arc(x3,y3,r6, 0, 2 * Math.PI, false);
+      this.ctx.closePath();
+      this.ctx.fill();
+    }else{
+      if (input.type == "switch"){
+
+        // Knob basis position 
+        let x2 = (input.minx == input.maxx)?posx:this.map(x,posx-r2+r6,posx+r2-r6,posx-r6,posx+r6);
+        let y2 = (input.miny == input.maxy)?posy:this.map(y,posy-r2+r6,posy+r2-r6,posy-r6/2,posy+-r6/2);        
+      
+
+        let gradient1 = this.ctx.createLinearGradient(posx - r2, posy + r2, posx + r2, posy - r2);
+        gradient1.addColorStop(0, 'black');
+        gradient1.addColorStop(1, 'white');
+        
+        // Outer circle - doesn't move
+        this.ctx.beginPath();
+        this.ctx.fillStyle = gradient1;
+        this.ctx.arc(posx, posy, r4, 0, 2 * Math.PI, false);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        // inner circle - doesn't move
+        this.ctx.beginPath();
+        this.ctx.fillStyle = "black";
+        this.ctx.arc(posx, posy, r5, 0, 2 * Math.PI, false);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        // Knob basis- can move both ways
+        this.ctx.fillStyle = "darkgrey";
+        this.ctx.fillRect(posx-r6,posy-r6/2,r6*2,r6);
+        
+        // Pole
+        this.ctx.beginPath();
+        this.ctx.moveTo(x2-r6,y2-r6/2);
+        this.ctx.lineTo(x3-r6*4,y3-r6);
+        this.ctx.lineTo(x3+r6*4,y3-r6);
+        this.ctx.lineTo(x2+r6,y2-r6/2);
+        this.ctx.closePath();
+        this.ctx.fill(); 
+        this.ctx.stroke(); 
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(x2-r6,y2+r6/2);
+        this.ctx.lineTo(x3-r6*4,y3+r6);
+        this.ctx.lineTo(x3+r6*4,y3+r6);
+        this.ctx.lineTo(x2+r6,y2+r6/2);
+        this.ctx.closePath();
+        this.ctx.fill(); 
+        this.ctx.stroke();
+
+        // Knob end - can move both ways
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(x3-r6*4,y3-r6,r6*8,r6*2);
+        
+
+      }
+    }
   }
 
   clamp(val, min, max) {
