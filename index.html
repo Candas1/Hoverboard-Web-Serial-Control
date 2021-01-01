@@ -65,19 +65,20 @@
             </select>
           </div>
           <div class="two columns" id="senddiv">
-            <label for="sendin">Send</label>
+            <label for="sendin">Protocol</label>
             <select class="u-full-width" id="sendin" onchange="toggleMode()">
               <option value="off" selected>Off  </option>
               <option value="usart"       >Usart</option>
+              <option value="hovercar"    >Hovercar</option>
               <option value="ibus"        >Ibus </option>
             </select>  
           </div>
           <div class="two columns" id="ctrlindiv">
             <label for="mixer">Mixer</label>
             <select class="u-full-width" id="mixer" onchange="toggleMixer()">
-              <option id="optmix1" value="mix1" selected>1:↔ 2:↕</option>
-              <option id="optmix2" value="mix2">1:➕ 2:❌</option>
-              <option id="optmix3" value="mix3">1:❌ 2:➕</option>
+              <option id="optmix1" value="mix1" selected>↔ ↕</option>
+              <option id="optmix2" value="mix2">➕ ❌</option>
+              <option id="optmix3" value="mix3">❌ ➕</option>
             </select>
           </div>
         </div>

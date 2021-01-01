@@ -40,11 +40,11 @@ var buttondiv  = document.getElementById('buttondiv');
 var view = 'log';
 var lastClick = 0;
 
+serial = new Serial(10000);
 log = new Log(loggerdiv);
 graph = new Graph();
 control = new Control(controlcnv);
 speedo = new Speedo(speedocnv);
-serial = new Serial(10000);
 
 window.addEventListener("load", function(event) {
   
@@ -252,6 +252,7 @@ function toggleAPI(){
 function toggleMode(){
   serial.binaryReceive = (recin.value == "binary");
   serial.protocol = sendin.value;
+  control.mixer(); // Force value calculation
   switchView(view);
  }
 
@@ -260,7 +261,8 @@ function toggleStats(){
 }
 
 function toggleMixer(){
-  control.mixer = mixerIn.value;
+  control.mix = mixerIn.value;
+  control.mixer(); // Force value calculation
 }
 
 function toggleSubplot(){

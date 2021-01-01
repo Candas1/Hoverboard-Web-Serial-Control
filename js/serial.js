@@ -47,11 +47,22 @@ class Serial {
     this.readBuffer = new ArrayBuffer(this.messageSize);
     this.readdv = new DataView(this.readBuffer);
 
-    // UART incoming binary messages
+    // UART outgoing binary messages
     this.usartCommand = new Struct(
       { frame:["uint16",this.serial_start_frame],
         steer:"int16",
         speed:"int16",
+        checksum:"uint16",
+      },0,true);
+
+    // UART sideboard outgoing binary messages
+    this.sideboardCommand = new Struct(
+      { frame:["uint16",this.serial_start_frame],
+        pitch:["int16",0],
+        dpitch:["int16",0],
+        steer:"int16",
+        speed:"int16",
+        sensors:"uint16",
         checksum:"uint16",
       },0,true);
 
@@ -349,17 +360,26 @@ class Serial {
   }
 
   sendBinary() {
+    let bytes = 0;
     switch (serial.protocol){
       case "usart":
-        let bytesUsart = new Uint8Array(
+        bytes = new Uint8Array(
             this.usartCommand.write(
               { 
                 steer:control.channel[0],
                 speed:control.channel[1],
                 checksum:this.serial_start_frame ^ control.channel[0] ^ control.channel[1],
-              })
-        );
-        this.send(bytesUsart);
+              }));
+        break;
+      case "hovercar":
+        bytes = new Uint8Array(
+            this.sideboardCommand.write(
+            { 
+              steer:control.channel[0],
+              speed:control.channel[1],
+              sensors:control.sensors,
+              checksum:this.serial_start_frame ^ control.channel[0] ^ control.channel[1] ^ control.sensors,
+            }));
         break;
       case "ibus":
         var ab = new ArrayBuffer(this.ibus_length);
@@ -370,7 +390,7 @@ class Serial {
         dv.setUint8(1,this.ibus_command);
         // Write channel values
         for (let i=0; i< this.ibus_channels * 2;i+=2){
-          dv.setUint16(i+2, control.map(control.channel[i/2] ,-1000,1000,1000,2000) ,true);
+          dv.setUint16(i+2, control.channel[i/2],true);
         }
 
         // Calculate checksum
@@ -380,10 +400,12 @@ class Serial {
         }
         dv.setUint16(this.ibus_length-2,checksum,true);
         
-        let bytesIbus = new Uint8Array(ab);
-        this.send(bytesIbus);
+        bytes = new Uint8Array(ab);
         break;
     }
+
+    this.send(bytes);
+
   };
 
   sendAscii(text) {

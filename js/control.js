@@ -1,18 +1,20 @@
 class Control {
   constructor(cnv) {
     this.cnv = cnv;
-    this.mode = "control";
+    this.mode = "CTRL";
     this.ctx = cnv.getContext('2d');
-    
     this.channel = new Array(14).fill(0);
-    this.inputs = [{name:"JOY1",type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,vibrate:false,visible:true},
-                   {name:"JOY2",type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,miny:-1000,maxy:1000,hold:false,vibrate:false,visible:true},
-                   {name:"SWA" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:2   ,hold:true ,vibrate:true ,visible:true},
-                   {name:"SWB" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:3   ,hold:true ,vibrate:true ,visible:true},
-                   {name:"SWC" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:3   ,hold:true ,vibrate:true ,visible:true},
-                   {name:"SWD" ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,miny:1    ,maxy:2   ,hold:true ,vibrate:true ,visible:true}];
+
+    this.inputs = {};
+    this.inputs["JOY1"]  = {name:"JOY1"     ,type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,stepx:1000,miny:-1000,maxy:1000,stepy:1000,hold:false,vibrate:false,visible:true,dispName:true,dispVal:false};
+    this.inputs["JOY2"]  = {name:"JOY2"     ,type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,stepx:1000,miny:-1000,maxy:1000,stepy:1000,hold:false,vibrate:false,visible:true,dispName:true,dispVal:false};
+    this.inputs["SWA"]   = {name:"SWA"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["SWB"]   = {name:"SWB"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["SWC"]   = {name:"SWC"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["SWD"]   = {name:"SWD"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    
     this.telemetry = {};
-    this.mixer = "mix1";
+    this.mix = "mix1";
     this.hold  = false;    
     this.initCanvas();
 
@@ -51,81 +53,137 @@ class Control {
         break;
     }
 
-    for (let i in this.inputs){
-      if (!this.inputs[i].visible) continue;
-      for (let j= 0; j < coordinates.length;j++){
-        let [x,y] = coordinates[j];
-        let distance = this.calcDistance(x,y,this.inputs[i].posx,this.inputs[i].posy);
-        if ( distance < this.inputs[i].r*2){
-          //(event.type == "touchstart" ? 1 : 2)
-          if (this.mode =="control"){
-            this.inputs[i].x = x;
-            this.inputs[i].y = y;
+    
+    for (let j= 0; j < coordinates.length;j++){
+      let [x,y] = coordinates[j];
+      let found = false;
+      for (let key in this.inputs){
+        if (found || !this.inputs[key].visible) continue;
+        let distance = this.calcDistance(x,y,this.inputs[key].posx,this.inputs[key].posy);
+        if ( distance < this.inputs[key].r*2){
+          found = true;
+          if (this.mode == "CTRL"){
+            this.inputs[key].x = x;
+            this.inputs[key].y = y;
           }else{
             // If in edit mode, move the joystick
-            this.inputs[i].posx = Math.round(x/20)*20;
-            this.inputs[i].posy = Math.round(y/20)*20;
+            this.inputs[key].posx = Math.round(x/20)*20;
+            this.inputs[key].posy = Math.round(y/20)*20;
           }
         }
       }
+    }
 
-      if (this.mode == "control"){
+    if (this.mode == "CTRL"){
+      for (let key in this.inputs){
         // Calculate normalized value
-        this.inputs[i].normx = Math.round(this.map(this.inputs[i].x,this.inputs[i].posx-this.inputs[i].r,this.inputs[i].posx+this.inputs[i].r,this.inputs[i].minx,this.inputs[i].maxx));
-        this.inputs[i].normy = Math.round(this.map(this.inputs[i].y,this.inputs[i].posy+this.inputs[i].r,this.inputs[i].posy-this.inputs[i].r,this.inputs[i].miny,this.inputs[i].maxy));
-      
+        this.inputs[key].normx = Math.round(this.map(this.inputs[key].x,this.inputs[key].posx-this.inputs[key].r,this.inputs[key].posx+this.inputs[key].r,this.inputs[key].minx,this.inputs[key].maxx));
+        this.inputs[key].normy = Math.round(this.map(this.inputs[key].y,this.inputs[key].posy+this.inputs[key].r,this.inputs[key].posy-this.inputs[key].r,this.inputs[key].miny,this.inputs[key].maxy));
+
         // If value changed, vibrate (switches)
-        if (this.inputs[i].vibrate){
-          if ((this.inputs[i].prevx != this.inputs[i].normx) ||
-            (this.inputs[i].prevy != this.inputs[i].normy)){
+        if (this.inputs[key].vibrate){
+          if ((this.inputs[key].prevx != this.inputs[key].normx) ||
+              (this.inputs[key].prevy != this.inputs[key].normy)){
               navigator.vibrate([100]);     
           }
         }
 
-        this.inputs[i].prevx = this.inputs[i].normx;
-        this.inputs[i].prevy = this.inputs[i].normy;
+        this.inputs[key].prevx = this.inputs[key].normx;
+        this.inputs[key].prevy = this.inputs[key].normy;
       }
     }
 
-    if (this.mode == "control") this.Mixer();
+    this.mixer();
     this.display();
   }
 
-  Mixer(){
-    switch(this.mixer){
-      case "mix1":
-        this.channel[0] = this.inputs[0].normx;
-        this.channel[1] = this.inputs[1].normy;
-        break;
-      case "mix2":
-        this.channel[0] = this.inputs[0].normx;
-        this.channel[1] = this.inputs[0].normy;
-        break;
-      case "mix3":
-        this.channel[0] = this.inputs[1].normx;
-        this.channel[1] = this.inputs[1].normy;
-        break;  
+  mixer(){
+
+    // Initialize values
+    for(let i=0;i<this.channel.length;i++){
+      this.channel[i] = (serial.protocol == "ibus")?1000:0;    
+    }
+
+    this.channel[0] = this.getExtValue(this.getSteer(),"x");
+    this.channel[1] = this.getExtValue(this.getSpeed(),"y");
+
+    this.channel[2] = this.getExtValue(this.inputs.SWA,"y");
+    this.channel[3] = this.getExtValue(this.inputs.SWB,"y");
+    this.channel[4] = this.getExtValue(this.inputs.SWC,"y");
+    this.channel[5] = this.getExtValue(this.inputs.SWD,"y");
+    
+    if (serial.protocol == "hovercar"){
+      this.sensors = ((this.channel[2] - 1) |
+                      (this.channel[3] - 1) << 1 |
+                      (this.channel[4] - 1) << 3 |
+                      (this.channel[5] - 1) << 5) << 8;
+    } 
+  }
+
+  getSteer(){
+    // Returns input object for steer depending on mixer setting
+    return this.mix == "mix3"?this.inputs.JOY2:this.inputs.JOY1;
+  }
+  getSpeed(){
+    // Returns input object for speed depending on mixer setting
+    return this.mix == "mix2"?this.inputs.JOY1:this.inputs.JOY2;
+  }
+
+  getValue(input,axis){
+    // return input value for specific axis
+    let value, min, max = 0;
+    if (axis == "x"){
+      [value,min,max] = [input.normx,input.minx,input.maxx];
+    }else{
+      [value,min,max] = [input.normy,input.miny,input.maxy];  
+    }
+    
+    return value;
+  }
+
+  getExtValue(input,axis){
+    // return input value for specific axis, and translates to ibus value domain
+    let value, min, max = 0;
+    if (axis == "x"){
+      [value,min,max] = [input.normx,input.minx,input.maxx];
+    }else{
+      [value,min,max] = [input.normy,input.miny,input.maxy];  
+    }
+    
+    return (serial.protocol == "ibus")?this.map(value,min,max,1000,2000):value;
+  }
+
+  getValText(input,axis){
+    return this.valToText(input,this.getValue(input,axis));
+  }
+
+  valToText(input,val){ 
+    // Translate value to corresponding text if available
+    if (input.values === undefined || input.values[val] === undefined){
+      return val;
+    }else{
+      return input.values[val];
     }
   }
 
   initPos(){
-    for (let i = 0;i<this.inputs.length;i++){
-      if (!this.inputs[i].hold){
-        this.inputs[i].x = this.inputs[i].posx;
-        this.inputs[i].y = this.inputs[i].posy;
+    for (let key in this.inputs){
+      if (!this.inputs[key].hold){
+        this.inputs[key].x = this.inputs[key].posx;
+        this.inputs[key].y = this.inputs[key].posy;
       }
     }
   }
 
-  calcPos(){
-    for (let i in this.inputs){
-      let r1 = this.inputs[i].r;
+  setPos(){
+    // Set input position depending on the value
+    for (let key in this.inputs){
+      let r1 = this.inputs[key].r;
       let r2 = r1 * 1.2; // outer circle
       let r6 = r1 * 0.2; // knob
 
-      this.inputs[i].x = (this.inputs[i].minx == this.inputs[i].maxx)?this.inputs[i].posx:this.map(this.inputs[i].normx,this.inputs[i].minx,this.inputs[i].maxx,this.inputs[i].posx-r2+r6,this.inputs[i].posx+r2-r6);
-      this.inputs[i].y = (this.inputs[i].miny == this.inputs[i].maxy)?this.inputs[i].posy:this.map(this.inputs[i].normy,this.inputs[i].maxy,this.inputs[i].miny,this.inputs[i].posy-r2+r6,this.inputs[i].posy+r2-r6);
-      
+      this.inputs[key].x = (this.inputs[key].minx == this.inputs[key].maxx)?this.inputs[key].posx:this.map(this.inputs[key].normx,this.inputs[key].minx,this.inputs[key].maxx,this.inputs[key].posx-r2+r6,this.inputs[key].posx+r2-r6);
+      this.inputs[key].y = (this.inputs[key].miny == this.inputs[key].maxy)?this.inputs[key].posy:this.map(this.inputs[key].normy,this.inputs[key].maxy,this.inputs[key].miny,this.inputs[key].posy-r2+r6,this.inputs[key].posy+r2-r6); 
     }
   }
 
@@ -137,60 +195,59 @@ class Control {
   initCanvas(){
 
     this.cnv.width= this.cnv.parentElement.clientWidth;
-    this.cnv.height= this.cnv.parentElement.clientHeight; 
+    this.cnv.height= this.cnv.parentElement.clientHeight;
+    
+    let switchr = (this.cnv.height / 40);
 
     if (window.screen.orientation.type.includes("landscape")){
-      
       // Joysticks
-      this.inputs[0].posx = (this.cnv.width / 6);
-      this.inputs[0].posy = this.cnv.height / 2;
-      this.inputs[0].visible = true;
+      this.inputs.JOY1.posx = (this.cnv.width / 6);
+      this.inputs.JOY1.posy = this.cnv.height / 2;
+      this.inputs.JOY1.visible = true;
 
-      this.inputs[1].posx = (this.cnv.width - this.inputs[0].posx);
-      this.inputs[1].posy = this.inputs[0].posy;
-      this.inputs[1].visible = true;
+      this.inputs.JOY2.posx = (this.cnv.width - this.inputs.JOY1.posx);
+      this.inputs.JOY2.posy = this.inputs.JOY1.posy;
+      this.inputs.JOY2.visible = true;
 
-      this.inputs[1].r = this.inputs[0].r = (this.cnv.height / 6); //inner ring
+      this.inputs.JOY2.r = this.inputs.JOY1.r = (this.cnv.height / 6); //inner ring
 
       // Switches
-      this.inputs[2].posx = (this.cnv.width / 3.4) + (this.cnv.width /3/4);
-      this.inputs[3].posx = (this.cnv.width / 3.4) + 2 * (this.cnv.width /3/4);
-      this.inputs[4].posx = (this.cnv.width / 3.4) + 3 * (this.cnv.width /3/4);
-      this.inputs[5].posx = (this.cnv.width / 3.4) + 4 * (this.cnv.width /3/4);
+      this.inputs.SWA.posx = (this.cnv.width / 3.4) + (this.cnv.width /3/4);
+      this.inputs.SWB.posx = (this.cnv.width / 3.4) + 2 * (this.cnv.width /3/4);
+      this.inputs.SWC.posx = (this.cnv.width / 3.4) + 3 * (this.cnv.width /3/4);
+      this.inputs.SWD.posx = (this.cnv.width / 3.4) + 4 * (this.cnv.width /3/4);
 
-      this.inputs[5].posy = this.inputs[4].posy = this.inputs[3].posy = this.inputs[2].posy = (this.cnv.height / 4);
-      this.inputs[5].visible = this.inputs[4].visible = this.inputs[3].visible = this.inputs[2].visible = true;
-      this.inputs[5].r = this.inputs[4].r = this.inputs[3].r = this.inputs[2].r = (this.cnv.height / 30)
-
+      this.inputs.SWD.posy = this.inputs.SWC.posy = this.inputs.SWB.posy = this.inputs.SWA.posy = (this.cnv.height / 3);
+      this.inputs.SWD.visible = this.inputs.SWC.visible = this.inputs.SWB.visible = this.inputs.SWA.visible = true;
+      this.inputs.SWD.r = this.inputs.SWC.r = this.inputs.SWB.r = this.inputs.SWA.r = switchr;
     }else{
       // Joysticks
-      this.inputs[0].posx = (this.cnv.width / 2);
-      this.inputs[0].posy = 2 * (this.cnv.height / 3);
-      this.inputs[0].visible = true;
+      this.inputs.JOY1.posx = (this.cnv.width / 2);
+      this.inputs.JOY1.posy = 3 * (this.cnv.height / 4);
+      this.inputs.JOY1.visible = true;
 
-      this.inputs[1].visible = false;
+      this.inputs.JOY2.visible = false;
       this.mixer = mixerIn.value = "mix2";
-      this.inputs[1].r = this.inputs[0].r = (this.cnv.height / 8); //inner ring
+      this.inputs.JOY2.r = this.inputs.JOY1.r = (this.cnv.height / 10); //inner ring
     
       // Switches
-      this.inputs[2].posx = (this.cnv.width / 8);
-      this.inputs[3].posx = 3 * (this.cnv.width / 8);
-      this.inputs[4].posx = 5 * (this.cnv.width / 8);
-      this.inputs[5].posx = 7 * (this.cnv.width / 8);
+      this.inputs.SWA.posx = (this.cnv.width / 8);
+      this.inputs.SWB.posx = 3 * (this.cnv.width / 8);
+      this.inputs.SWC.posx = 5 * (this.cnv.width / 8);
+      this.inputs.SWD.posx = 7 * (this.cnv.width / 8);
 
-      this.inputs[5].posy = this.inputs[4].posy = this.inputs[3].posy = this.inputs[2].posy = (this.cnv.height / 6);
-      this.inputs[5].visible = this.inputs[4].visible = this.inputs[3].visible = this.inputs[2].visible = true;
-      this.inputs[5].r = this.inputs[4].r = this.inputs[3].r = this.inputs[2].r = (this.cnv.height / 30)
-
+      this.inputs.SWD.posy = this.inputs.SWC.posy = this.inputs.SWB.posy = this.inputs.SWA.posy = (this.cnv.height / 6);
+      this.inputs.SWD.visible = this.inputs.SWC.visible = this.inputs.SWB.visible = this.inputs.SWA.visible = true;
+      this.inputs.SWD.r = this.inputs.SWC.r = this.inputs.SWB.r = this.inputs.SWA.r = switchr;
     }
-
+    
     //Screen
     if (window.screen.orientation.type.includes("landscape")){
       this.screeny1 = this.cnv.height / 1.75;
       this.screenWidth1 = this.cnv.width / 3;
       this.screenHeight1 = this.cnv.height / 3;
     }else{
-      this.screeny1 = this.cnv.height / 4;
+      this.screeny1 = this.cnv.height / 3;
       this.screenWidth1 = this.cnv.width / 1.2;
       this.screenHeight1 = this.cnv.height / 5;
     }
@@ -202,17 +259,12 @@ class Control {
     this.screenx2 = this.screenx1 + (this.screenWidth1 - this.screenWidth2) /2;
     this.screeny2 = this.screeny1 + (this.screenHeight1 - this.screenHeight2) /2;    
     
-    this.calcPos();
+    this.setPos();
     this.display();
   }
 
   updateTelemetry(message){
     this.telemetry = message;
-  }
-
-  toggleMode(){
-    this.mode = (this.mode =="edit")?"control":"edit";
-    this.display();
   }
 
   display(){
@@ -225,10 +277,22 @@ class Control {
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
 
-    for(let i in this.inputs){
-      if (this.inputs[i].visible) this.displayJoystick(this.inputs[i]);
+    // Assign input texts depending on selected protocol
+    this.inputs.SWA.name   = serial.protocol == "hovercar"?"Switch":"SWA"; 
+    this.inputs.SWA.values = serial.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
+    this.inputs.SWB.name   = serial.protocol == "hovercar"?"Type":"SWB"; 
+    this.inputs.SWB.values = serial.protocol == "hovercar"?{1:"FOC",2:"SIN",3:"COM"}:{};
+    this.inputs.SWC.name   = serial.protocol == "hovercar"?"Mode":"SWC"; 
+    this.inputs.SWC.values = serial.protocol == "hovercar"?{1:"VLT",2:"SPD",3:"TRQ"}:{};
+    this.inputs.SWD.name   = serial.protocol == "hovercar"?"FW":"SWD";
+    this.inputs.SWD.values = serial.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
+
+    // Display inputs
+    for(let key in this.inputs){
+      if (this.inputs[key].visible) this.displayJoystick(this.inputs[key]);
     }
 
+    // Display Screen
     this.updateScreen();
   }
 
@@ -248,20 +312,19 @@ class Control {
      this.ctx.textAlign = "left";
      this.ctx.fillText("Steer", this.screenx2 + fontsize, this.screeny2 + fontsize);
      this.ctx.fillText("Speed", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
-     this.ctx.fillText(this.inputs[2].name , this.screenx2 + fontsize, this.screeny2 + fontsize*3);
-     this.ctx.fillText(this.inputs[3].name , this.screenx2 + fontsize, this.screeny2 + fontsize*4);
-     this.ctx.fillText(this.inputs[4].name , this.screenx2 + fontsize, this.screeny2 + fontsize*5);
-     this.ctx.fillText(this.inputs[5].name , this.screenx2 + fontsize, this.screeny2 + fontsize*6);
+     this.ctx.fillText(this.inputs.SWA.name , this.screenx2 + fontsize, this.screeny2 + fontsize*3);
+     this.ctx.fillText(this.inputs.SWB.name , this.screenx2 + fontsize, this.screeny2 + fontsize*4);
+     this.ctx.fillText(this.inputs.SWC.name , this.screenx2 + fontsize, this.screeny2 + fontsize*5);
+     this.ctx.fillText(this.inputs.SWD.name , this.screenx2 + fontsize, this.screeny2 + fontsize*6);
      
-     
+     // Values
      this.ctx.textAlign = "right";
-     this.ctx.fillText(this.channel[0], this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
-     this.ctx.fillText(this.channel[1], this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
-     this.ctx.fillText(this.inputs[2].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*3);
-     this.ctx.fillText(this.inputs[3].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*4);
-     this.ctx.fillText(this.inputs[4].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*5);
-     this.ctx.fillText(this.inputs[5].normy , this.screenx2 + fontsize*7, this.screeny2 + fontsize*6);
-     
+     this.ctx.fillText(this.getSteer().normx, this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
+     this.ctx.fillText(this.getSpeed().normy, this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
+     this.ctx.fillText(this.getValText(this.inputs.SWA,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*3);
+     this.ctx.fillText(this.getValText(this.inputs.SWB,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*4);
+     this.ctx.fillText(this.getValText(this.inputs.SWC,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*5);
+     this.ctx.fillText(this.getValText(this.inputs.SWD,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*6);
 
      this.ctx.textAlign = "right";
      if (this.telemetry["batV"] != undefined){
@@ -280,6 +343,7 @@ class Control {
     let r5 = r1 * 0.35; // inner square
     let r6 = r1 * 0.2; // knob
     let r7 = r6 * 0.5; // knob basis
+    let r8 = r1 * 1.7; // text
 
     // Initial position
     let posx = input.posx;
@@ -288,24 +352,22 @@ class Control {
     // Current position
     let x = input.x;
     let y = input.y;
-
     
-    if (input.name != ""){
-      let textx = (input.posx + input.r*1.4 * Math.cos(Math.PI/2*3));
-      let texty = (input.posy + input.r*1.4 * Math.sin(Math.PI/2*3));
-      let fontsize = 0;
-      if (window.screen.orientation.type.includes("landscape")){
-        fontsize = this.cnv.width / 100;
-      }else{
-        fontsize = this.cnv.height / 100;
-      }
+    let fontsize = 0;
+    if (window.screen.orientation.type.includes("landscape")){
+      fontsize = this.cnv.width / 100;
+    }else{
+      fontsize = this.cnv.height / 100;
+    }
+
+    if (input.dispName){
       this.ctx.font = fontsize + "px MuseoSans_900-webfont";
       this.ctx.textAlign = "center";
       this.ctx.fillStyle = "#000";
-      this.ctx.fillText(input.name, textx, texty);
+      this.ctx.fillText(input.name, input.posx, input.posy - r8);
     }
 
-    if (this.mode == "edit"){
+    if (this.mode == "EDIT"){
       this.ctx.beginPath();
       this.ctx.fillStyle = "red";
       this.ctx.lineWidth = 2;
@@ -314,35 +376,63 @@ class Control {
       this.ctx.fill();
     }
 
-    // Outer ring - doesn't move
     let gradient = this.ctx.createLinearGradient(posx - r2, posy + r2, posx + r2, posy - r2);
     gradient.addColorStop(0, 'white');
     gradient.addColorStop(1, 'black');
-    
-    this.ctx.beginPath();
-    this.ctx.fillStyle = gradient;
-    this.ctx.arc(posx, posy, r2, 0, 2 * Math.PI, false);
-    this.ctx.closePath();
-    this.ctx.fill();
+
+    let gradient1 = this.ctx.createLinearGradient(posx - r2, posy + r2, posx + r2, posy - r2);
+    gradient1.addColorStop(0, 'black');
+    gradient1.addColorStop(1, 'white');
+
+    if (input.dispVal){
+      if (input.minx != input.maxx){
+        for(let i = input.minx;i <= input.maxx; i+=input.stepx){
+          let textx = (input.minx == input.maxx)?posx:this.map(i,input.maxx,input.minx,posx-r2+r6,posx+r2-r6);
+          let texty = posy + r8;
+          this.ctx.font = fontsize + "px MuseoSans_900-webfont";
+          this.ctx.textAlign = "left";
+          this.ctx.fillStyle = "#000";
+          this.ctx.fillText(this.valToText(input,i), textx, texty);
+        }
+      }
+
+      if (input.miny != input.maxy){
+        for(let i = input.miny;i <= input.maxy; i+=input.stepy){
+          let textx = posx + r8;
+          let texty = (input.miny == input.maxy)?posy:this.map(i,input.maxy,input.miny,posy-r2+r6,posy+r2-r6);
+          this.ctx.font = fontsize + "px MuseoSans_900-webfont";
+          this.ctx.textAlign = "left";
+          this.ctx.fillStyle = "#000";
+          this.ctx.fillText(this.valToText(input,i), textx, texty);
+        }
+      }
+    }
 
     // Knob position
     let x3 = (input.minx == input.maxx)?posx:this.map(input.normx,input.minx,input.maxx,posx-r2+r6,posx+r2-r6);
     let y3 = (input.miny == input.maxy)?posy:this.map(input.normy,input.maxy,input.miny,posy-r2+r6,posy+r2-r6);
 
-  
+    // Outer ring - doesn't move
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = gradient;
+    this.ctx.fillStyle = gradient;
+    this.ctx.arc(posx, posy, r2, 0, 2 * Math.PI, false);
+    this.ctx.closePath();
+    this.ctx.fill();
+
     if (input.type == "joystick"){
 
       // Knob basis position 
       let x2 = (input.minx == input.maxx)?posx:this.map(x,posx-r2+r6,posx+r2-r6,posx-r3+r6,posx+r3-r6);
       let y2 = (input.miny == input.maxy)?posy:this.map(y,posy-r2+r6,posy+r2-r6,posy-r3+r6/2,posy+r3-r6/2);        
-      
+    
       // Outer circle - doesn't move
       this.ctx.beginPath();
       this.ctx.fillStyle = "black";
       this.ctx.arc(posx, posy, r1, 0, 2 * Math.PI, false);
       this.ctx.closePath();
       this.ctx.fill();
-
+      
       // Outer square - doesn't move
       gradient = this.ctx.createLinearGradient(posx,posy-r4,posx,posy + r4);
       gradient.addColorStop(0, 'black');
@@ -358,7 +448,7 @@ class Control {
       this.ctx.arc(posx,y2,r3, 0, 2 * Math.PI, false);
       this.ctx.closePath();
       this.ctx.fill();
-
+      
       // Inner square - can move vertically
       gradient = this.ctx.createLinearGradient(posx-r5,posy, posx + r5, posy);
       gradient.addColorStop(0, 'black');
@@ -367,10 +457,10 @@ class Control {
       gradient.addColorStop(1, 'black');
       this.ctx.fillStyle = gradient;
       this.ctx.fillRect(posx-r5,
-                        y2-r5,
+                        y2-r5/2,
                         r5*2,
-                        r5*2);
-
+                        r5);
+    
       // Knob basis - can move both ways
       this.ctx.beginPath();
       this.ctx.fillStyle = "black";
@@ -408,12 +498,7 @@ class Control {
         // Knob basis position 
         let x2 = (input.minx == input.maxx)?posx:this.map(x,posx-r2+r6,posx+r2-r6,posx-r6,posx+r6);
         let y2 = (input.miny == input.maxy)?posy:this.map(y,posy-r2+r6,posy+r2-r6,posy-r6/2,posy+-r6/2);        
-      
 
-        let gradient1 = this.ctx.createLinearGradient(posx - r2, posy + r2, posx + r2, posy - r2);
-        gradient1.addColorStop(0, 'black');
-        gradient1.addColorStop(1, 'white');
-        
         // Outer circle - doesn't move
         this.ctx.beginPath();
         this.ctx.fillStyle = gradient1;
@@ -453,11 +538,10 @@ class Control {
 
         // Knob end - can move both ways
         this.ctx.fillStyle = "black";
-        this.ctx.fillRect(x3-r6*4,y3-r6,r6*8,r6*2);
-        
+        this.ctx.fillRect(x3-r6*4,y3-r6,r6*8,r6*2);       
 
       }
-    }
+    }    
   }
 
   clamp(val, min, max) {
@@ -467,5 +551,4 @@ class Control {
   map(x, in_min, in_max, out_min, out_max) {
     return this.clamp((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min, out_min,out_max);
   }
-  
 }
