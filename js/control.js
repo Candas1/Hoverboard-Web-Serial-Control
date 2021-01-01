@@ -231,7 +231,7 @@ class Control {
       this.inputs.JOY1.visible = true;
 
       this.inputs.JOY2.visible = false;
-      this.mixer = mixerIn.value = "mix2";
+      this.mix = mixerIn.value = "mix2";
       this.inputs.JOY2.r = this.inputs.JOY1.r = (this.cnv.height / 10); //inner ring
     
       // Switches
