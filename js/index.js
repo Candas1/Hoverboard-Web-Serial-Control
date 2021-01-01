@@ -253,7 +253,7 @@ function toggleAPI(){
 function toggleMode(){
   serial.binaryReceive = (recin.value == "binary");
   control.protocol = sendin.value;
-  control.mixer(); // Force value calculation
+  control.Mixer(); // Force value calculation
   switchView(view);
  }
 
@@ -263,7 +263,7 @@ function toggleStats(){
 
 function toggleMixer(){
   control.mix = mixerIn.value;
-  control.mixer(); // Force value calculation
+  control.Mixer(); // Force value calculation
 }
 
 function toggleSubplot(){

@@ -97,11 +97,11 @@ class Control {
       }
     }
 
-    this.mixer();
+    this.Mixer();
     this.display();
   }
 
-  mixer(){
+  Mixer(){
 
     // Initialize values
     for(let i=0;i<this.channel.length;i++){
