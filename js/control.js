@@ -15,6 +15,11 @@ class Control {
     this.inputs["SWC"]   = {name:"SWC"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
     this.inputs["SWD"]   = {name:"SWD"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
     
+    for (let key in this.inputs){
+      this.inputs[key].prevx = this.inputs[key].normx;
+      this.inputs[key].prevy = this.inputs[key].normy;
+    }
+
     this.telemetry = {};
     this.mix = "mix1";
     this.hold  = false;    
