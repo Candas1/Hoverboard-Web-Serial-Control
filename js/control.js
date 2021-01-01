@@ -4,6 +4,7 @@ class Control {
     this.mode = "CTRL";
     this.ctx = cnv.getContext('2d');
     this.channel = new Array(14).fill(0);
+    this.font = "Consolas";
 
     this.protocol = "off";
     this.inputs = {};
@@ -97,11 +98,11 @@ class Control {
       }
     }
 
-    this.Mixer();
+    this.mixer();
     this.display();
   }
 
-  Mixer(){
+  mixer(){
 
     // Initialize values
     for(let i=0;i<this.channel.length;i++){
@@ -116,11 +117,10 @@ class Control {
     this.channel[4] = this.getExtValue(this.inputs.SWC,"y");
     this.channel[5] = this.getExtValue(this.inputs.SWD,"y");
     
-    if (this.protocol == "hovercar"){
-      this.sensors = ((this.channel[2] - 1) |
-                      (this.channel[3] - 1) << 1 |
-                      (this.channel[4] - 1) << 3 |
-                      (this.channel[5] - 1) << 5) << 8;
+    this.sensors = ((this.channel[2] - 1) |
+                    (this.channel[3] - 1) << 1 |
+                    (this.channel[4] - 1) << 3 |
+                    (this.channel[5] - 1) << 5) << 8;
     } 
   }
 
@@ -311,7 +311,7 @@ class Control {
  
      // text
      let fontsize = Math.round(this.screenWidth2 / 20);
-     this.ctx.font =  fontsize +"px Consolas";
+     this.ctx.font =  fontsize+"px "+this.font;
      this.ctx.fillStyle = "blue";
      this.ctx.textAlign = "left";
      this.ctx.fillText("Steer", this.screenx2 + fontsize, this.screeny2 + fontsize);
@@ -365,7 +365,7 @@ class Control {
     }
 
     if (input.dispName){
-      this.ctx.font = fontsize + "px MuseoSans_900-webfont";
+      this.ctx.font = fontsize+"px "+this.font;
       this.ctx.textAlign = "center";
       this.ctx.fillStyle = "#000";
       this.ctx.fillText(input.name, input.posx, input.posy - r8);

@@ -4,7 +4,7 @@ var sendin = document.getElementById('sendin');
 var recin = document.getElementById('recin');
 var statsIn = document.getElementById('stats');
 var subplotIn = document.getElementById('subplot');
-var mixerIn = document.getElementById('mixer');
+var mixerIn = document.getElementById('mixin');
 var viewIn = document.getElementById('view');
 
 var send_btn = document.getElementById('send');
@@ -253,7 +253,7 @@ function toggleAPI(){
 function toggleMode(){
   serial.binaryReceive = (recin.value == "binary");
   control.protocol = sendin.value;
-  control.Mixer(); // Force value calculation
+  control.mixer(); // Force value calculation
   switchView(view);
  }
 
@@ -263,7 +263,7 @@ function toggleStats(){
 
 function toggleMixer(){
   control.mix = mixerIn.value;
-  control.Mixer(); // Force value calculation
+  control.mixer(); // Force value calculation
 }
 
 function toggleSubplot(){
