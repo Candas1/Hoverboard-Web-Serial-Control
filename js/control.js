@@ -5,6 +5,7 @@ class Control {
     this.ctx = cnv.getContext('2d');
     this.channel = new Array(14).fill(0);
 
+    this.protocol = "off";
     this.inputs = {};
     this.inputs["JOY1"]  = {name:"JOY1"     ,type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,stepx:1000,miny:-1000,maxy:1000,stepy:1000,hold:false,vibrate:false,visible:true,dispName:true,dispVal:false};
     this.inputs["JOY2"]  = {name:"JOY2"     ,type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,stepx:1000,miny:-1000,maxy:1000,stepy:1000,hold:false,vibrate:false,visible:true,dispName:true,dispVal:false};
@@ -18,8 +19,8 @@ class Control {
     this.hold  = false;    
     this.initCanvas();
 
-  ['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
-    this.cnv.addEventListener(evt, this.handleEvents.bind(this), false));
+    ['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
+       this.cnv.addEventListener(evt, this.handleEvents.bind(this), false));
 
   }
 
@@ -54,6 +55,7 @@ class Control {
     }
 
     
+    // Process events
     for (let j= 0; j < coordinates.length;j++){
       let [x,y] = coordinates[j];
       let found = false;
@@ -61,8 +63,10 @@ class Control {
         if (found || !this.inputs[key].visible) continue;
         let distance = this.calcDistance(x,y,this.inputs[key].posx,this.inputs[key].posy);
         if ( distance < this.inputs[key].r*2){
+          // Event was close enough
           found = true;
           if (this.mode == "CTRL"){
+            // Record click coordinate
             this.inputs[key].x = x;
             this.inputs[key].y = y;
           }else{
@@ -101,7 +105,7 @@ class Control {
 
     // Initialize values
     for(let i=0;i<this.channel.length;i++){
-      this.channel[i] = (serial.protocol == "ibus")?1000:0;    
+      this.channel[i] = (this.protocol == "ibus")?1000:0;    
     }
 
     this.channel[0] = this.getExtValue(this.getSteer(),"x");
@@ -112,7 +116,7 @@ class Control {
     this.channel[4] = this.getExtValue(this.inputs.SWC,"y");
     this.channel[5] = this.getExtValue(this.inputs.SWD,"y");
     
-    if (serial.protocol == "hovercar"){
+    if (this.protocol == "hovercar"){
       this.sensors = ((this.channel[2] - 1) |
                       (this.channel[3] - 1) << 1 |
                       (this.channel[4] - 1) << 3 |
@@ -150,7 +154,7 @@ class Control {
       [value,min,max] = [input.normy,input.miny,input.maxy];  
     }
     
-    return (serial.protocol == "ibus")?this.map(value,min,max,1000,2000):value;
+    return (this.protocol == "ibus")?this.map(value,min,max,1000,2000):value;
   }
 
   getValText(input,axis){
@@ -278,14 +282,14 @@ class Control {
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
 
     // Assign input texts depending on selected protocol
-    this.inputs.SWA.name   = serial.protocol == "hovercar"?"Switch":"SWA"; 
-    this.inputs.SWA.values = serial.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
-    this.inputs.SWB.name   = serial.protocol == "hovercar"?"Type":"SWB"; 
-    this.inputs.SWB.values = serial.protocol == "hovercar"?{1:"FOC",2:"SIN",3:"COM"}:{};
-    this.inputs.SWC.name   = serial.protocol == "hovercar"?"Mode":"SWC"; 
-    this.inputs.SWC.values = serial.protocol == "hovercar"?{1:"VLT",2:"SPD",3:"TRQ"}:{};
-    this.inputs.SWD.name   = serial.protocol == "hovercar"?"FW":"SWD";
-    this.inputs.SWD.values = serial.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
+    this.inputs.SWA.name   = this.protocol == "hovercar"?"Switch":"SWA"; 
+    this.inputs.SWA.values = this.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
+    this.inputs.SWB.name   = this.protocol == "hovercar"?"Type":"SWB"; 
+    this.inputs.SWB.values = this.protocol == "hovercar"?{1:"FOC",2:"SIN",3:"COM"}:{};
+    this.inputs.SWC.name   = this.protocol == "hovercar"?"Mode":"SWC"; 
+    this.inputs.SWC.values = this.protocol == "hovercar"?{1:"VLT",2:"SPD",3:"TRQ"}:{};
+    this.inputs.SWD.name   = this.protocol == "hovercar"?"FW":"SWD";
+    this.inputs.SWD.values = this.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
 
     // Display inputs
     for(let key in this.inputs){

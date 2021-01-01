@@ -42,12 +42,12 @@ var lastClick = 0;
 
 window.addEventListener("load", function(event) {
 
-  serial = new Serial(10000);
   log = new Log(loggerdiv);
   graph = new Graph();
   control = new Control(controlcnv);
   speedo = new Speedo(speedocnv);
-  
+  serial = new Serial(10000);
+
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, only Web Bluetooth API is available
     API.remove(API.selectedIndex);
@@ -69,6 +69,7 @@ window.addEventListener("load", function(event) {
       log.write('edge://flags/#enable-experimental-web-platform-features',2);  
     }
   }
+  
   toggleMode();
   toggleAPI();
   toggleStats();
@@ -150,7 +151,7 @@ viewIn.addEventListener('click', function (e) {
 function update(){
   // Send Commands
   if (serial.connected){
-    if (serial.protocol != "ascii") serial.sendBinary();
+    if (control.protocol != "off") serial.sendBinary();
   }
   graph.updateGraph();
   log.updateLog();
@@ -251,7 +252,7 @@ function toggleAPI(){
 
 function toggleMode(){
   serial.binaryReceive = (recin.value == "binary");
-  serial.protocol = sendin.value;
+  control.protocol = sendin.value;
   control.mixer(); // Force value calculation
   switchView(view);
  }

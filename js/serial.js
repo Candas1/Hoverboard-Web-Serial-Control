@@ -1,7 +1,6 @@
 class Serial {
   constructor(size) {
     this.API = 'serial';
-    this.protocol = 'ascii';
     this.connected = false;
     this.binaryReceive = false;
     this.lastStatsUpdate = Date.now();
@@ -361,7 +360,7 @@ class Serial {
 
   sendBinary() {
     let bytes = 0;
-    switch (serial.protocol){
+    switch (control.protocol){
       case "usart":
         bytes = new Uint8Array(
             this.usartCommand.write(
