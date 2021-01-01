@@ -121,7 +121,7 @@ class Control {
                     (this.channel[3] - 1) << 1 |
                     (this.channel[4] - 1) << 3 |
                     (this.channel[5] - 1) << 5) << 8;
-    } 
+    
   }
 
   getSteer(){
