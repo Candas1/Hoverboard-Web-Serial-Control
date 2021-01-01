@@ -10,10 +10,10 @@ class Control {
     this.inputs = {};
     this.inputs["JOY1"]  = {name:"JOY1"     ,type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,stepx:1000,miny:-1000,maxy:1000,stepy:1000,hold:false,vibrate:false,visible:true,dispName:true,dispVal:false};
     this.inputs["JOY2"]  = {name:"JOY2"     ,type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,stepx:1000,miny:-1000,maxy:1000,stepy:1000,hold:false,vibrate:false,visible:true,dispName:true,dispVal:false};
-    this.inputs["SWA"]   = {name:"SWA"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
-    this.inputs["SWB"]   = {name:"SWB"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
-    this.inputs["SWC"]   = {name:"SWC"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
-    this.inputs["SWD"]   = {name:"SWD"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["SWA"]   = {name:"SWA"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["SWB"]   = {name:"SWB"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["SWC"]   = {name:"SWC"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["SWD"]   = {name:"SWD"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
     
     this.telemetry = {};
     this.mix = "mix1";
@@ -31,7 +31,6 @@ class Control {
     }
 
     event.preventDefault();
-
     let coordinates = [];
     switch (event.type){
       case "mousedown":
