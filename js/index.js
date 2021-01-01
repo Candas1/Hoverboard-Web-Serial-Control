@@ -40,13 +40,13 @@ var buttondiv  = document.getElementById('buttondiv');
 var view = 'log';
 var lastClick = 0;
 
-serial = new Serial(10000);
-log = new Log(loggerdiv);
-graph = new Graph();
-control = new Control(controlcnv);
-speedo = new Speedo(speedocnv);
-
 window.addEventListener("load", function(event) {
+
+  serial = new Serial(10000);
+  log = new Log(loggerdiv);
+  graph = new Graph();
+  control = new Control(controlcnv);
+  speedo = new Speedo(speedocnv);
   
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // if on Mobile phone, only Web Bluetooth API is available
