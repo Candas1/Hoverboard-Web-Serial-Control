@@ -20,7 +20,6 @@ class Control {
       this.inputs[key].prevy = this.inputs[key].normy;
     }
 
-    this.telemetry = {};
     this.mix = "mix1";
     this.hold  = false;    
     this.initCanvas();
@@ -28,6 +27,8 @@ class Control {
     ['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
        this.cnv.addEventListener(evt, this.handleEvents.bind(this), false));
 
+    // Update screen if new data   
+    telemetry.addEventListener("update", this.updateScreen.bind(this), false);
   }
 
   handleEvents(event){
@@ -35,7 +36,6 @@ class Control {
       this.initPos();
     }
 
-    event.preventDefault();
     let coordinates = [];
     switch (event.type){
       case "mousedown":
@@ -58,7 +58,6 @@ class Control {
         }
         break;
     }
-
     
     // Process events
     for (let j= 0; j < coordinates.length;j++){
@@ -68,6 +67,7 @@ class Control {
         if (found || !this.inputs[key].visible) continue;
         let distance = this.calcDistance(x,y,this.inputs[key].posx,this.inputs[key].posy);
         if ( distance < this.inputs[key].r*2){
+          event.preventDefault();
           // Event was close enough
           found = true;
           if (this.mode == "CTRL"){
@@ -75,9 +75,14 @@ class Control {
             this.inputs[key].x = x;
             this.inputs[key].y = y;
           }else{
-            // If in edit mode, move the joystick
-            this.inputs[key].posx = Math.round(x/20)*20;
-            this.inputs[key].posy = Math.round(y/20)*20;
+            
+            if (distance > this.inputs[key].r / 2){
+              this.inputs[key].r *= distance/this.inputs[key].r;
+            }else{
+              // Move the input
+              this.inputs[key].posx = Math.round(x/20)*20;
+              this.inputs[key].posy = Math.round(y/20)*20;
+            } 
           }
         }
       }
@@ -116,15 +121,15 @@ class Control {
     this.channel[0] = this.getExtValue(this.getSteer(),"x");
     this.channel[1] = this.getExtValue(this.getSpeed(),"y");
 
-    this.channel[2] = this.getExtValue(this.inputs.SWA,"y");
-    this.channel[3] = this.getExtValue(this.inputs.SWB,"y");
-    this.channel[4] = this.getExtValue(this.inputs.SWC,"y");
-    this.channel[5] = this.getExtValue(this.inputs.SWD,"y");
+    this.channel[4] = this.getExtValue(this.inputs.SWA,"y");
+    this.channel[5] = this.getExtValue(this.inputs.SWB,"y");
+    this.channel[6] = this.getExtValue(this.inputs.SWC,"y");
+    this.channel[7] = this.getExtValue(this.inputs.SWD,"y");
     
-    this.sensors = ((this.channel[2] - 1) |
-                    (this.channel[3] - 1) << 1 |
-                    (this.channel[4] - 1) << 3 |
-                    (this.channel[5] - 1) << 5) << 8;
+    this.switches = ((this.channel[4] - 1) |
+                    (this.channel[5] - 1) << 1 |
+                    (this.channel[6] - 1) << 3 |
+                    (this.channel[7] - 1) << 5) << 8;
     
   }
 
@@ -200,79 +205,106 @@ class Control {
                      Math.pow(y1 - y2, 2));
   }
 
-  initCanvas(){
+  resizeCanvas(){
+    let oldWidth = this.cnv.width;
+    let oldHeight = this.cnv.height;
 
-    this.cnv.width= this.cnv.parentElement.clientWidth;
-    this.cnv.height= this.cnv.parentElement.clientHeight;
-    
-    let switchr = (this.cnv.height / 40);
+    this.cnv.width = this.cnv.parentElement.clientWidth;
+    this.cnv.height = this.cnv.parentElement.clientHeight;
 
-    if (window.screen.orientation.type.includes("landscape")){
-      // Joysticks
-      this.inputs.JOY1.posx = (this.cnv.width / 6);
-      this.inputs.JOY1.posy = this.cnv.height / 2;
-      this.inputs.JOY1.visible = true;
-
-      this.inputs.JOY2.posx = (this.cnv.width - this.inputs.JOY1.posx);
-      this.inputs.JOY2.posy = this.inputs.JOY1.posy;
-      this.inputs.JOY2.visible = true;
-
-      this.inputs.JOY2.r = this.inputs.JOY1.r = (this.cnv.height / 6); //inner ring
-
-      // Switches
-      this.inputs.SWA.posx = (this.cnv.width / 3.4) + (this.cnv.width /3/4);
-      this.inputs.SWB.posx = (this.cnv.width / 3.4) + 2 * (this.cnv.width /3/4);
-      this.inputs.SWC.posx = (this.cnv.width / 3.4) + 3 * (this.cnv.width /3/4);
-      this.inputs.SWD.posx = (this.cnv.width / 3.4) + 4 * (this.cnv.width /3/4);
-
-      this.inputs.SWD.posy = this.inputs.SWC.posy = this.inputs.SWB.posy = this.inputs.SWA.posy = (this.cnv.height / 3);
-      this.inputs.SWD.visible = this.inputs.SWC.visible = this.inputs.SWB.visible = this.inputs.SWA.visible = true;
-      this.inputs.SWD.r = this.inputs.SWC.r = this.inputs.SWB.r = this.inputs.SWA.r = switchr;
-    }else{
-      // Joysticks
-      this.inputs.JOY1.posx = (this.cnv.width / 2);
-      this.inputs.JOY1.posy = 3 * (this.cnv.height / 4);
-      this.inputs.JOY1.visible = true;
-
-      this.inputs.JOY2.visible = false;
-      this.mix = mixerIn.value = "mix2";
-      this.inputs.JOY2.r = this.inputs.JOY1.r = (this.cnv.height / 10); //inner ring
-    
-      // Switches
-      this.inputs.SWA.posx = (this.cnv.width / 8);
-      this.inputs.SWB.posx = 3 * (this.cnv.width / 8);
-      this.inputs.SWC.posx = 5 * (this.cnv.width / 8);
-      this.inputs.SWD.posx = 7 * (this.cnv.width / 8);
-
-      this.inputs.SWD.posy = this.inputs.SWC.posy = this.inputs.SWB.posy = this.inputs.SWA.posy = (this.cnv.height / 6);
-      this.inputs.SWD.visible = this.inputs.SWC.visible = this.inputs.SWB.visible = this.inputs.SWA.visible = true;
-      this.inputs.SWD.r = this.inputs.SWC.r = this.inputs.SWB.r = this.inputs.SWA.r = switchr;
+    // Recalculate inputs coordinates and size
+    for( let key in this.inputs){
+      this.inputs[key].posx = this.map(this.inputs[key].posx,0,oldWidth,0,this.cnv.width);
+      this.inputs[key].posy = this.map(this.inputs[key].posy,0,oldHeight,0,this.cnv.height);
+      this.inputs[key].r    = this.map(this.inputs[key].r   ,0,oldWidth,0,this.cnv.width);
     }
-    
-    //Screen
-    if (window.screen.orientation.type.includes("landscape")){
-      this.screeny1 = this.cnv.height / 1.75;
-      this.screenWidth1 = this.cnv.width / 3;
-      this.screenHeight1 = this.cnv.height / 3;
-    }else{
-      this.screeny1 = this.cnv.height / 3;
-      this.screenWidth1 = this.cnv.width / 1.2;
-      this.screenHeight1 = this.cnv.height / 5;
-    }
-    
-    // Center screen Horizontally
-    this.screenx1 = (this.cnv.width - this.screenWidth1) /2;
-    this.screenWidth2 = this.screenWidth1 * 0.9;
-    this.screenHeight2 = this.screenHeight1 * 0.85;
-    this.screenx2 = this.screenx1 + (this.screenWidth1 - this.screenWidth2) /2;
-    this.screeny2 = this.screeny1 + (this.screenHeight1 - this.screenHeight2) /2;    
+
+    // Recalculate screen coordinates and size
+    this.screeny1 = this.map(this.screeny1,0,oldHeight,0,this.cnv.height);
+    this.screenHeight1 = this.map(this.screenHeight1,0,oldHeight,0,this.cnv.height);
+    this.screenx1 = this.map(this.screenx1,0,oldWidth,0,this.cnv.width);
+    this.screenWidth1 = this.map(this.screenWidth1,0,oldWidth,0,this.cnv.width);
     
     this.setPos();
     this.display();
   }
 
-  updateTelemetry(message){
-    this.telemetry = message;
+  initCanvas(){
+    this.cnv.width= this.cnv.parentElement.clientWidth;
+    this.cnv.height= this.cnv.parentElement.clientHeight; 
+    this.oldOrientation = window.screen.orientation.type;
+
+    let switchr = Math.max(this.cnv.height,this.cnv.width)/ 50;
+    let size = switchr * 4 * 2 * 2;
+    let x = ( this.cnv.width - size )/ 2;
+    let step = size / 3;
+    
+    this.landscape = {
+      inputs:{
+        JOY1:{posx:this.cnv.width / 6,
+              posy:5 * this.cnv.height / 8,
+              r:this.cnv.height / 6,
+              visible:true},
+        JOY2:{posx:this.cnv.width-this.cnv.width / 6,
+              posy:5 * this.cnv.height / 8,
+              r:this.cnv.height / 6,
+              visible:true},
+        SWA:{posx:x},
+        SWB:{posx:x+step},
+        SWC:{posx:x+ 2 * (step)},
+        SWD:{posx:x+ 3 * (step)},
+      },
+      screenx1:(this.cnv.width - this.cnv.width / 3) /2,
+      screeny1:this.cnv.height / 1.75,
+      screenWidth1:this.cnv.width / 3,
+      screenHeight1:this.cnv.height / 3,
+    };
+
+    ["SWA","SWB","SWC","SWD"].forEach( key => this.setValues(this.landscape.inputs[key],{posy:this.cnv.height/3,visible:true,r:switchr}));
+    
+    this.portrait = {
+      mix:mixerIn.value = "mix2",
+      inputs:{
+        JOY1:{posx:this.cnv.width / 2,
+              posy:3 * this.cnv.height / 4,
+              r:this.cnv.height / 10,
+              visible:true},
+        JOY2:{posx:this.cnv.width / 2,
+              posy:3 * this.cnv.height / 4,
+              r:this.cnv.height / 10,
+              visible:false},
+        SWA:{posx:x},
+        SWB:{posx:x+step},
+        SWC:{posx:x+ 2 * (step)},
+        SWD:{posx:x+ 3 * (step)},
+      },
+      screenx1:(this.cnv.width - this.cnv.width / 1.2) /2,
+      screeny1:this.cnv.height / 3,
+      screenWidth1:this.cnv.width / 1.2,
+      screenHeight1:this.cnv.height / 5,
+    };
+
+    ["SWA","SWB","SWC","SWD"].forEach( key => this.setValues(this.portrait.inputs[key],{posy:this.cnv.height/6,visible:true,r:switchr}));
+
+    if (window.screen.orientation.type.includes("landscape")){
+      this.setValues(this,this.landscape);  
+    }else{
+      this.setValues(this,this.portrait);
+    }
+    
+    this.setPos();
+    this.display();
+  }
+
+  setValues(input,dict){
+    for(let key in dict){
+      if (typeof dict[key] === "object"){
+        if (!(key in input )) input[key] = {};
+        this.setValues(input[key],dict[key]);
+      }else{
+        input[key] = dict[key];
+      }
+    }
   }
 
   display(){
@@ -286,6 +318,7 @@ class Control {
     this.ctx.fillRect(0, 0, this.cnv.width, this.cnv.height);
 
     // Assign input texts depending on selected protocol
+    this.inputs.SWD.visible = this.inputs.SWC.visible = this.inputs.SWB.visible = this.inputs.SWA.visible = (this.protocol == "hovercar" || this.protocol == "ibus");
     this.inputs.SWA.name   = this.protocol == "hovercar"?"Switch":"SWA"; 
     this.inputs.SWA.values = this.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
     this.inputs.SWB.name   = this.protocol == "hovercar"?"Type":"SWB"; 
@@ -305,6 +338,13 @@ class Control {
   }
 
   updateScreen(){
+
+    this.screenWidth2 = this.screenWidth1 * 0.9;
+    this.screenHeight2 = this.screenHeight1 * 0.85;
+    this.screenx2 = this.screenx1 + (this.screenWidth1 - this.screenWidth2) /2;
+    this.screeny2 = this.screeny1 + (this.screenHeight1 - this.screenHeight2) /2;    
+   
+    
      // Screen outer rectangle
      this.ctx.fillStyle = "black";
      this.ctx.fillRect(this.screenx1,this.screeny1,this.screenWidth1,this.screenHeight1);
@@ -320,27 +360,23 @@ class Control {
      this.ctx.textAlign = "left";
      this.ctx.fillText("Steer", this.screenx2 + fontsize, this.screeny2 + fontsize);
      this.ctx.fillText("Speed", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
-     this.ctx.fillText(this.inputs.SWA.name , this.screenx2 + fontsize, this.screeny2 + fontsize*3);
-     this.ctx.fillText(this.inputs.SWB.name , this.screenx2 + fontsize, this.screeny2 + fontsize*4);
-     this.ctx.fillText(this.inputs.SWC.name , this.screenx2 + fontsize, this.screeny2 + fontsize*5);
-     this.ctx.fillText(this.inputs.SWD.name , this.screenx2 + fontsize, this.screeny2 + fontsize*6);
      
+     let line = 3;
+     for (let key in this.inputs){
+      if (this.inputs[key].type == "joystick" || !this.inputs[key].visible) continue;
+      this.ctx.textAlign = "left";
+      this.ctx.fillText(this.inputs[key].name , this.screenx2 + fontsize, this.screeny2 + fontsize*line); 
+      this.ctx.textAlign = "right";
+      this.ctx.fillText(this.getValText(this.inputs[key],"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*line);
+      line++;
+    }
+
      // Values
      this.ctx.textAlign = "right";
      this.ctx.fillText(this.getSteer().normx, this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
      this.ctx.fillText(this.getSpeed().normy, this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
-     this.ctx.fillText(this.getValText(this.inputs.SWA,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*3);
-     this.ctx.fillText(this.getValText(this.inputs.SWB,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*4);
-     this.ctx.fillText(this.getValText(this.inputs.SWC,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*5);
-     this.ctx.fillText(this.getValText(this.inputs.SWD,"y") , this.screenx2 + fontsize*7, this.screeny2 + fontsize*6);
-
-     this.ctx.textAlign = "right";
-     if (this.telemetry["batV"] != undefined){
-       this.ctx.fillText(this.telemetry.batV/100 + "V", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize);
-     }
-     if (this.telemetry["temp"] != undefined){
-      this.ctx.fillText(this.telemetry.temp/10 + "C", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize*2);
-    }
+     this.ctx.fillText(telemetry.batV + "V", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize);
+     this.ctx.fillText(telemetry.temp + "°", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize*2);
   }
 
   displayJoystick(input){

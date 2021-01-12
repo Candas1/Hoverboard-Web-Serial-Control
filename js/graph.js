@@ -75,7 +75,7 @@ class Graph {
 
     this.layout = {
       grid:{ rows:1, columns:1, pattern:'independent' , roworder:'top to bottom'},
-      margin: {l:50, r:0, t:50, b:10},
+      margin: {l:50, r:0, t:30, b:10},
       paper_bgcolor: 'rgb(0,0,0)',
       plot_bgcolor: 'rgb(0,0,0)',
       dragmode: 'pan',
@@ -83,7 +83,7 @@ class Graph {
         y: 0.95,
         itemclick:'toggle',
         itemdoubleclick:'toggleothers',
-        tracegroupgap:20,
+        tracegroupgap:5,
         title:{
           text:"Channels",
           font:{
@@ -134,7 +134,8 @@ class Graph {
       // New field
       if (!(key in this.key2trace)){ 
         this.key2trace[key] = this.countTrace; 
-        this.trace.legendgroup = this.trace.name = key; 
+        //this.trace.legendgroup = key;
+        this.trace.name = key; 
         Plotly.addTraces(chartdiv,[this.trace]);
         this.traces.push(this.countTrace);
         this.countTrace++; 

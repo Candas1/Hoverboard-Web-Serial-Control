@@ -38,7 +38,6 @@ class Serial {
         speedL:"int16",
         batV:"int16",
         temp:"int16",
-        //DCLink:"int16",
         cmdLed:"uint16",
         checksum:"uint16"
       },0,true);                     
@@ -61,20 +60,9 @@ class Serial {
         dpitch:["int16",0],
         steer:"int16",
         speed:"int16",
-        sensors:"uint16",
+        switches:"uint16",
         checksum:"uint16",
       },0,true);
-
-    // labels for incoming Ascii messages
-    this.fieldsAscii = {1:'in1',
-                        2:'in2',
-                        3:'cmdR',
-                        4:'cmdL',
-                        5:'batADC',
-                        6:'batV',
-                        7:'tempADC',
-                        8:'temp'
-                        };
 
     // IBUS
     this.ibus_channels = 14;
@@ -322,22 +310,24 @@ class Serial {
     let message = {};
     let err = false;
 
-    // If first word doesn't contain semi-colon, no need to parse it
-    if (words[0].split(":").length == 1 ){
-      log.write(string,3);
+    // It's an error, show in red
+    if (string[0] == "!"){
+      log.write(string,2);
       return true;
+    }else{
+      // If first word doesn't contain semi-colon, no need to parse it
+      if (words[0].split(":").length == 1){
+        log.write(string,3);
+        return true;
+      }
     }
     
     for(let j = 0; j < words.length; j++) {
       let [index,value] = words[j].split(':');
       
-      if (value === undefined) err = true;
-      
-      if (index in this.fieldsAscii){
-        message[this.fieldsAscii[index]] = value;
-      }else{
-        message[index] = value;
-      }
+      // Skip rows having empty values
+      if (value === undefined) continue;
+      message[index] = value;
     }
   
     if (!err && Object.entries(message).length > 0) {
@@ -353,9 +343,8 @@ class Serial {
   update(message){
     this.success++;
     graph.updateData(message);
-    control.updateTelemetry(message);
-    speedo.updateTelemetry(message);
-    log.writeLog(message);
+    telemetry.update(message);
+    if (watchIn.checked) log.writeLog(message);
   }
 
   sendBinary() {
@@ -376,8 +365,8 @@ class Serial {
             { 
               steer:control.channel[0],
               speed:control.channel[1],
-              sensors:control.sensors,
-              checksum:this.serial_start_frame ^ control.channel[0] ^ control.channel[1] ^ control.sensors,
+              switches:control.switches,
+              checksum:this.serial_start_frame ^ control.channel[0] ^ control.channel[1] ^ control.switches,
             }));
         break;
       case "ibus":
@@ -405,14 +394,6 @@ class Serial {
 
     this.send(bytes);
 
-  };
-
-  sendAscii(text) {
-    let command = text + (crIn.checked ?"\r":"") + (lfIn.checked ?"\n":"");
-
-    let encoder = new TextEncoder();
-    let bytes = encoder.encode(command);
-    this.send(bytes);
   };
 
   async send(bytes){

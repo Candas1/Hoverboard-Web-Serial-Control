@@ -10,11 +10,13 @@ var viewIn = document.getElementById('view');
 var send_btn = document.getElementById('send');
 var connect_btn = document.getElementById('connect');
 var pause_btn = document.getElementById('pause');
+var pause1_btn = document.getElementById('pause1');
 var trash_btn = document.getElementById('trash');
 
 var commandIn = document.getElementById('command');
 var crIn = document.getElementById('cr');
 var lfIn = document.getElementById('lf');
+var watchIn = document.getElementById('watchin');
 var write = document.getElementById('write');
 var read = document.getElementById('read');
 var skip = document.getElementById('skip');
@@ -24,6 +26,7 @@ var error = document.getElementById('error');
 var serialdiv  = document.getElementById('serialdiv');
 var APIdiv     = document.getElementById('APIdiv');
 var statsindiv = document.getElementById('statsindiv');
+var watchindiv = document.getElementById('watchindiv');
 var chartindiv = document.getElementById('chartindiv');
 var ctrlindiv  = document.getElementById('ctrlindiv');
 var commanddiv = document.getElementById('commanddiv');
@@ -42,6 +45,7 @@ var lastClick = 0;
 
 window.addEventListener("load", function(event) {
 
+  telemetry = new Telemetry();
   log = new Log(loggerdiv);
   graph = new Graph();
   control = new Control(controlcnv);
@@ -109,7 +113,7 @@ async function requestWakeLock(){
   }
 };
 
-window.addEventListener("resize", function() {
+window.addEventListener("resize", function(event) {
   control.initCanvas();
   speedo.initCanvas();
 });
@@ -125,13 +129,14 @@ window.onbeforeunload = function(event){ serial.connected = false;};
 commandIn.addEventListener("keyup", function(event) {
   if (event.keyCode === 13) {
     event.preventDefault();
-    if (serial.connected) serial.sendAscii(commandIn.value);
+    if (serial.connected) sendCommand();
   }
 });
 
-speedocnv.addEventListener('click', function (e) {
-  // Start demo of double click on speedometer canavs
-  e.preventDefault();
+speedocnv.addEventListener('click', function (event) {
+  event.preventDefault();
+  
+  // Start demo of double click on speedometer canvas
   if (Date.now() - lastClick < 300) speedo.runDemo();
   lastClick = Date.now();
 
@@ -140,23 +145,20 @@ speedocnv.addEventListener('click', function (e) {
     if (view == "speedo" && Date.now() - lastClick >= 3000) serialdiv.style.visibility = "hidden";}, 3000);
 });
 
-viewIn.addEventListener('click', function (e) {
+viewIn.addEventListener('click', function (event) {
   // Start demo of double click on speedometer canavs
-  e.preventDefault();
+  event.preventDefault();
   lastClick = Date.now();
 });
-
-
 
 function update(){
   // Send Commands
   if (serial.connected){
     if (control.protocol != "off") serial.sendBinary();
   }
-  graph.updateGraph();
-  log.updateLog();
-  control.updateScreen();
-  speedo.update();
+  if (view == "log") log.updateLog();
+  if (view == "chart") graph.updateGraph();
+  if (speedo.demo) speedo.update();
 }
 
 function switchView(newView){
@@ -168,7 +170,8 @@ function switchView(newView){
       APIdiv.style.display     = "block"; 
       commanddiv.style.display = "block";
       statsdiv.style.display   = (statsIn.checked) ? "block" : "none";
-      
+      watchindiv.style.display = "block";
+
       chartindiv.style.display = "none";
       ctrlindiv.style.display  = "none";
       statsindiv.style.display = "block";
@@ -186,6 +189,7 @@ function switchView(newView){
       APIdiv.style.display     = "none";
       bauddiv.style.display    = "none";
       statsindiv.style.display = "none";
+      watchindiv.style.display = "none";
       ctrlindiv.style.display  = "none";
       chartindiv.style.display = "block";
       recdiv.style.display     = "none";
@@ -199,19 +203,18 @@ function switchView(newView){
       chartdiv.style.display   = "block";
       pause_btn.style.visibility = "visible";
       trash_btn.style.visibility = "visible";
-      graph.updateGraph();
       break;
     case "control":
       APIdiv.style.display     = "none";
       bauddiv.style.display    = "none";
       statsindiv.style.display = "none";
+      watchindiv.style.display = "none";
       chartindiv.style.display = "none";  
       ctrlindiv.style.display  = "block";
       recdiv.style.display     = "none";
       senddiv.style.display    = "block";
       pause_btn.style.visibility = "hidden";
       trash_btn.style.visibility = "hidden";
-      
       
       loggerdiv.style.display  = "none";
       chartdiv.style.display   = "none";
@@ -228,6 +231,7 @@ function switchView(newView){
       trash_btn.style.visibility = "hidden";
       
       statsindiv.style.display = "none";
+      watchindiv.style.display = "none";
       chartindiv.style.display = "none";  
       ctrlindiv.style.display  = "none";
       recdiv.style.display     = "none";
@@ -281,13 +285,17 @@ function deleteData(){
 function pauseUpdate(){
   if (log.isPaused){
     pause_btn.innerHTML = '<ion-icon name="pause"></ion-icon>';
+    pause1_btn.innerHTML = '<ion-icon name="pause"></ion-icon>';
   }else{
     pause_btn.innerHTML = '<ion-icon name="play"></ion-icon>';
+    pause1_btn.innerHTML = '<ion-icon name="play"></ion-icon>';
   }
   log.isPaused = !log.isPaused;
   graph.isPaused = !graph.isPaused;
 }
 
 function sendCommand() {
-  serial.sendAscii(commandIn.value);
+  let command = commandIn.value + (crIn.checked ?"\r":"") + (lfIn.checked ?"\n":"");
+  let encoder = new TextEncoder();
+  serial.send(encoder.encode(command));
 }

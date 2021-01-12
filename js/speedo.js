@@ -35,6 +35,9 @@ class Speedo {
     this.speedometer["DCLink"]   = {name:"DCLink"  ,x:0,y:0,r:0,value:0,min:-30,max:30  ,step:12,start:155,end:385,decimal:1,icon:""  ,unit:"A"   ,display:"big"  ,color:[{name:"red",from:-30,to:-20},{name:"orange",from:-20,to:-10},{name:"green",from:-10,to:0},{name:"green",from:0,to:10},{name:"orange",from:10,to:20},{name:"red",from:20,to:30}]};
     this.speedometer["temp"]     = {name:"temp"    ,x:0,y:0,r:0,value:0,min:25 ,max:55  ,step:6 ,start:125,end:55 ,decimal:1,icon:"🌡",unit:"°"   ,display:"small",color:[{name:"green",from:0,to:35.8},{name:"orange",from:35.8,to:48.9},{name:"red",from:48.9,to:55}]};
     this.initCanvas();
+
+    // Update screen if new data   
+    telemetry.addEventListener("update", this.update.bind(this), false);
   }
 
   initCanvas(){
@@ -71,26 +74,6 @@ class Speedo {
     this.display();
   }
 
-  updateTelemetry(message){
-    if (message.speedR!= undefined && message.speedL != undefined){
-      let speedRPM = Math.abs(message.speedR) + Math.abs(message.speedL);
-      speedRPM = Math.round( speedRPM / Math.max(1,(message.speedR!=0) + (message.speedL!=0)) );
-      this.setValue("speedKMH",Math.round( 2 * Math.PI * 16 * speedRPM * 60 / 100000));
-      this.setValue("speedRPM",speedRPM);
-    }
-    if (message.batV!= undefined){
-      this.setValue("batV",message.batV / 100);
-    }
-    if (message.DCLink!= undefined){
-      this.setValue("DCLink", message.DCLink / 10);
-    }
-    if (message.temp!= undefined){
-      this.setValue("temp",message.temp / 10);
-    }
-
-    if (this.demo) this.runDemo();
-  }
-
   setValue(key,value){
     if (key in this.speedometer){
       this.speedometer[key].value = value;
@@ -106,20 +89,32 @@ class Speedo {
     }
   }
 
-  update(){
-    if (view=="speedo"){ 
-      if (this.demo){
-        let switchDir = false;
-        let step = 100;
-        for(let key in this.speedometer){
-          this.setValue(key,this.speedometer[key].value + (this.speedometer[key].max-this.speedometer[key].min)/step * this.direction);
-          if ((this.speedometer[key].value <= this.speedometer[key].min) ||
-              (this.speedometer[key].value >= this.speedometer[key].max)){
-            switchDir = true;
-          }
+  update(event){
+    if (this.demo && event !== undefined){
+      // Cancel demo mode
+      this.runDemo();
+    }
+
+    if (this.demo){
+      let switchDir = false;
+      let step = 100;
+      // In demo mode, loop through value range of each speedometer
+      for(let key in this.speedometer){
+        this.setValue(key,this.speedometer[key].value + (this.speedometer[key].max-this.speedometer[key].min)/step * this.direction);
+        if ((this.speedometer[key].value <= this.speedometer[key].min) ||
+            (this.speedometer[key].value >= this.speedometer[key].max)){
+          switchDir = true;
         }
-        if (switchDir) this.direction *= -1;
       }
+      if (switchDir) this.direction *= -1;
+    }else{
+      // Update speedometers with telemetry data
+      for(let key in telemetry){
+        this.setValue(key,telemetry[key]);
+      }
+    }
+
+    if (view=="speedo"){  
       this.display();
     }
   }

@@ -59,22 +59,21 @@ class Log {
   }
 
   updateLog(){
-    if (this.fragment.childElementCount > 0) { 
-  
-      // Add elements kept in fragment
+    if (this.fragment.childElementCount > 0) {
+      // Add elements from fragment
       this.container.appendChild(this.fragment);
-      
-      if (!this.isPaused) {
-        // Truncate if too many lines
-        while (this.container.children.length > this.maxLogSize ){
-          this.container.removeChild(this.container.firstChild);
-        }   
-      
-        // limit scrolling frequency, it is slow and impacts when many messages are received
-        if ( ( Date.now() - this.lastLogScroll > this.logScrollFrequency) && (view == "log") ){
-          this.lastLogScroll = Date.now(); 
-          this.container.scrollTop = this.container.scrollHeight;
-        }
+    }
+
+    if (!this.isPaused) {
+      // Truncate if too many lines
+      while (this.container.children.length > this.maxLogSize ){
+        this.container.removeChild(this.container.firstChild);
+      }   
+    
+      // limit scrolling frequency, it is slow and impacts when many messages are received
+      if ( ( Date.now() - this.lastLogScroll > this.logScrollFrequency) && (view == "log") ){
+        this.lastLogScroll = Date.now(); 
+        this.container.scrollTop = this.container.scrollHeight;
       }
     }
   }
