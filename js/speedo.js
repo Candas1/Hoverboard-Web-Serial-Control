@@ -4,9 +4,11 @@ class Speedo {
     this.ctx = cnv.getContext('2d');
     this.direction = 1;
     this.autolimit = true;
+    this.lastSpeedoDisplay = Date.now();
+    this.speedoDisplayFrequency = 50;
     this.speedometer = [];
     this.color = { blue:{},orange:{},red:{},green:{},purple:{}};
-    
+        
     // Blue
     this.color.blue.color1 = '#00b8fe';
     this.color.blue.color2 = '#41dcf4';
@@ -115,6 +117,8 @@ class Speedo {
     }
 
     if (view=="speedo"){  
+      if ( Date.now() - this.lastSpeedoDisplay < this.speedoDisplayFrequency) return;
+      this.lastSpeedoDisplay = Date.now();
       this.display();
     }
   }
