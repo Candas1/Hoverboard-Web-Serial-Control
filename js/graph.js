@@ -4,6 +4,8 @@ class Graph {
     this.key2trace = {};
     this.traces = [];
     this.countTrace = 0;
+    this.visibleTrace = 0;
+    this.autoScroll = true;
     this.newDatapoints = 0;
     this.subplotview = false;
     this.lastDataUpdate = Date.now();
@@ -16,16 +18,15 @@ class Graph {
       name: "",
       legendgroup : "",
       mode: 'lines',
-      line: {width:2}, //,shape: 'spline',smoothing:1.2},
+      line: {width:2}, //,shape: 'spline',smoothing:1.3},
       type: 'scattergl',
       };
-
-    const data = [];
 
     const color = 'lemonchiffon'; 
     const width = 1; 
     this.yaxis = {
       domain:[0,1],
+      visible: true,
       autorange: true,
       autoscale: true,
       autoticks:true,
@@ -99,25 +100,39 @@ class Graph {
       xaxis: JSON.parse(JSON.stringify(this.xaxis)),
     };
     
-    const config = {
+    this.config = {
       responsive: true,
       displayModeBar: true,
       modeBarButtonsToRemove: ['lasso2d','plotlylogo'],
     }
 
-    Plotly.newPlot(chartdiv, data , this.layout, config);
-    //chartdiv.on('plotly_legendclick', this.legendClick.bind(this) ); 
-    //chartdiv.on('plotly_click', function(data){ graph.isPaused = !graph.isPaused});
-
+    Plotly.newPlot(chartdiv, [] , this.layout, this.config);
+    chartdiv.on('plotly_legendclick', this.legendClick.bind(this) ); 
+    chartdiv.on('plotly_relayout', function(data){
+      if (!this.autoScroll && !this.isPaused) { 
+        this.isPaused = false; // will be inverted in next function 
+        pauseUpdate();
+      }else{
+        this.autoScroll = false;
+      }
+    }.bind(this));
   }
 
   legendClick(data){
     if (this.subplotview){
       // if subplotview is active, toggle the visibility of the selected axis
       let yaxis = 'yaxis' + ( data.curveNumber==0?'':(data.curveNumber+1)); 
-      this.layout[yaxis] = JSON.parse(JSON.stringify(this.yaxis));
       this.layout[yaxis].visible = !this.layout[yaxis].visible;
+      
+      // Adjust number of visible traces
+      if (!this.layout[yaxis].visible){
+        this.visibleTrace--;
+      }else{
+        this.visibleTrace++;
+      }
+      this.autoScroll = true;
       Plotly.relayout(chartdiv, this.layout);
+      this.subplot(true);
     }
   }
 
@@ -134,13 +149,20 @@ class Graph {
       // New field
       if (!(key in this.key2trace)){ 
         this.key2trace[key] = this.countTrace; 
-        //this.trace.legendgroup = key;
         this.trace.name = key; 
         Plotly.addTraces(chartdiv,[this.trace]);
         this.traces.push(this.countTrace);
-        this.countTrace++; 
+        
+        // Add axis for subplot
+        let yaxis = 'yaxis' + ( this.countTrace==0?'':(this.countTrace+1));
+        this.layout[yaxis] = JSON.parse(JSON.stringify(this.yaxis));
+
+        this.countTrace++;
+        this.visibleTrace++; 
         // Prepare empty structure
         this.initUpdateStruct();
+        // Adjust subplot if needed
+        if (this.subplotview) this.subplot(true);
       }else{
         this.update.x[this.key2trace[key]].push(time);
         this.update.y[this.key2trace[key]].push(message[key]);
@@ -165,21 +187,36 @@ class Graph {
   }
 
   clear(){
-    this.initUpdateStruct();
-    Plotly.update(chartdiv, this.update);
+    // Delete additional axis for subplot
+    for(let i=0;i<this.countTrace;i++){
+      if (i>0){
+        let yaxis = 'yaxis' + (i+1);
+        delete this.layout[yaxis];
+      }
+    }
+
+    this.newDatapoints = this.visibleTrace = this.countTrace = 0;
+    this.traces = [];
+    this.key2trace = {};   
+    Plotly.newPlot(chartdiv, [] , this.layout, this.config);
   }
 
   subplot(param){
     this.subplotview = param;
     let update = {yaxis:[]};
+    let count = 0;
     for(let i=0;i<this.countTrace;i++){
       let yaxis = 'yaxis' + ( i==0?'':(i+1));
       update.yaxis.push("y" + (!param ? "" : (i+1)) );
-      this.layout[yaxis] = JSON.parse(JSON.stringify(this.yaxis));
       if (!param) {
+        this.layout[yaxis].visible = true;
         this.layout[yaxis]['domain'] = [0,1];
       }else{
-        this.layout[yaxis]['domain'] = this.getDomain(i);
+        // If subplot if visible, adjust domain
+        if (this.layout[yaxis].visible){
+          this.layout[yaxis]['domain'] = this.getDomain(count);
+          count++;
+        }
       }
     }
 
@@ -187,7 +224,7 @@ class Graph {
   }
 
   getDomain(i) {
-    var N = this.countTrace;
+    var N = this.visibleTrace;
     var spacing = 0.05;
     
     return [
@@ -207,6 +244,7 @@ class Graph {
   }
 
   relayout(){
+    this.autoScroll = true;
     let time = new Date(this.lastDataUpdate);
     var olderTime = time.setSeconds(time.getSeconds() - 10);	
     var futureTime = time.setSeconds(time.getSeconds() + 10);

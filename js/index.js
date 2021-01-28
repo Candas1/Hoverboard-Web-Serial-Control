@@ -290,8 +290,8 @@ function pauseUpdate(){
     pause_btn.innerHTML = '<ion-icon name="play"></ion-icon>';
     pause1_btn.innerHTML = '<ion-icon name="play"></ion-icon>';
   }
-  log.isPaused = !log.isPaused;
-  graph.isPaused = !graph.isPaused;
+  graph.autoScroll = log.autoScroll = true;
+  graph.isPaused = log.isPaused = !log.isPaused;
 }
 
 function sendCommand() {

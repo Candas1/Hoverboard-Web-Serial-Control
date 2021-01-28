@@ -8,6 +8,23 @@ class Log {
     this.logUpdateFrequency = 200;
     this.lastLogScroll = Date.now();
     this.logScrollFrequency = 400;
+    this.autoScroll = true;
+
+    this.container.addEventListener('scroll', this.scrolled.bind(this) );
+  }
+
+  scrolled(event){
+    if (!this.autoScroll){
+      if (this.container.scrollTop + this.container.offsetHeight>= this.container.scrollHeight){
+        this.isPaused = true; // Will be inverted by the function
+        pauseUpdate();
+      }else{
+        this.isPaused = false; // Will be inverted by the function
+        pauseUpdate();
+      }
+    }else{
+      this.autoScroll = false;
+    }
   }
 
   addElement(elementType,text,messageType){
@@ -72,7 +89,8 @@ class Log {
     
       // limit scrolling frequency, it is slow and impacts when many messages are received
       if ( ( Date.now() - this.lastLogScroll > this.logScrollFrequency) && (view == "log") ){
-        this.lastLogScroll = Date.now(); 
+        this.lastLogScroll = Date.now();
+        this.autoScroll = true; 
         this.container.scrollTop = this.container.scrollHeight;
       }
     }
