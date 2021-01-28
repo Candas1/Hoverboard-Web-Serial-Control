@@ -284,13 +284,14 @@ function deleteData(){
 
 function pauseUpdate(){
   if (log.isPaused){
+    graph.autoScroll = log.autoScroll = true;
     pause_btn.innerHTML = '<ion-icon name="pause"></ion-icon>';
     pause1_btn.innerHTML = '<ion-icon name="pause"></ion-icon>';
   }else{
+    graph.autoScroll = log.autoScroll = false;
     pause_btn.innerHTML = '<ion-icon name="play"></ion-icon>';
     pause1_btn.innerHTML = '<ion-icon name="play"></ion-icon>';
   }
-  graph.autoScroll = log.autoScroll = true;
   graph.isPaused = log.isPaused = !log.isPaused;
 }
 

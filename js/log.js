@@ -15,14 +15,19 @@ class Log {
 
   scrolled(event){
     if (!this.autoScroll){
+      // Manual scroll
+      console.log("Manual Scroll");
       if (this.container.scrollTop + this.container.offsetHeight>= this.container.scrollHeight){
-        this.isPaused = true; // Will be inverted by the function
-        pauseUpdate();
+        // close to end of scrollbar, unpause
+        //this.isPaused = true; // Will be inverted by the function
+        //pauseUpdate();
       }else{
-        this.isPaused = false; // Will be inverted by the function
-        pauseUpdate();
+        // Pause
+        //this.isPaused = false; // Will be inverted by the function
+        //pauseUpdate();
       }
     }else{
+      // Auto scroll finished
       this.autoScroll = false;
     }
   }
