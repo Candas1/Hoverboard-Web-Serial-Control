@@ -149,7 +149,7 @@ class Serial {
   connectBluetooth(){
     let options = {
           acceptAllDevices:true,
-          //optionalServices:[this.bluetoothService],
+          optionalServices:[this.bluetoothService],
           //filters: [{ name: [this.bluetoothName] },{services: [this.bluetoothService]}],
           };
     navigator.bluetooth.requestDevice(options)
