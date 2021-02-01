@@ -68,8 +68,12 @@ You can use the mixer setting to assign the desired joystick.
 
 
 ## TODO
+* Bluetooth
+  * [ ] Improve stability, automatically reconnect
+
 * Terminal view
   * [X] Possibility to select a different protocol for sending and receiving (e.g. sending UART binary but receiving ASCII debug
+  * [] Auto autoscroll
 
 * Chart view
   * [X] Hidding a chart variable in subplot mode should hide the corresponding axis also
@@ -80,8 +84,13 @@ You can use the mixer setting to assign the desired joystick.
   * [X] Switches for sideboard/ibus protocol
   * [ ] Hold mode to hold command even after release of the joystick during tests
 
+* Dash view
+  * [] Power consumption missing from FOC firmware
+  * [] Battery capacity in %
+  * [] Setting for wheel radius to have accurate speed KM/H
+  
+
 * New views
   * [ ] Interface for configuring the firmware (missing in firmware also)
-  * [ ] Driving view with gauges for speed in rpm/kmh, battery voltage/capacity, power consumption/regen, ...
   * [ ] Settings view to be able to customize the tool ( refresh frequencies, serial frame structure, ... )
 
