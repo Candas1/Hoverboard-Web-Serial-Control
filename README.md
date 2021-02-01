@@ -69,15 +69,15 @@ You can use the mixer setting to assign the desired joystick.
 
 ## TODO
 * Terminal view
-  * [ ] Possibility to select a different protocol for sending and receiving (e.g. sending UART binary but receiving ASCII debug
+  * [X] Possibility to select a different protocol for sending and receiving (e.g. sending UART binary but receiving ASCII debug
 
 * Chart view
-  * [ ] Hidding a chart variable in subplot mode should hide the corresponding axis also
+  * [X] Hidding a chart variable in subplot mode should hide the corresponding axis also
   * [ ] Possibility to dowload csv file
   
 * Control view
-  * [ ] Possibility to use Sideboard protocol for sending commands
-  * [ ] Switches for sideboard/ibus protocol
+  * [X] Possibility to use Sideboard protocol for sending commands
+  * [X] Switches for sideboard/ibus protocol
   * [ ] Hold mode to hold command even after release of the joystick during tests
 
 * New views
