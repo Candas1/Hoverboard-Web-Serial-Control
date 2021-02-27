@@ -17,6 +17,7 @@ class Serial {
     this.bluetoothName = 'BT05';
     this.bluetoothService = 0xffe0;
     this.bluetoothCharacteristic = 0xffe1;
+    this.bleSending = false;
     
     // Transmition Statistics
     this.error = 0;
@@ -326,7 +327,10 @@ class Serial {
       let [index,value] = words[j].split(':');
       
       // Skip rows having empty values
-      if (value === undefined) continue;
+      if (value === undefined){
+        log.write(string,3);
+        return true;
+      }
       message[index] = value;
     }
   
@@ -404,12 +408,15 @@ class Serial {
       this.writer.write(bytes);
       this.writer.releaseLock();
     }else{
+      if (this.bleSending) return;
       // Web Bluetooth
       let chunksize = 20;
       let sent = 0;
       while(sent < bytes.length){
         // Sent chunks of 20 bytes because of BLE limitation
+        this.bleSending = true;
         await this.characteristic.writeValueWithResponse(bytes.slice(sent,sent+chunksize));
+        this.bleSending = false;
         sent += chunksize;
       }
     } 
