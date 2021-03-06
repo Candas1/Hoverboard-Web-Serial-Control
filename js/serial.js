@@ -328,8 +328,9 @@ class Serial {
       
       // Skip rows having empty values
       if (value === undefined){
-        log.write(string,3);
-        return true;
+        //log.write(string,3);
+        //return true;
+        continue;
       }
       message[index] = value;
     }
