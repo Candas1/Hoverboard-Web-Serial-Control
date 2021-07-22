@@ -27,11 +27,12 @@ Click on connect button and select the right BLE device.
 
 ## Modes
 ### Ascii:
-If hoverboard is communicating through ASCII Serial debug, messages in following format will be parsed and displayed in the log and in the chart.<br>
+If hoverboard is communicating through [ASCII Serial debug](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Debug-Serial), messages in following format will be parsed and displayed in the log and in the chart.<br>
 `in1:345 in2:1337 cmdR:0 cmdL:0 BatADC:0 BatV:0 TempADC:0 Temp:0\n`<br>
 Other messages (first word not containing ':' ) will be simply displayed in the log.
 
 ### Usart:
+For use with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) of FOC firmware.<br>
 The tool sends binary commands to control the hoverboard (Speed/steer) via the virtual controller.<br>
 Feedback is received through Binary Serial Protocol,messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
