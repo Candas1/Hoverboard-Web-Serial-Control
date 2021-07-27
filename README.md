@@ -54,7 +54,7 @@ If stats are enabled, you can visualize following information:<br>
 * Skipped Bytes
 * Errors
 
-In Ascii mode, commands can also be sent (not handled by hoverboard firmware but can be used with other devices)
+In Ascii mode, commands can also be sent (can be used with [debug protocol](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Debug-Serial#debug-protocol) of FOC firmware)
 
 ### Chart
 This view let's you visualize a plot of received values:
