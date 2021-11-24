@@ -36,13 +36,13 @@ If stats are enabled, you can visualize following information:<br>
 
 In Ascii mode, commands can also be sent (can be used with [debug protocol](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Debug-Serial#debug-protocol) of FOC firmware)
 
-### Receiving - Ascii:
+### Receive - Ascii:
 If hoverboard is communicating through [ASCII Serial debug](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Debug-Serial) (parameter DEBUG_SERIAL_USARTX should be enabled), messages in following format will be parsed and displayed in the log and in the chart.<br>
 `in1:345 in2:1337 cmdR:0 cmdL:0 BatADC:0 BatV:0 TempADC:0 Temp:0\n`<br>
 Other messages (first word not containing ':' ) will be simply displayed in the log.
 
-### Receiving - Usart:
-For use with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) of FOC firmware (parameter FEEDBACK_SERIAL_USARTX should be enabled).
+### Receive - Usart:
+For use with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) of FOC firmware (parameter FEEDBACK_SERIAL_USARTX should be enabled).<br>
 Feedback is received through Binary Serial Protocol,messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
 
