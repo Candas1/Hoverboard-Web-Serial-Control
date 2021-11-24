@@ -42,8 +42,8 @@ If hoverboard is communicating through [ASCII Serial debug](https://github.com/E
 Other messages (first word not containing ':' ) will be simply displayed in the log.
 
 ### Receive - Binary:
-For use with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) of FOC firmware (parameter FEEDBACK_SERIAL_USARTX should be enabled).<br>
-Feedback is received through Binary Serial Protocol,messages are being parsed and checksum is validated to discard transmission errors.<br>
+For use when parameter FEEDBACK_SERIAL_USARTX is enabled in FOC Firmware.<br>
+Feedback is received through Binary Serial Protocol, messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
 
 ## Chart
@@ -58,33 +58,33 @@ This view will display a virtual RC remote to control the hoverboard if you use 
 You can use the mixer setting to assign the desired joystick.
 
 ### Protocol - Usart:
-For use with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) of FOC firmware (parameter CONTROL_SERIAL_USARTX should be enabled).<br>
-It will not work with parameter SIDEBOARD_SERIAL_USARTX as it's a different protocol.<br>
+For use when parameter CONTROL_SERIAL_USARTX is enabled in FOC Firmware, with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) or [DUAL INPUTS](https://github.com/EFeru/hoverboard-firmware-hack-FOC#dual-inputs).<br>
+It will not work with parameter SIDEBOARD_SERIAL_USARTX as it's a different protocol(See Hovercar protocol).<br>
 The tool sends binary commands to control the hoverboard (Speed/steer) via the virtual controller.<br>
 
 ### Protocol - Hovercar:
-For use with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) of FOC firmware (parameter SIDEBOARD_SERIAL_USARTX should be enabled).<br>
+For use when parameter SIDEBOARD_SERIAL_USARTX is enabled in FOC Firmware, with the [Hovercar variant](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-HOVERCAR), [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART), or [DUAL INPUTS](https://github.com/EFeru/hoverboard-firmware-hack-FOC#dual-inputs).<br>
 The tool sends binary commands to control the hoverboard via the virtual controller:
-* Speed
-* Steer
+* Speed (Vertical axis of the joystick selected in the mixer)
+* Steer (Horizontal axis of the joystick selected in the mixer)
 * ON/OFF : to switch back to control with pedals(ADC) when using Hovercar variant in dual input mode
 * Type : let's you switch between Commutation, Sinoisoidale and FOC
 * Mode : let's you switch between Torque, Speed and Voltage mode
 * FW : let's turn Field Weakening ON and OFF
 
 ### Protocol - Ibus:
-For use with the [IBUS variant](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-IBUS) of FOC firmware.<br>
+For use with the [IBUS variant](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-IBUS) or [DUAL INPUTS](https://github.com/EFeru/hoverboard-firmware-hack-FOC#dual-inputs) of FOC firmware.<br>
 The tool sends Flysky Ibus frames to control the hoverboard via the virtual controller:
-* Vertical axis of the joystick selected in the mixer
-* Horizontal axis of the joystick selected in the mixer
+* Speed (Vertical axis of the joystick selected in the mixer)
+* Steer (Horizontal axis of the joystick selected in the mixer)
 * Switch A
 * Switch B
 * Switch C
 * Switch D
 
-Please not that FOC firmware is only using joytick values.<br>
+Please note that FOC firmware is only using joytick values.<br>
 
-This mode is not working with BLE yet because of limitation of message size (20 bytes). Will be fixed when Chrome team implements [Exchange MTU](https://bugs.chromium.org/p/chromium/issues/detail?id=1164621#c10)
+This mode is not working with BLE yet because of limitation of message size (20 bytes). It will probably be fixed when Chrome team implements [Exchange MTU](https://bugs.chromium.org/p/chromium/issues/detail?id=1164621#c10)
 
 
 ## TODO
