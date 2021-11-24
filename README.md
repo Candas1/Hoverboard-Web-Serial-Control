@@ -41,7 +41,7 @@ If hoverboard is communicating through [ASCII Serial debug](https://github.com/E
 `in1:345 in2:1337 cmdR:0 cmdL:0 BatADC:0 BatV:0 TempADC:0 Temp:0\n`<br>
 Other messages (first word not containing ':' ) will be simply displayed in the log.
 
-### Receive - Usart:
+### Receive - Binary:
 For use with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) of FOC firmware (parameter FEEDBACK_SERIAL_USARTX should be enabled).<br>
 Feedback is received through Binary Serial Protocol,messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
@@ -72,7 +72,7 @@ The tool sends binary commands to control the hoverboard via the virtual control
 * Mode : let's you switch between Torque, Speed and Voltage mode
 * FW : let's turn Field Weakening ON and OFF
 
-### Ibus:
+### Protocol - Ibus:
 For use with the [IBUS variant](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-IBUS) of FOC firmware.<br>
 The tool sends Flysky Ibus frames to control the hoverboard via the virtual controller:
 * Vertical axis of the joystick selected in the mixer
