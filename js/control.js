@@ -121,15 +121,15 @@ class Control {
     this.channel[0] = this.getExtValue(this.getSteer(),"x");
     this.channel[1] = this.getExtValue(this.getSpeed(),"y");
 
-    this.channel[4] = this.getExtValue(this.inputs.SWA,"y");
-    this.channel[5] = this.getExtValue(this.inputs.SWB,"y");
-    this.channel[6] = this.getExtValue(this.inputs.SWC,"y");
-    this.channel[7] = this.getExtValue(this.inputs.SWD,"y");
+    this.channel[6] = this.getExtValue(this.inputs.SWA,"y");
+    this.channel[7] = this.getExtValue(this.inputs.SWB,"y");
+    this.channel[8] = this.getExtValue(this.inputs.SWC,"y");
+    this.channel[9] = this.getExtValue(this.inputs.SWD,"y");
     
-    this.switches = ((this.channel[4] - 1) |
-                    (this.channel[5] - 1) << 1 |
-                    (this.channel[6] - 1) << 3 |
-                    (this.channel[7] - 1) << 5) << 8;
+    this.switches = ((this.channel[6] - 1) |
+                    (this.channel[7] - 1) << 1 |
+                    (this.channel[8] - 1) << 3 |
+                    (this.channel[9] - 1) << 5) << 8;
     
   }
 
