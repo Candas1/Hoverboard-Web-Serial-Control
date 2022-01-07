@@ -43,7 +43,9 @@ Other messages (first word not containing ':' ) will be simply displayed in the 
 
 ### Receive - Binary:
 For use when parameter FEEDBACK_SERIAL_USARTX is enabled in FOC Firmware.<br>
-Feedback is received through Binary Serial Protocol, messages are being parsed and checksum is validated to discard transmission errors.<br>
+Feedback is received through [this](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART#feedback) Binary Serial Protocol.
+
+Messages are being parsed and checksum is validated to discard transmission errors.<br>
 Parsed data is displayed in the log and in the graph.<br>
 
 ## Chart
@@ -60,11 +62,11 @@ You can use the mixer setting to assign the desired joystick.
 ### Protocol - Usart:
 For use when parameter CONTROL_SERIAL_USARTX is enabled in FOC Firmware, with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) or [DUAL INPUTS](https://github.com/EFeru/hoverboard-firmware-hack-FOC#dual-inputs).<br>
 It will not work with parameter SIDEBOARD_SERIAL_USARTX as it's a different protocol(See Hovercar protocol).<br>
-The tool sends binary commands to control the hoverboard (Speed/steer) via the virtual controller.<br>
+The tool sends binary commands to control the hoverboard (Speed/steer) via the virtual controller with [this](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART#input-command-structure) Binary Serial Protocol.
 
 ### Protocol - Hovercar:
 For use when parameter SIDEBOARD_SERIAL_USARTX is enabled in FOC Firmware, with the [Hovercar variant](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-HOVERCAR), [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART), or [DUAL INPUTS](https://github.com/EFeru/hoverboard-firmware-hack-FOC#dual-inputs).<br>
-The tool sends binary commands to control the hoverboard via the virtual controller:
+The tool sends binary commands to control the hoverboard via the virtual controller with [this](https://github.com/EFeru/hoverboard-firmware-hack-FOC/issues/143#issuecomment-782149767) Binary Serial Protocol:
 * Speed (Vertical axis of the joystick selected in the mixer)
 * Steer (Horizontal axis of the joystick selected in the mixer)
 * ON/OFF : to switch back to control with pedals(ADC) when using Hovercar variant in dual input mode
