@@ -77,12 +77,12 @@ The tool sends binary commands to control the hoverboard via the virtual control
 ### Protocol - Ibus:
 For use with the [IBUS variant](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/Variant-IBUS) or [DUAL INPUTS](https://github.com/EFeru/hoverboard-firmware-hack-FOC#dual-inputs) of FOC firmware.<br>
 The tool sends Flysky Ibus frames to control the hoverboard via the virtual controller:
-* Speed (Vertical axis of the joystick selected in the mixer)
-* Steer (Horizontal axis of the joystick selected in the mixer)
-* Switch A
-* Switch B
-* Switch C
-* Switch D
+* Speed (Vertical axis of the joystick selected in the mixer) (channel 1)
+* Steer (Horizontal axis of the joystick selected in the mixer) (channel 2)
+* Switch A (channel 7)
+* Switch B (channel 8)
+* Switch C (channel 9)
+* Switch D (channel 10)
 
 Please note that FOC firmware is only using joytick values.<br>
 
