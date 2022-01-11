@@ -14,15 +14,15 @@ From mobile, only WEB Bluetooth API is supported (not supported on IOS).
 
 ## APIs
 ### WEB Serial API:
-The tool is using Web Serial API to connect to the hoverboard through a COM port of your PC(FTDI,Bluetooth 2.0,...).<br>
-https://web.dev/serial/<br>
+The tool is using [Web Serial API](https://web.dev/serial/) to connect to the hoverboard through a COM port of your PC(FTDI,Bluetooth 2.0,...).<br>
 Select the required baud rate, click on connect button, and select the COM port corresponding to your FTDI/Bluetooth 2.0 device(e.g. HC-05).
 
 ### WEB Bluetooth API:
-The tool is using Web Bluetooth API to connect to Bluetooth BLE devices (e.g. AT-09, HM-10...).<br>
-https://web.dev/bluetooth/<br>
+The tool is using [Web Bluetooth API](https://web.dev/bluetooth/) to connect to Bluetooth BLE devices (e.g. AT-09, HM-10...).<br>
 Make sure you [configured](https://github.com/Candas1/Hoverboard-Web-Serial-Control/wiki/Configure-BLE-device) your BLE device with the right baud rate.
 Click on connect button and select the right BLE device.
+
+Serial over Classic bluetooth is not supported by this API yet but might be [implemented](https://bugs.chromium.org/p/chromium/issues/detail?id=1043300) in the future.
 
 ## Terminal
 This view let's you visualize incoming Ascii and Binary messages:<br>
