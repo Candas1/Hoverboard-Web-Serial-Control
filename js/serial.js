@@ -432,7 +432,7 @@ class Serial {
       while(sent < bytes.length){
         // Sent chunks of 20 bytes because of BLE limitation
         this.bleSending = true;
-        await this.characteristic.writeValueWithResponse(bytes.slice(sent,sent+chunksize));
+        await this.characteristic.writeValueWithoutResponse(bytes.slice(sent,sent+chunksize));
         this.bleSending = false;
         sent += chunksize;
       }
