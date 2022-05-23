@@ -12,6 +12,8 @@ class Control {
     this.inputs["JOY2"]  = {name:"JOY2"     ,type:"joystick",posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:-1000,maxx:1000,stepx:1000,miny:-1000,maxy:1000,stepy:1000,hold:false,vibrate:false,visible:true,dispName:true,dispVal:false};
     this.inputs["SWA"]   = {name:"SWA"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
     this.inputs["SWB"]   = {name:"SWB"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
+    this.inputs["VRA"]   = {name:"VRA"      ,type:"knob"    ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:0    ,maxy:1000,stepy:1000,hold:true ,vibrate:false ,visible:true,dispName:true,dispVal:false};
+    this.inputs["VRB"]   = {name:"VRB"      ,type:"knob"    ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:0,minx:0    ,maxx:0   ,stepx:0   ,miny:0    ,maxy:1000,stepy:1000,hold:true ,vibrate:false ,visible:true,dispName:true,dispVal:false};
     this.inputs["SWC"]   = {name:"SWC"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:3   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
     this.inputs["SWD"]   = {name:"SWD"      ,type:"switch"  ,posx:0,posy:0,x:0,y:0,r:0,normx:0,normy:1,minx:0    ,maxx:0   ,stepx:0   ,miny:1    ,maxy:2   ,stepy:1   ,hold:true ,vibrate:true ,visible:true,dispName:true,dispVal:true};
     
@@ -118,18 +120,27 @@ class Control {
       this.channel[i] = (this.protocol == "ibus")?1000:0;    
     }
 
-    this.channel[0] = this.getExtValue(this.getSteer(),"x");
-    this.channel[1] = this.getExtValue(this.getSpeed(),"y");
-
-    this.channel[4] = this.getExtValue(this.inputs.SWA,"y");
-    this.channel[5] = this.getExtValue(this.inputs.SWB,"y");
-    this.channel[6] = this.getExtValue(this.inputs.SWC,"y");
-    this.channel[7] = this.getExtValue(this.inputs.SWD,"y");
+    if (this.mix == "mix4"){ 
+      // Tank Steering
+      this.channel[0] = this.getExtValue(this.getSteer(),"y");
+      this.channel[1] = this.getExtValue(this.getSpeed(),"y");
+    }else{
+      // Differential Steering
+      this.channel[0] = this.getExtValue(this.getSteer(),"x");
+      this.channel[1] = this.getExtValue(this.getSpeed(),"y");
+    }
     
-    this.switches = ((this.channel[4] - 1) |
-                    (this.channel[5] - 1) << 1 |
-                    (this.channel[6] - 1) << 3 |
-                    (this.channel[7] - 1) << 5) << 8;
+    this.channel[4] = this.getExtValue(this.inputs.VRA,"y");
+    this.channel[5] = this.getExtValue(this.inputs.VRB,"y");
+    this.channel[6] = this.getExtValue(this.inputs.SWA,"y");
+    this.channel[7] = this.getExtValue(this.inputs.SWB,"y");
+    this.channel[8] = this.getExtValue(this.inputs.SWC,"y");
+    this.channel[9] = this.getExtValue(this.inputs.SWD,"y");
+    
+    this.switches = ((this.channel[6] - 1) |
+                    (this.channel[7] - 1) << 1 |
+                    (this.channel[8] - 1) << 3 |
+                    (this.channel[9] - 1) << 5) << 8;
     
   }
 
@@ -235,24 +246,25 @@ class Control {
     this.oldOrientation = window.screen.orientation.type;
 
     let switchr = Math.max(this.cnv.height,this.cnv.width)/ 50;
-    let size = switchr * 4 * 2 * 2;
-    let x = ( this.cnv.width - size )/ 2;
-    let step = size / 3;
+    let step = this.cnv.width / 7;
     
     this.landscape = {
       inputs:{
         JOY1:{posx:this.cnv.width / 6,
-              posy:5 * this.cnv.height / 8,
+              posy:6 * this.cnv.height / 8,
               r:this.cnv.height / 6,
               visible:true},
         JOY2:{posx:this.cnv.width-this.cnv.width / 6,
-              posy:5 * this.cnv.height / 8,
+              posy:6 * this.cnv.height / 8,
               r:this.cnv.height / 6,
               visible:true},
-        SWA:{posx:x},
-        SWB:{posx:x+step},
-        SWC:{posx:x+ 2 * (step)},
-        SWD:{posx:x+ 3 * (step)},
+        SWA:{posx:1 * step},
+        SWB:{posx:2 * step},
+        VRA:{posx:3 * step},
+        VRB:{posx:4 * step},
+        SWC:{posx:5 * step},
+        SWD:{posx:6 * step},
+        
       },
       screenx1:(this.cnv.width - this.cnv.width / 3) /2,
       screeny1:this.cnv.height / 1.75,
@@ -260,7 +272,7 @@ class Control {
       screenHeight1:this.cnv.height / 3,
     };
 
-    ["SWA","SWB","SWC","SWD"].forEach( key => this.setValues(this.landscape.inputs[key],{posy:this.cnv.height/3,visible:true,r:switchr}));
+    ["SWA","SWB","SWC","SWD","VRA","VRB"].forEach( key => this.setValues(this.landscape.inputs[key],{posy:this.cnv.height/3.5,visible:true,r:switchr}));
     
     this.portrait = {
       mix:mixerIn.value = "mix2",
@@ -273,10 +285,12 @@ class Control {
               posy:3 * this.cnv.height / 4,
               r:this.cnv.height / 10,
               visible:false},
-        SWA:{posx:x},
-        SWB:{posx:x+step},
-        SWC:{posx:x+ 2 * (step)},
-        SWD:{posx:x+ 3 * (step)},
+        SWA:{posx:1 * step},
+        SWB:{posx:2 * step},
+        VRA:{posx:3 * step},
+        VRB:{posx:4 * step},
+        SWC:{posx:5 * step},
+        SWD:{posx:6 * step},
       },
       screenx1:(this.cnv.width - this.cnv.width / 1.2) /2,
       screeny1:this.cnv.height / 3,
@@ -284,7 +298,7 @@ class Control {
       screenHeight1:this.cnv.height / 5,
     };
 
-    ["SWA","SWB","SWC","SWD"].forEach( key => this.setValues(this.portrait.inputs[key],{posy:this.cnv.height/6,visible:true,r:switchr}));
+    ["SWA","SWB","SWC","SWD","VRA","VRB"].forEach( key => this.setValues(this.portrait.inputs[key],{posy:this.cnv.height/6,visible:true,r:switchr}));
 
     if (window.screen.orientation.type.includes("landscape")){
       this.setValues(this,this.landscape);  
@@ -319,6 +333,7 @@ class Control {
 
     // Assign input texts depending on selected protocol
     this.inputs.SWD.visible = this.inputs.SWC.visible = this.inputs.SWB.visible = this.inputs.SWA.visible = (this.protocol == "hovercar" || this.protocol == "ibus");
+    this.inputs.VRA.visible = this.inputs.VRB.visible = (this.protocol == "ibus");
     this.inputs.SWA.name   = this.protocol == "hovercar"?"Switch":"SWA"; 
     this.inputs.SWA.values = this.protocol == "hovercar"?{1:"OFF",2:"ON"}:{};
     this.inputs.SWB.name   = this.protocol == "hovercar"?"Type":"SWB"; 
@@ -358,9 +373,16 @@ class Control {
      this.ctx.font =  fontsize+"px "+this.font;
      this.ctx.fillStyle = "blue";
      this.ctx.textAlign = "left";
-     this.ctx.fillText("Steer", this.screenx2 + fontsize, this.screeny2 + fontsize);
-     this.ctx.fillText("Speed", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
-     
+     if (this.mix == "mix4"){
+       // Tank Steering
+       this.ctx.fillText("SpeedL", this.screenx2 + fontsize, this.screeny2 + fontsize);
+       this.ctx.fillText("SpeedR", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
+     }else{
+      // Differential steering
+      this.ctx.fillText("Steer", this.screenx2 + fontsize, this.screeny2 + fontsize);
+      this.ctx.fillText("Speed", this.screenx2 + fontsize, this.screeny2 + fontsize*2);
+     }
+
      let line = 3;
      for (let key in this.inputs){
       if (this.inputs[key].type == "joystick" || !this.inputs[key].visible) continue;
@@ -373,7 +395,7 @@ class Control {
 
      // Values
      this.ctx.textAlign = "right";
-     this.ctx.fillText(this.getSteer().normx, this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
+     this.ctx.fillText(this.mix == "mix4"?this.getSteer().normy:this.getSteer().normx, this.screenx2 + fontsize * 7, this.screeny2 + fontsize);
      this.ctx.fillText(this.getSpeed().normy, this.screenx2 + fontsize * 7, this.screeny2 + fontsize*2);
      this.ctx.fillText(telemetry.batV + "V", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize);
      this.ctx.fillText(telemetry.temp + "°", this.screenx2 + this.screenWidth2 - fontsize, this.screeny2 + fontsize*2);
@@ -538,7 +560,6 @@ class Control {
       this.ctx.fill();
     }else{
       if (input.type == "switch"){
-
         // Knob basis position 
         let x2 = (input.minx == input.maxx)?posx:this.map(x,posx-r2+r6,posx+r2-r6,posx-r6,posx+r6);
         let y2 = (input.miny == input.maxy)?posy:this.map(y,posy-r2+r6,posy+r2-r6,posy-r6/2,posy+-r6/2);        
@@ -584,6 +605,38 @@ class Control {
         this.ctx.fillStyle = "black";
         this.ctx.fillRect(x3-r6*4,y3-r6,r6*8,r6*2);       
 
+      }else{
+        if (input.type == "knob"){
+
+          // Knob basis position 
+          let x2 = (input.minx == input.maxx)?posx:this.map(x,posx-r2+r6,posx+r2-r6,posx-r6,posx+r6);
+          let y2 = (input.miny == input.maxy)?posy:this.map(y,posy-r2+r6,posy+r2-r6,posy-r6/2,posy+-r6/2);        
+  
+          // Outer circle - doesn't move
+          this.ctx.beginPath();
+          this.ctx.fillStyle = gradient1;
+          this.ctx.arc(posx, posy, r4*1.3, 0, 2 * Math.PI, false);
+          this.ctx.closePath();
+          this.ctx.fill();
+  
+          // Knob end - can move both ways
+          let angle = this.map(input.normy,input.miny,input.maxy,-Math.PI,Math.PI);
+          let cursor1x = posx+Math.cos(angle)*(r4+r6);
+          let cursor1y = posy+Math.sin(angle)*(r4+r6);
+          let cursor2x = posx+Math.cos(angle)*(r4-r6);
+          let cursor2y = posy+Math.sin(angle)*(r4-r6);
+          
+          this.ctx.beginPath();
+          this.ctx.fillStyle = "black";
+          this.ctx.strokeStyle = "black";
+          this.ctx.moveTo(cursor1x,cursor1y);
+          this.ctx.lineTo(cursor2x,cursor2y);
+          //this.ctx.arc(knobx,knoby,r6, 0, 2 * Math.PI, false);
+          this.ctx.closePath();
+          this.ctx.fill();
+          this.ctx.stroke();
+      
+        }
       }
     }    
   }

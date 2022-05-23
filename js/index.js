@@ -5,6 +5,7 @@ var recin = document.getElementById('recin');
 var statsIn = document.getElementById('stats');
 var subplotIn = document.getElementById('subplot');
 var mixerIn = document.getElementById('mixin');
+var engine = document.getElementById('engine');
 var viewIn = document.getElementById('view');
 
 var send_btn = document.getElementById('send');
@@ -39,6 +40,7 @@ var chartdiv   = document.getElementById('chartdiv');
 var controlcnv = document.getElementById('controlcnv');
 var speedocnv  = document.getElementById('speedocnv');
 var buttondiv  = document.getElementById('buttondiv');
+var enginediv  = document.getElementById('enginediv');
 
 var view = 'log';
 var lastClick = 0;
@@ -136,7 +138,7 @@ commandIn.addEventListener("keyup", function(event) {
 speedocnv.addEventListener('click', function (event) {
   event.preventDefault();
   
-  // Start demo of double click on speedometer canvas
+  // Start demo on double click on speedometer canvas
   if (Date.now() - lastClick < 300) speedo.runDemo();
   lastClick = Date.now();
 
@@ -146,7 +148,7 @@ speedocnv.addEventListener('click', function (event) {
 });
 
 viewIn.addEventListener('click', function (event) {
-  // Start demo of double click on speedometer canavs
+  // Start demo of double click on speedometer canvas
   event.preventDefault();
   lastClick = Date.now();
 });
@@ -176,7 +178,8 @@ function switchView(newView){
       ctrlindiv.style.display  = "none";
       statsindiv.style.display = "block";
       recdiv.style.display     = "block";
-      senddiv.style.display    = "none"; 
+      senddiv.style.display    = "none";
+      enginediv.style.display  = "none"; 
 
       chartdiv.style.display   = "none";
       controlcnv.style.display = "none";
@@ -194,6 +197,7 @@ function switchView(newView){
       chartindiv.style.display = "block";
       recdiv.style.display     = "none";
       senddiv.style.display    = "none";
+      enginediv.style.display  = "none";
 
       controlcnv.style.display = "none";
       speedocnv.style.display = "none";
@@ -220,6 +224,7 @@ function switchView(newView){
       chartdiv.style.display   = "none";
       statsdiv.style.display   = "none";
       commanddiv.style.display = "none";
+      enginediv.style.display  = "none";
       speedocnv.style.display  = "none";
       controlcnv.style.display = "block";
       control.initCanvas();
@@ -236,6 +241,7 @@ function switchView(newView){
       ctrlindiv.style.display  = "none";
       recdiv.style.display     = "none";
       senddiv.style.display    = "none";
+      enginediv.style.display  = "block";
       
       loggerdiv.style.display  = "none";
       chartdiv.style.display   = "none";
@@ -255,7 +261,7 @@ function toggleAPI(){
 }
 
 function toggleMode(){
-  serial.binaryReceive = (recin.value == "binary");
+  serial.protocol = recin.value;
   control.protocol = sendin.value;
   control.mixer(); // Force value calculation
   switchView(view);
@@ -268,6 +274,14 @@ function toggleStats(){
 function toggleMixer(){
   control.mix = mixerIn.value;
   control.mixer(); // Force value calculation
+}
+
+function toggleEngine(){
+  if (engine.value == "on"){
+    start();
+  }else{
+    stop();
+  }
 }
 
 function toggleSubplot(){

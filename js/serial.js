@@ -2,10 +2,10 @@ class Serial {
   constructor(size) {
     this.API = 'serial';
     this.connected = false;
-    this.binaryReceive = false;
+    this.protocol = "ascii";
     this.lastStatsUpdate = Date.now();
     this.statsUpdateFrequency = 500;
-    
+
     // Buffer
     this.bufferSize = size;
     this.writeBuffer = new ArrayBuffer(this.bufferSize);
@@ -31,7 +31,7 @@ class Serial {
     this.serial_length = 8;
 
     // UART incoming binary messages
-    this.usartFeedback = new Struct(
+    this.binary = new Struct(
       { frame:"uint16",
         cmd1:"int16",
         cmd2:"int16",
@@ -41,10 +41,22 @@ class Serial {
         temp:"int16",
         cmdLed:"uint16",
         checksum:"uint16"
-      },0,true);                     
-    this.messageSize = this.usartFeedback.byteLength;
-    this.readBuffer = new ArrayBuffer(this.messageSize);
-    this.readdv = new DataView(this.readBuffer);
+      },0,true);
+      this.binarycur = new Struct(
+        { frame:"uint16",
+          cmd1:"int16",
+          cmd2:"int16",
+          speedR:"int16",
+          speedL:"int16",
+          batV:"int16",
+          temp:"int16",
+          dccurr:"int16",
+          cmdLed:"uint16",
+          checksum:"uint16"
+        },0,true);
+    this.usartFeedback = this.binarycur;
+    //this.readBuffer = new ArrayBuffer(this.usartFeedback.byteLength);
+    //this.readdv = new DataView(this.readBuffer);
 
     // UART outgoing binary messages
     this.usartCommand = new Struct(
@@ -203,9 +215,9 @@ class Serial {
   }
 
   readLoop(){
-    if (this.binaryReceive){
+    if (this.protocol.startsWith("binary")){
       // read as long as there is enough data in the buffer
-      while ( (this.writeOffset) >= (this.readOffset + this.messageSize)){
+      while ( (this.writeOffset) >= (this.readOffset + this.usartFeedback.byteLength)){
         this.readBinary();
       }
     }else{
@@ -251,14 +263,18 @@ class Serial {
   }
 
   readBinary(){
+    this.usartFeedback = this[this.protocol];
+    var readBuffer = new ArrayBuffer(this.usartFeedback.byteLength);
+    var readdv = new DataView(readBuffer);
+
     // copy chunk to new arrayBuffer
-    for (let i=0, strLen=this.messageSize; i < strLen; i++) {       
+    for (let i=0, strLen=this.usartFeedback.byteLength; i < strLen; i++) {       
       let val = this.writedv.getUint8(this.address(this.readOffset + i),true);
-      this.readdv.setUint8(i,val,true);
+      readdv.setUint8(i,val,true);
     }
     
     // Read struct
-    let message = this.usartFeedback.read(this.readdv);
+    let message = this.usartFeedback.read(readdv);
     if (message.frame != this.serial_start_frame){
       this.skipByte();    
       return;  
@@ -281,7 +297,7 @@ class Serial {
       log.write(Object.keys( message ).map( key => (key + ":" + message[key])).join(" "),2);
     }
 
-    this.setReadOffset(this.readOffset + this.messageSize); // increase read offset by message size
+    this.setReadOffset(this.readOffset + this.usartFeedback.byteLength); // increase read offset by message size
   }
  
   readAscii(){

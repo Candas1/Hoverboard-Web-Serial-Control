@@ -51,6 +51,7 @@
             <select class="u-full-width" id="recin" onchange="toggleMode()">
                 <option value="ascii" selected>Ascii</option>
                 <option value="binary">Binary</option>
+                <option value="binarycur">Binary with Current</option>
             </select>  
           </div>
           <div class="one columns" id="statsindiv">
@@ -83,6 +84,14 @@
               <option id="optmix1" value="mix1" selected>↔ ↕</option>
               <option id="optmix2" value="mix2">➕ ❌</option>
               <option id="optmix3" value="mix3">❌ ➕</option>
+              <option id="optmix4" value="mix4">↕  ↕</option>
+            </select>
+          </div>
+          <div class="two columns" id="enginediv">
+            <label for="engine">Engine</label>
+            <select class="u-full-width" id="engine" onchange="toggleEngine()">
+              <option id="off" value="off" selected>🔇</option>
+              <option id="on"  value="on"          >🔈</option>
             </select>
           </div>
         </div>
@@ -153,12 +162,14 @@
     <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
     
+    
     <script type="text/javascript" src="js/struct.min.js"></script>
     <script type="text/javascript" src="js/timer.js"></script>
     <script type="text/javascript" src="js/log.js"></script>
     <script type="text/javascript" src="js/serial.js"></script>
     <script type="text/javascript" src="js/graph.js"></script>
     <script type="text/javascript" src="js/speedo.js"></script>
+    <script type="text/javascript" src="js/engine.js"></script>
     <script type="text/javascript" src="js/control.js"></script>
     <script type="text/javascript" src="js/telemetry.js"></script>
     <script type="text/javascript" src="js/index.js"></script>

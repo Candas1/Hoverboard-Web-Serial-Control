@@ -29,13 +29,14 @@ class Speedo {
     this.color.red.color1 = '#fc4a1a';
     this.color.red.color2 = '#fa1402';
 
-    this.speedometer = {};
-    this.speedometer["speedKMH"] = {name:"speedKMH",x:0,y:0,r:0,value:0,min:0  ,max:60  ,step:12,start:155,end:385,decimal:0,icon:""  ,unit:"km/h",display:"big"  ,color:"blue"};
-    this.speedometer["empty"]    = {name:"empty"   ,x:0,y:0,r:0,value:0,min:0  ,max:10  ,step:10,start:125,end:55 ,decimal:0,icon:""  ,unit:""    ,display:"none" ,color:"orange"};
-    this.speedometer["speedRPM"] = {name:"speedRPM",x:0,y:0,r:0,value:0,min:0  ,max:1200,step:12,start:155,end:385,decimal:0,icon:""  ,unit:"rpm" ,display:"big"  ,color:[{name:"blue",from:0,to:750},{name:"purple",from:750,to:1200}]};
-    this.speedometer["batV"]     = {name:"batV"    ,x:0,y:0,r:0,value:0,min:32 ,max:42  ,step:10,start:125,end:55 ,decimal:1,icon:"🔋",unit:"V"   ,display:"small",color:[{name:"red",from:0,to:36},{name:"orange",from:36,to:38},{name:"green",from:38,to:42}]};
-    this.speedometer["DCLink"]   = {name:"DCLink"  ,x:0,y:0,r:0,value:0,min:-30,max:30  ,step:12,start:155,end:385,decimal:1,icon:""  ,unit:"A"   ,display:"big"  ,color:[{name:"red",from:-30,to:-20},{name:"orange",from:-20,to:-10},{name:"green",from:-10,to:0},{name:"green",from:0,to:10},{name:"orange",from:10,to:20},{name:"red",from:20,to:30}]};
-    this.speedometer["temp"]     = {name:"temp"    ,x:0,y:0,r:0,value:0,min:25 ,max:55  ,step:6 ,start:125,end:55 ,decimal:1,icon:"🌡",unit:"°"   ,display:"small",color:[{name:"green",from:0,to:35.8},{name:"orange",from:35.8,to:48.9},{name:"red",from:48.9,to:55}]};
+    this.speedometer = {
+      "speedKMH":{name:"speedKMH",x:0,y:0,r:0,value:0,min:0   ,max:60  ,step:12,start:155,end:385,decimal:0,icon:""  ,unit:"km/h",display:"big"  ,labels:true ,ticks:true,color:"blue"},
+      "cmd2"    :{name:"cmd2"    ,x:0,y:0,r:0,value:0,min:0   ,max:1000 ,step:4,start:125,end:55 ,decimal:0,icon:""  ,unit:""    ,display:"none" ,labels:false,ticks:true,color:"orange"},
+      "speedRPM":{name:"speedRPM",x:0,y:0,r:0,value:0,min:0   ,max:1200,step:12,start:155,end:385,decimal:0,icon:""  ,unit:"rpm" ,display:"big"  ,labels:true ,ticks:true,color:[{name:"blue",from:0,to:750},{name:"purple",from:750,to:1200}]},
+      "batV"    :{name:"batV"    ,x:0,y:0,r:0,value:0,min:32  ,max:42  ,step:10,start:125,end:55 ,decimal:1,icon:"🔋",unit:"V"   ,display:"small",labels:true ,ticks:true,color:[{name:"red",from:0,to:36},{name:"orange",from:36,to:38},{name:"green",from:38,to:42}]},
+      "DCLink"  :{name:"DCLink"  ,x:0,y:0,r:0,value:0,min:-30 ,max:30  ,step:12,start:155,end:385,decimal:1,icon:""  ,unit:"A"   ,display:"big"  ,labels:true ,ticks:true,color:[{name:"red",from:-30,to:-20},{name:"orange",from:-20,to:-10},{name:"green",from:-10,to:0},{name:"green",from:0,to:10},{name:"orange",from:10,to:20},{name:"red",from:20,to:30}]},
+      "temp"    :{name:"temp"    ,x:0,y:0,r:0,value:0,min:25  ,max:55  ,step:6 ,start:125,end:55 ,decimal:1,icon:"🌡",unit:"°"   ,display:"small",labels:true ,ticks:true,color:[{name:"green",from:0,to:35.8},{name:"orange",from:35.8,to:48.9},{name:"red",from:48.9,to:55}]},
+    };
     this.initCanvas();
 
     // Update screen if new data   
@@ -52,9 +53,9 @@ class Speedo {
       this.speedometer.batV.y = this.speedometer.speedRPM.y = this.cnv.height/2;
       this.speedometer.batV.r = this.speedometer.speedRPM.r = this.cnv.height/2.5;
  
-      this.speedometer.empty.x = this.speedometer.speedKMH.x = (this.speedometer.speedRPM.x - this.speedometer.speedRPM.r) /2;
-      this.speedometer.empty.y = this.speedometer.speedKMH.y = this.cnv.height/2;
-      this.speedometer.empty.r = this.speedometer.speedKMH.r = this.speedometer.speedRPM.r/1.5;
+      this.speedometer.cmd2.x = this.speedometer.speedKMH.x = (this.speedometer.speedRPM.x - this.speedometer.speedRPM.r) /2;
+      this.speedometer.cmd2.y = this.speedometer.speedKMH.y = this.cnv.height/2;
+      this.speedometer.cmd2.r = this.speedometer.speedKMH.r = this.speedometer.speedRPM.r/1.5;
 
       this.speedometer.temp.x = this.speedometer.DCLink.x = this.cnv.width - (this.speedometer.speedRPM.x - this.speedometer.speedRPM.r) /2;
       this.speedometer.temp.y = this.speedometer.DCLink.y = this.cnv.height/2;
@@ -64,9 +65,9 @@ class Speedo {
       this.speedometer.batV.y = this.speedometer.speedRPM.y = this.cnv.height/2;
       this.speedometer.batV.r = this.speedometer.speedRPM.r = this.cnv.height/5;
  
-      this.speedometer.empty.x = this.speedometer.speedKMH.x = this.cnv.width/2;
-      this.speedometer.empty.y = this.speedometer.speedKMH.y = (this.speedometer.speedRPM.y - this.speedometer.speedRPM.r) /2;
-      this.speedometer.empty.r = this.speedometer.speedKMH.r = this.speedometer.speedRPM.r/1.5;
+      this.speedometer.cmd2.x = this.speedometer.speedKMH.x = this.cnv.width/2;
+      this.speedometer.cmd2.y = this.speedometer.speedKMH.y = (this.speedometer.speedRPM.y - this.speedometer.speedRPM.r) /2;
+      this.speedometer.cmd2.r = this.speedometer.speedKMH.r = this.speedometer.speedRPM.r/1.5;
 
       this.speedometer.temp.x = this.speedometer.DCLink.x = this.cnv.width/2;
       this.speedometer.temp.y = this.speedometer.DCLink.y = this.cnv.height - (this.speedometer.speedRPM.y - this.speedometer.speedRPM.r) /2;
@@ -116,7 +117,8 @@ class Speedo {
       }
     }
 
-    if (view=="speedo"){  
+    if (view=="speedo"){
+      // Check if display shoudl be refreshed  
       if ( Date.now() - this.lastSpeedoDisplay < this.speedoDisplayFrequency) return;
       this.lastSpeedoDisplay = Date.now();
       this.display();
@@ -127,6 +129,7 @@ class Speedo {
     this.demo = !this.demo;
 
     this.direction = 1;
+    // Initialize dials
     for(let key in this.speedometer){
       this.setValue(key,!this.demo?0:this.speedometer[key].min);
     }
@@ -157,20 +160,25 @@ class Speedo {
 
   drawTick(speedo,rotation, width, speed) {
     this.ctx.lineWidth = width;
-    this.ctx.save();
-    this.ctx.translate(speedo.x, speedo.y);
-    this.ctx.rotate(rotation);
-    this.ctx.strokeStyle = "#333";
-    this.ctx.fillStyle = "#333";
-    this.ctx.strokeRect(speedo.r/1.14, -1 / 2, speedo.r/10, 1);
-    this.ctx.restore();
+    
+    if (speedo.ticks){
+      this.ctx.save();
+      this.ctx.translate(speedo.x, speedo.y);
+      this.ctx.rotate(rotation);
+      this.ctx.strokeStyle = "#333";
+      this.ctx.fillStyle = "#333";
+      this.ctx.strokeRect(speedo.r/1.14, -1 / 2, speedo.r/10, 1);
+      this.ctx.restore();
+    }
 
-    if (speed != ""){
-      let x = (speedo.x + speedo.r/1.4 * Math.cos(rotation));
-      let y = (speedo.y + speedo.r/1.4 * Math.sin(rotation));
-      let fontsize = speedo.r / 10;
-      this.ctx.font = fontsize + "px MuseoSans_900-webfont";
-      this.ctx.fillText(Math.round(speed), x, y);
+    if (speedo.labels){
+      if (speed != ""){
+        let x = (speedo.x + speedo.r/1.4 * Math.cos(rotation));
+        let y = (speedo.y + speedo.r/1.4 * Math.sin(rotation));
+        let fontsize = speedo.r / 10;
+        this.ctx.font = fontsize + "px MuseoSans_900-webfont";
+        this.ctx.fillText(Math.round(speed), x, y);
+      }
     }
   }
 
