@@ -10,7 +10,7 @@
 
 
   function start(){
-    xhr1.open("GET", "/sounds/motorcycle-start.mp3", true);
+    xhr1.open("GET", "https://github.com/Candas1/Hoverboard-Web-Serial-Control/blob/master/sounds/motorcycle-start.mp3?raw=true", true);
     xhr1.responseType = "arraybuffer";
     xhr1.onload = function(e){
       var audioData = this.response;
@@ -31,7 +31,7 @@
     };
     xhr1.send(); 
 
-    xhr2.open("GET", "/sounds/motorcycle-ride.mp3", true);
+    xhr2.open("GET", "https://github.com/Candas1/Hoverboard-Web-Serial-Control/blob/master/sounds/motorcycle-ride.mp3?raw=true", true);
     xhr2.responseType = "arraybuffer";
     xhr2.onload = function(e){
       var audioData = this.response;
