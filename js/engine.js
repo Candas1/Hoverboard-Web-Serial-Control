@@ -45,7 +45,7 @@
       });
       intervalId2 = setInterval(function(){
         // Map the throttle speedometer value to the playback rate
-        source2.playbackRate.value = speedo.map(speedo.speedometer.cmd2.value,speedo.speedometer.cmd2.min,speedo.speedometer.cmd2.max,rate2.min,rate2.max);
+        source2.playbackRate.value = Math.abs(speedo.map(speedo.speedometer.cmd2.value,speedo.speedometer.cmd2.min,speedo.speedometer.cmd2.max,rate2.min,rate2.max));
       }, 50);
     };
     xhr2.send(); 

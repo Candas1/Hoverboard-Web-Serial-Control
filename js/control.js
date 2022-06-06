@@ -5,6 +5,7 @@ class Control {
     this.ctx = cnv.getContext('2d');
     this.channel = new Array(14).fill(0);
     this.font = "Consolas";
+    this.gamepad = null;
 
     this.protocol = "off";
     this.inputs = {};
@@ -27,10 +28,14 @@ class Control {
     this.initCanvas();
 
     ['mousedown','mouseup','mousemove','touchstart','touchmove','touchend'].forEach( evt => 
-       this.cnv.addEventListener(evt, this.handleEvents.bind(this), false));
+       this.cnv.addEventListener(evt, this.handleEvents.bind(this), false)
+    );
 
     // Update screen if new data   
     telemetry.addEventListener("update", this.updateScreen.bind(this), false);
+    window.addEventListener("gamepadconnected", this.gamepadHandler.bind(this), false);
+    window.addEventListener("gamepaddisconnected", this.gamepadHandler.bind(this), false);
+  
   }
 
   handleEvents(event){
@@ -110,6 +115,27 @@ class Control {
     }
 
     this.mixer();
+    this.display();
+  }
+
+  gamepadHandler(event) {
+    if (event.type == "gamepadconnected") {
+      this.gamepad = navigator.getGamepads()[event.gamepad.index];
+      console.log("Gamepad connected at index %d : %s. %d buttons, %d axes.",
+      this.gamepad.index, this.gamepad.id, this.gamepad.buttons.length, this.gamepad.axes.length);
+      this.gamepadInterval = setInterval(this.readGamepad.bind(this),50); 
+    } else {
+      this.gamepad = null;
+      console.log("Gamepad disconnected");
+      clearInterval(this.gamepadInterval);
+    }
+  }
+
+  readGamepad(){
+    this.inputs["JOY1"].normx = Math.round(navigator.getGamepads()[0].axes[0].toFixed(4) * 1000);
+    this.inputs["JOY1"].normy = Math.round(navigator.getGamepads()[0].axes[1].toFixed(4) * -1000);
+    this.inputs["JOY2"].normx = Math.round(navigator.getGamepads()[0].axes[2].toFixed(4) * 1000);
+    this.inputs["JOY2"].normy = Math.round(navigator.getGamepads()[0].axes[3].toFixed(4) * -1000);
     this.display();
   }
 
@@ -350,6 +376,10 @@ class Control {
 
     // Display Screen
     this.updateScreen();
+
+    if (this.gamepad != null){
+      this.ctx.fillText("🎮" , 50 , 100);
+    }
   }
 
   updateScreen(){
