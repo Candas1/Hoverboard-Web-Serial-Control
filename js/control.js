@@ -49,6 +49,7 @@ class Control {
   }
 
   handleEvents(event){
+
     if (!this.hold){
       this.initPos();
     }
@@ -149,6 +150,7 @@ class Control {
     this.inputs["JOY1"].normy = Math.round(gamepad.axes[1].toFixed(4) * -1000);
     this.inputs["JOY2"].normx = Math.round(gamepad.axes[2].toFixed(4) * 1000);
     this.inputs["JOY2"].normy = Math.round(gamepad.axes[3].toFixed(4) * -1000);
+    this.mixer();
     this.display();
   }
 
