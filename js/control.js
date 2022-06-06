@@ -35,7 +35,17 @@ class Control {
     telemetry.addEventListener("update", this.updateScreen.bind(this), false);
     window.addEventListener("gamepadconnected", this.gamepadHandler.bind(this), false);
     window.addEventListener("gamepaddisconnected", this.gamepadHandler.bind(this), false);
-  
+    window.addEventListener("visibilitychange", this.visibilityChanged.bind(this), false);
+    
+  }
+
+  visibilityChanged(event){
+    // Handle cases when the window is not visible anymore, reset joysticks
+    if (document.visibilityState != 'visible'){
+      this.initPos();
+      this.initJoysticks();
+      this.clicked = false;
+    }
   }
 
   handleEvents(event){
@@ -128,19 +138,17 @@ class Control {
       this.gamepad = null;
       console.log("Gamepad disconnected");
       clearInterval(this.gamepadInterval);
-      this.inputs["JOY1"].normx = 0;
-      this.inputs["JOY1"].normy = 0;
-      this.inputs["JOY2"].normx = 0;
-      this.inputs["JOY2"].normy = 0;
-      this.display();  
+      this.initJoysticks();  
     }
   }
 
   readGamepad(){
-    this.inputs["JOY1"].normx = Math.round(navigator.getGamepads()[0].axes[0].toFixed(4) * 1000);
-    this.inputs["JOY1"].normy = Math.round(navigator.getGamepads()[0].axes[1].toFixed(4) * -1000);
-    this.inputs["JOY2"].normx = Math.round(navigator.getGamepads()[0].axes[2].toFixed(4) * 1000);
-    this.inputs["JOY2"].normy = Math.round(navigator.getGamepads()[0].axes[3].toFixed(4) * -1000);
+    // Poll Gamepad value and update Joysticks
+    var gamepad = navigator.getGamepads()[0];
+    this.inputs["JOY1"].normx = Math.round(gamepad.axes[0].toFixed(4) * 1000);
+    this.inputs["JOY1"].normy = Math.round(gamepad.axes[1].toFixed(4) * -1000);
+    this.inputs["JOY2"].normx = Math.round(gamepad.axes[2].toFixed(4) * 1000);
+    this.inputs["JOY2"].normy = Math.round(gamepad.axes[3].toFixed(4) * -1000);
     this.display();
   }
 
@@ -228,6 +236,14 @@ class Control {
         this.inputs[key].y = this.inputs[key].posy;
       }
     }
+  }
+
+  initJoysticks(){
+    this.inputs["JOY1"].normx = 0;
+    this.inputs["JOY1"].normy = 0;
+    this.inputs["JOY2"].normx = 0;
+    this.inputs["JOY2"].normy = 0;
+    this.display();
   }
 
   setPos(){
