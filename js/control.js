@@ -128,6 +128,7 @@ class Control {
       this.gamepad = null;
       console.log("Gamepad disconnected");
       clearInterval(this.gamepadInterval);
+      this.display();
     }
   }
 
