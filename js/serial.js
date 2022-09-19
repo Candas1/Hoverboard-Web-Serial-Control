@@ -333,7 +333,7 @@ class Serial {
       return true;
     }else{
       // If first word doesn't contain semi-colon, no need to parse it
-      if (words[0].split(":").length == 1){
+      if (/^.*[:]-?\d+$/.test(words[0]) == false){
         log.write(string,3);
         return true;
       }
