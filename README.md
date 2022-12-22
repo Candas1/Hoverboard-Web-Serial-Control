@@ -95,7 +95,8 @@ This mode is not working with BLE yet because of limitation of message size (20 
 
 * Terminal view
   * [X] Possibility to select a different protocol for sending and receiving (e.g. sending UART binary but receiving ASCII debug
-  * [] Auto autoscroll
+  * [X] Auto autoscroll
+  * [ ] App is freezing when returning to the terminal view and too many logs accumulated
 
 * Chart view
   * [X] Hidding a chart variable in subplot mode should hide the corresponding axis also
@@ -106,10 +107,10 @@ This mode is not working with BLE yet because of limitation of message size (20 
   * [X] Switches for sideboard/ibus protocol
   * [ ] Hold mode to hold command even after release of the joystick during tests
 
-* Dash view
-  * [] Power consumption missing from FOC firmware
-  * [] Battery capacity in %
-  * [] Setting for wheel radius to have accurate speed KM/H
+* Dash view 
+  * [X] Power consumption missing from FOC firmware (alternate protocol)
+  * [ ] Battery capacity in %
+  * [ ] Setting for wheel radius to have accurate speed KM/H
   
 
 * New views
