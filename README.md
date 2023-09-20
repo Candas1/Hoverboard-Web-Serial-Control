@@ -33,6 +33,9 @@ If stats are enabled, you can visualize following information:<br>
 * Number of successful messages
 * Skipped Bytes
 * Errors
+  
+![image](https://github.com/Candas1/Hoverboard-Web-Serial-Control/assets/20670049/43498752-95e8-4e55-87ce-d24b57894339)
+
 
 In Ascii mode, commands can also be sent (can be used with [debug protocol](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Debug-Serial#debug-protocol) of FOC firmware)
 
@@ -55,9 +58,13 @@ This view let's you visualize a plot of received values:
 
 If subplots are enabled, each value will be visualized on a different axis.<br>
 
+![image](https://github.com/Candas1/Hoverboard-Web-Serial-Control/assets/20670049/744ffd27-0ce4-44e7-aaa1-9972aac1840f)
+
 ## Control
 This view will display a virtual RC remote to control the hoverboard if you use variant USART or IBUS.<br>
 You can use the mixer setting to assign the desired joystick.
+
+![image](https://github.com/Candas1/Hoverboard-Web-Serial-Control/assets/20670049/aa9290fa-19ca-4c2f-a7bd-5bb4e6df6eae)
 
 ### Protocol - Usart:
 For use when parameter CONTROL_SERIAL_USARTX is enabled in FOC Firmware, with the [USART variant](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/Variant-USART) or [DUAL INPUTS](https://github.com/EFeru/hoverboard-firmware-hack-FOC#dual-inputs).<br>
