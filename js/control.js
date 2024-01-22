@@ -109,8 +109,9 @@ class Control {
     if (this.mode == "CTRL"){
       for (let key in this.inputs){
         // Calculate normalized value
-        this.inputs[key].normx = Math.round(this.map(this.inputs[key].x,this.inputs[key].posx-this.inputs[key].r,this.inputs[key].posx+this.inputs[key].r,this.inputs[key].minx,this.inputs[key].maxx));
-        this.inputs[key].normy = Math.round(this.map(this.inputs[key].y,this.inputs[key].posy+this.inputs[key].r,this.inputs[key].posy-this.inputs[key].r,this.inputs[key].miny,this.inputs[key].maxy));
+        const sensitivityScale = 0.5;
+        this.inputs[key].normx = Math.round(this.map(this.inputs[key].x,this.inputs[key].posx-this.inputs[key].r,this.inputs[key].posx+this.inputs[key].r,this.inputs[key].minx,this.inputs[key].maxx) * sensitivityScale);
+        this.inputs[key].normy = Math.round(this.map(this.inputs[key].y,this.inputs[key].posy+this.inputs[key].r,this.inputs[key].posy-this.inputs[key].r,this.inputs[key].miny,this.inputs[key].maxy) * sensitivityScale);
 
         // If value changed, vibrate (switches)
         if (this.inputs[key].vibrate){
